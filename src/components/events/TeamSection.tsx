@@ -38,14 +38,15 @@ export function TeamSection({ team }: TeamSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="glass-card rounded-lg p-6 text-center group transition-all duration-300 hover:border-gold/50"
+              className="glass-card rounded-2xl p-6 text-center group transition-all duration-300 hover:border-gold/50 hover:-translate-y-1"
             >
-              <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gold/15 to-purple-mid/20 ring-1 ring-gold/15 group-hover:ring-gold/60 transition-all duration-300 overflow-hidden">
+              <div className="mx-auto mb-5 flex h-32 w-32 items-center justify-center rounded-full border-2 border-gold/25 bg-linear-to-br from-gold/15 via-purple-mid/20 to-purple-deep/30 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] ring-1 ring-gold/20 group-hover:ring-gold/80 transition-all duration-300 overflow-hidden sm:h-36 sm:w-36">
                 {member.image ? (
                   <img
                     src={member.image}
-                    alt=""
-                    className="h-full w-full object-cover"
+                    alt={member.name}
+                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110"
+                    style={{ objectPosition: 'center 35%' }}
                   />
                 ) : (
                   <User size={28} className="text-gold/50 group-hover:text-gold/70 transition-colors" />
