@@ -1,26 +1,259 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core brand palette — derived from Athena Summit logo */
+  --background: #0b0714;
+  --foreground: #f7f3ec;
+
+  /* Deep Royal Amethyst Spectrum */
+  --purple-deep: #140b24;
+  --purple-dark: #1f1238;
+  --purple-mid: #341e57;
+  --purple-light: #52317c;
+  --purple-glow: #7c4bb9;
+
+  /* Antique Champagne Gold Spectrum */
+  --gold: #d4af37;
+  --gold-light: #f3e5ab;
+  --gold-dark: #aa8c2c;
+  --gold-muted: #887023;
+
+  /* Cream / Off-White */
+  --cream: #f7f3ec;
+  --cream-dark: #dfd8cc;
+
+  /* Legacy compatibility */
+  --navy: #0b0714;
+  --navy-dark: #07040d;
+  --navy-light: #140b24;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-navy: var(--navy);
+  --color-navy-dark: var(--navy-dark);
+  --color-navy-light: var(--navy-light);
+  --color-purple-deep: var(--purple-deep);
+  --color-purple-dark: var(--purple-dark);
+  --color-purple-mid: var(--purple-mid);
+  --color-purple-light: var(--purple-light);
+  --color-purple-glow: var(--purple-glow);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-muted: var(--gold-muted);
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
+  --font-sans: var(--font-manrope);
+  --font-heading: var(--font-cormorant);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ─── Base Typography & Body ───────────────────────────────────────── */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.font-heading {
+  font-family: var(--font-cormorant), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  border-radius: 9999px;
+  background: var(--gold);
+  color: var(--navy);
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--gold) 35%, transparent);
+  color: var(--cream);
+}
+
+/* ─── Ambient Noise & Lighting Overlay ────────────────────────────── */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ─── Custom Scrollbar ────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0714;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #aa8c2c, #52317c);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dark) #0b0714;
+}
+
+/* ─── Luxury Animations ────────────────────────────────────────────── */
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.03); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 4s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ─── Typography & Effects ────────────────────────────────────────── */
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fff2c6 0%, #d4af37 50%, #aa8c2c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cream {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f3ec 60%, #dfd8cc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass & Velvet Cards */
+.glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(31, 18, 56, 0.65) 0%,
+    rgba(20, 11, 36, 0.45) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: 0 20px 40px -15px rgba(212, 175, 55, 0.12),
+              inset 0 1px 0 0 rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Velvet luxury card */
+.velvet-card {
+  background: radial-gradient(
+    circle at top left,
+    rgba(52, 30, 87, 0.5) 0%,
+    rgba(20, 11, 36, 0.8) 100%
+  );
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 15px 35px rgba(11, 7, 20, 0.7);
+}
+
+/* Elegant filigree line */
+.filigree-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.1) 20%,
+    rgba(212, 175, 55, 0.5) 50%,
+    rgba(212, 175, 55, 0.1) 80%,
+    transparent 100%
+  );
+  position: relative;
+}
+
+.filigree-divider::after {
+  content: "♦";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--gold);
+  font-size: 8px;
+  background: var(--background);
+  padding: 0 8px;
+  opacity: 0.7;
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(212, 175, 55, 0.25),
+    transparent
+  );
+}
+
+/* Gold badge glow */
+.gold-badge-glow {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+}
+
+/* Editorial quote mark styling */
+.editorial-quote::before {
+  content: "“";
+  font-family: var(--font-cormorant), serif;
+  font-size: 4rem;
+  line-height: 0;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: rgba(212, 175, 55, 0.15);
+  pointer-events: none;
 }
