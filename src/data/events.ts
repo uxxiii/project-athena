@@ -31,7 +31,7 @@ export const events: SummitEvent[] = [
         id: "high-table-3",
         name: "Anila Fatima",
         role: "Deputy Secretary General",
-        image: "/images/team/placeholder.png",
+        image: "/Anila.jpeg",
       },
       {
         id: "high-table-4",
