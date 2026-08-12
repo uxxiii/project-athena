@@ -65,9 +65,9 @@ export function generateApprovalEmailHtml(registration: Registration): string {
 
     <h3 style="margin-bottom: 8px; color: #f0d48c;">Next Steps & Delegate Resources</h3>
     <ul>
-      <li><strong>Rules of Procedure (RoPs):</strong> Review parliamentary guidelines and debate protocol.</li>
+      <li><strong>Mandates:</strong> https://docs.google.com/document/d/1JfSyC2axjha6tuEcZWAUmx7H89vBKMiB/edit?usp=sharing&ouid=107176384204003614650&rtpof=true&sd=true</li>
+      <li><strong>Rules of Procedure (RoPs):</strong> https://drive.google.com/file/d/1LAKqRpIpe-p48llbc92m8jHwtT9fFdTF/view?usp=sharing</li>
       <li><strong>Study Guidelines & Background Guide:</strong> Research your assigned committee agenda thoroughly.</li>
-      <li><strong>Position Paper Submission:</strong> Instructions and deadlines will be shared via email soon.</li>
     </ul>
 
     <p style="text-align: center; margin-top: 24px;">

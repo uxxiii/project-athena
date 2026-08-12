@@ -721,15 +721,17 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
                 <div className="rounded-2xl border border-gold/30 bg-linear-to-b from-purple-dark to-purple-deep p-6 text-center space-y-4 shadow-xl">
                   <div className="mx-auto w-48 h-48 rounded-xl bg-white p-3 shadow-2xl flex items-center justify-center">
-                    <div className="w-full h-full border-2 border-dashed border-purple-deep/40 rounded-lg flex flex-col items-center justify-center text-purple-deep text-center p-2">
-                      <QrCode size={44} className="text-purple-deep mb-1" />
-                      <span className="text-[10px] font-bold tracking-widest font-heading">ATHENA SUMMIT</span>
-                      <span className="text-[9px] text-purple-deep/70 font-mono">UPI PAYMENT QR</span>
-                    </div>
+                    <img
+                      src="/upi-qr.png"
+                      alt="Athena Summit UPI payment QR code"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-cream">Official UPI ID: <span className="text-gold font-mono font-bold">athena@upi</span></p>
+                    <p className="text-sm font-medium text-cream">
+                      Official UPI ID: <span className="text-gold font-mono font-bold">6202910742@fam</span>
+                    </p>
                     <p className="text-xs text-cream/50">
                       {isUnscRegistration
                         ? "Please pay once for the combined UNSC double-delegation registration and upload both receipts for verification."

@@ -10,26 +10,8 @@ interface TeamSectionProps {
 
 export function TeamSection({ team }: TeamSectionProps) {
   return (
-    <section className="py-20 relative">
-      <div className="section-divider" />
-      <div className="mx-auto max-w-7xl px-6 pt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-14"
-        >
-          <p className="text-gold/60 text-xs tracking-[0.3em] uppercase mb-4">
-            High Table
-          </p>
-          <h2 className="font-heading text-3xl md:text-4xl text-cream">
-            Organising <span className="text-gradient-gold">Committee</span>
-          </h2>
-          <p className="mt-3 text-cream/40 text-sm max-w-md mx-auto">
-            The core leadership and institutional vision behind Athena Summit
-          </p>
-        </motion.div>
-
+    <section className="py-12">
+      <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {team.map((member, i) => (
             <motion.div

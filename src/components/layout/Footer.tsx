@@ -60,7 +60,7 @@ export function Footer() {
               <div className="space-y-3 text-sm text-cream/65">
                 <div className="flex items-center gap-2">
                   <Mail size={14} className="text-gold/70" />
-                  <span>contact@projectathena.org</span>
+                  <span>official@projectathena.site</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin size={14} className="text-gold/70" />
@@ -68,7 +68,7 @@ export function Footer() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe size={14} className="text-gold/70" />
-                  <span>@projectathena</span>
+                  <span>@athena.summit</span>
                 </div>
               </div>
 

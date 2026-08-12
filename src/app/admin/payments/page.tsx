@@ -255,8 +255,8 @@ export default function AdminPaymentsPage() {
           </div>
 
           {/* Details Sidebar / Drawer */}
-          <div>
-            {selectedRegistration ? (
+          <div className="space-y-4">
+              {selectedRegistration ? (
               <div className="glass-card rounded-xl p-6 sticky top-28 space-y-6">
                 <div className="border-b border-white/10 pb-4">
                   <span className="text-[10px] uppercase tracking-wider text-gold">Delegate Details</span>

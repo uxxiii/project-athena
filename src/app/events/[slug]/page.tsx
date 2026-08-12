@@ -3,7 +3,6 @@ import { getEventBySlug } from "@/data/events";
 import { committees } from "@/data/committees";
 import { getAvailability } from "@/lib/availability";
 import { EventHero } from "@/components/events/EventHero";
-import { TeamSection } from "@/components/events/TeamSection";
 import { BrochureDownload } from "@/components/events/BrochureDownload";
 import { CommitteeCard } from "@/components/events/CommitteeCard";
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
@@ -85,7 +84,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         </div>
       </section>
 
-      <TeamSection team={event.team} />
       <BrochureDownload
         brochureUrl={event.brochureUrl}
         eventTitle={event.title}

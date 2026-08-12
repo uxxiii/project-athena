@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Menu, X, ArrowUpRight, Sparkles } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Athena" },
+  { href: "/teams", label: "Teams" },
   { href: "/events", label: "Committees & Events" },
   { href: "/contact", label: "Contact Us" },
 ];
@@ -100,7 +101,6 @@ export function Navbar() {
             <Link href="/events/athena-summit#register" className="hidden sm:block">
               <Button size="sm" className="rounded-full px-5 text-xs font-semibold uppercase tracking-wider shadow-md shadow-gold/15">
                 <span>Register Now</span>
-                <Sparkles size={13} className="text-purple-deep" />
               </Button>
             </Link>
 
@@ -143,7 +143,6 @@ export function Navbar() {
               <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)} className="mt-2">
                 <Button size="sm" className="w-full rounded-full uppercase tracking-wider text-xs">
                   Register for Summit
-                  <Sparkles size={14} />
                 </Button>
               </Link>
             </div>

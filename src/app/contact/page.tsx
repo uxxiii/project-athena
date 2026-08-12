@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MessageSquare, Send, Sparkles, Clock } from "lucide-react";
 import { Input } from "@/components/ui/Input";
@@ -11,7 +11,7 @@ const contactChannels = [
   {
     icon: Mail,
     title: "Secretariat Email",
-    detail: "contact@projectathena.org",
+    detail: "project.athena03@gmail.com",
     sub: "Official inquiries & delegate support",
   },
   {
@@ -31,7 +31,7 @@ const contactChannels = [
 export default function ContactPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFeedback("Message received by the Secretariat. We’ll respond shortly.");
   };

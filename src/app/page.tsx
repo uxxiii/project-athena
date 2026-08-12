@@ -74,6 +74,13 @@ const fadeUp = {
 export default function HomePage() {
   const [selectedCommittee, setSelectedCommittee] = useState<(typeof committeeData)[number] | null>(null);
   const [delegationCount, setDelegationCount] = useState(0);
+  const [venueCountdown, setVenueCountdown] = useState({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
+  const [venueRevealed, setVenueRevealed] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -107,6 +114,40 @@ export default function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    const revealDate = new Date(2026, 7, 18, 10, 0, 0);
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = revealDate.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setVenueRevealed(true);
+        setVenueCountdown({ days: "00", hours: "00", minutes: "00", seconds: "00" });
+        return;
+      }
+
+      const seconds = Math.floor(diff / 1000) % 60;
+      const minutes = Math.floor(diff / 1000 / 60) % 60;
+      const hours = Math.floor(diff / 1000 / 60 / 60) % 24;
+      const days = Math.floor(diff / 1000 / 60 / 60 / 24);
+
+      const pad = (value: number) => String(value).padStart(2, "0");
+
+      setVenueCountdown({
+        days: pad(days),
+        hours: pad(hours),
+        minutes: pad(minutes),
+        seconds: pad(seconds),
+      });
+    };
+
+    updateCountdown();
+    const timer = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
   return (
     <>
       {/* ─── Clean & Majestic Hero ─────────────────────────────────────────────────── */}
@@ -123,12 +164,12 @@ export default function HomePage() {
               transition={{ duration: 0.7 }}
               className="lg:col-span-7 space-y-7 text-left"
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/5 px-4 py-1.5 backdrop-blur-sm">
+            {/*  <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/5 px-4 py-1.5 backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold" />
                 <span className="text-gold text-xs font-sans tracking-[0.2em] uppercase font-medium">
                   Athena Summit • Oct 2026
                 </span>
-              </div>
+              </div> */}
 
               <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[1.05] tracking-tight">
                 Where Diplomacy
@@ -175,6 +216,50 @@ export default function HomePage() {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Venue Reveal Countdown ───────────────────────────────────────────────── */}
+      <section className="py-8 lg:py-10">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="glass-card rounded-3xl border border-gold/20 bg-purple-dark/70 shadow-2xl p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="space-y-3">
+                <p className="text-gold text-xs tracking-[0.3em] uppercase font-semibold">
+                  Venue Reveal Countdown
+                </p>
+                <h2 className="font-heading text-3xl sm:text-4xl text-cream">
+                  The venue unlocks on 18 August 2026 at 10:00 AM
+                </h2>
+                <p className="text-cream/60 max-w-2xl text-sm font-sans leading-relaxed">
+                  Stay ready for the official reveal the Secretariat will disclose the summit venue once the countdown reaches zero.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-xl">
+                {venueRevealed ? (
+                  <div className="col-span-4 rounded-3xl bg-gold/10 border border-gold/20 p-5 text-center">
+                    <p className="text-xs uppercase tracking-[0.3em] text-gold/80 font-semibold">Venue Revealed</p>
+                    <p className="mt-3 text-2xl font-heading text-cream">Check your inbox</p>
+                  </div>
+                ) : (
+                  [
+                    { label: "Days", value: venueCountdown.days },
+                    { label: "Hours", value: venueCountdown.hours },
+                    { label: "Minutes", value: venueCountdown.minutes },
+                    { label: "Seconds", value: venueCountdown.seconds },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-3xl border border-gold/15 bg-purple-deep/80 p-5 text-center">
+                      <p className="font-heading text-4xl text-cream">{item.value}</p>
+                      <p className="text-[11px] uppercase tracking-[0.35em] text-cream/50 mt-2">
+                        {item.label}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
