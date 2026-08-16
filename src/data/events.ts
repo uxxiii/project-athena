@@ -22,28 +22,10 @@ export const events: SummitEvent[] = [
         image: "/devpreeti.jpeg",
       },
       {
-        id: "high-table-2",
-        name: "Aparna Sharma",
-        role: "Secretary General",
-        image: "/Aparna.jpeg",
-      },
-      {
-        id: "high-table-3",
-        name: "Anila Fatima",
-        role: "Deputy Secretary General",
-        image: "/Anila.jpeg",
-      },
-      {
         id: "high-table-4",
         name: "Siddhant Gautam",
         role: "Chief Advisor",
         image: "/images/team/placeholder.png",
-      },
-      {
-        id: "high-table-5",
-        name: "Vaishnavi Singh",
-        role: "Director General",
-        image: "/Vaishnavi.jpeg",
       },
     ],
     registrationOpen: true,
