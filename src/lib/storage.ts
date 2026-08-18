@@ -3,13 +3,94 @@ import path from "path";
 import type { Registration } from "@/lib/types";
 import { supabase, supabaseConfig } from "@/lib/supabase-client";
 
-interface SupabaseRegistrationRow {
-  id: string;
-  data: Registration;
-}
-
 const DATA_DIR = path.join(process.cwd(), "data");
 const REGISTRATIONS_FILE = path.join(DATA_DIR, "registrations.json");
+
+function toThreeTuple(value: unknown): [string, string, string] {
+  const arr = Array.isArray(value) ? value : [];
+  return [String(arr[0] ?? ""), String(arr[1] ?? ""), String(arr[2] ?? "")] as [string, string, string];
+}
+
+function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
+  const value = row ?? {};
+  const committeePreferences: [string, string, string] = Array.isArray(value.committeePreferences)
+    ? toThreeTuple(value.committeePreferences)
+    : Array.isArray(value.committee_preferences)
+      ? toThreeTuple(value.committee_preferences)
+      : ["", "", ""];
+
+  const portfolioPreferences =
+    typeof value.portfolioPreferences === "object" && value.portfolioPreferences
+      ? (Object.fromEntries(
+          Object.entries(value.portfolioPreferences as Record<string, unknown>).map(([key, pref]) => [
+            key,
+            toThreeTuple(pref),
+          ])
+        ) as Record<string, [string, string, string]>)
+      : typeof value.portfolio_preferences === "object" && value.portfolio_preferences
+        ? (Object.fromEntries(
+            Object.entries(value.portfolio_preferences as Record<string, unknown>).map(([key, pref]) => [
+              key,
+              toThreeTuple(pref),
+            ])
+          ) as Record<string, [string, string, string]>)
+        : {};
+
+  const unscDelegatePortfolioPreferences = Array.isArray(value.unscDelegatePortfolioPreferences)
+    ? toThreeTuple(value.unscDelegatePortfolioPreferences)
+    : Array.isArray(value.unsc_delegate_portfolio_preferences)
+      ? toThreeTuple(value.unsc_delegate_portfolio_preferences)
+      : undefined;
+
+  return {
+    id: String(value.id ?? ""),
+    eventSlug: String(value.eventSlug ?? value.event_slug ?? ""),
+    name: String(value.name ?? ""),
+    phone: String(value.phone ?? value.whatsapp ?? ""),
+    email: String(value.email ?? ""),
+    classYear: String(value.classYear ?? value.class_year ?? value.year ?? ""),
+    institution: String(value.institution ?? ""),
+    committeePreferences,
+    portfolioPreferences,
+    munExperience: String(value.munExperience ?? value.mun_experience ?? ""),
+    reference: String(value.reference ?? ""),
+    paymentScreenshot: value.paymentScreenshot
+      ? String(value.paymentScreenshot)
+      : value.payment_screenshot
+        ? String(value.payment_screenshot)
+        : undefined,
+    isUnscRegistration: Boolean(
+      value.isUnscRegistration ?? value.is_unsc_registration ?? false
+    ),
+    unscDelegate:
+      value.unscDelegate && typeof value.unscDelegate === "object"
+        ? (value.unscDelegate as Registration["unscDelegate"])
+        : value.unsc_delegate && typeof value.unsc_delegate === "object"
+          ? (value.unsc_delegate as Registration["unscDelegate"])
+          : null,
+    unscDelegatePortfolioPreferences,
+    createdAt: String(value.createdAt ?? value.created_at ?? new Date().toISOString()),
+    status: (value.status as Registration["status"]) ?? "pending",
+    assignedCommittee:
+      value.assignedCommittee !== undefined
+        ? String(value.assignedCommittee)
+        : value.assigned_committee !== undefined
+          ? String(value.assigned_committee)
+          : undefined,
+    assignedPortfolio:
+      value.assignedPortfolio !== undefined
+        ? String(value.assignedPortfolio)
+        : value.assigned_portfolio !== undefined
+          ? String(value.assigned_portfolio)
+          : undefined,
+    assignedAgenda:
+      value.assignedAgenda !== undefined
+        ? String(value.assignedAgenda)
+        : value.assigned_agenda !== undefined
+          ? String(value.assigned_agenda)
+          : undefined,
+  };
+}
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -36,14 +117,21 @@ async function writeLocalRegistrations(registrations: Registration[]): Promise<v
 
 export async function readRegistrations(): Promise<Registration[]> {
   if (supabaseConfig.enabled && supabase) {
-    const client = supabase as {
-      from: (table: string) => {
-        select: (columns: string) => Promise<{ data: unknown; error: unknown }>;
+    try {
+      const client = supabase as {
+        from: (table: string) => {
+          select: (columns: string) => Promise<{ data: unknown[] | null; error: unknown }>;
+        };
       };
-    };
-    const { data, error } = await client.from("registrations").select("id, data");
-    if (!error && data) {
-      return (data as SupabaseRegistrationRow[]).map((row) => row.data);
+
+      const { data, error } = await client.from("registrations").select("*");
+      if (!error && Array.isArray(data)) {
+        return data.map((row) => normalizeRegistrationRow(row as Record<string, unknown>));
+      }
+
+      console.warn("Supabase read failed; falling back to local JSON store.", error);
+    } catch (error) {
+      console.warn("Supabase read error; falling back to local JSON store.", error);
     }
   }
 
@@ -54,26 +142,51 @@ export async function writeRegistrations(
   registrations: Registration[]
 ): Promise<void> {
   if (supabaseConfig.enabled && supabase) {
-    const client = supabase as {
-      from: (table: string) => {
-        upsert: (
-          rows: Array<{ id: string; data: Registration }>,
-          options: { onConflict: string; ignoreDuplicates: boolean }
-        ) => Promise<{ error: unknown }>;
+    try {
+      const client = supabase as unknown as {
+        from: (table: string) => {
+          upsert: (
+            rows: Array<Record<string, unknown>>,
+            options: { onConflict: string; ignoreDuplicates: boolean }
+          ) => Promise<{ error: unknown }>;
+        };
       };
-    };
-    const rows: Array<{ id: string; data: Registration }> = registrations.map((registration) => ({
-      id: registration.id,
-      data: registration,
-    }));
 
-    const { error } = await client.from("registrations").upsert(rows, {
-      onConflict: "id",
-      ignoreDuplicates: false,
-    });
+      const rows = registrations.map((registration) => ({
+        id: registration.id,
+        event_slug: registration.eventSlug,
+        name: registration.name,
+        phone: registration.phone,
+        email: registration.email,
+        class_year: registration.classYear,
+        institution: registration.institution,
+        committee_preferences: registration.committeePreferences,
+        portfolio_preferences: registration.portfolioPreferences,
+        mun_experience: registration.munExperience,
+        reference: registration.reference,
+        payment_screenshot: registration.paymentScreenshot ?? null,
+        is_unsc_registration: Boolean(registration.isUnscRegistration),
+        unsc_delegate: registration.unscDelegate ?? null,
+        unsc_delegate_portfolio_preferences: registration.unscDelegatePortfolioPreferences ?? null,
+        created_at: registration.createdAt,
+        status: registration.status,
+        assigned_committee: registration.assignedCommittee ?? null,
+        assigned_portfolio: registration.assignedPortfolio ?? null,
+        assigned_agenda: registration.assignedAgenda ?? null,
+      }));
 
-    if (!error) {
-      return;
+      const { error } = await client.from("registrations").upsert(rows, {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      });
+
+      if (!error) {
+        return;
+      }
+
+      console.warn("Supabase write failed; falling back to local JSON store.", error);
+    } catch (error) {
+      console.warn("Supabase write error; falling back to local JSON store.", error);
     }
   }
 
