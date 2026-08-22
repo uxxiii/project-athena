@@ -114,12 +114,16 @@ async function readLocalRegistrations(): Promise<Registration[]> {
 }
 
 async function writeLocalRegistrations(registrations: Registration[]): Promise<void> {
-  await ensureDataDir();
-  await fs.writeFile(
-    REGISTRATIONS_FILE,
-    JSON.stringify(registrations, null, 2),
-    "utf-8"
-  );
+  try {
+    await ensureDataDir();
+    await fs.writeFile(
+      REGISTRATIONS_FILE,
+      JSON.stringify(registrations, null, 2),
+      "utf-8"
+    );
+  } catch (err) {
+    console.warn("Local JSON store write skipped (read-only environment / Vercel serverless).", err);
+  }
 }
 
 export async function readRegistrations(): Promise<Registration[]> {
