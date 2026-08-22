@@ -10,7 +10,6 @@ import {
   Check,
   Upload,
   Loader2,
-  QrCode,
   Sparkles,
   AlertCircle,
   Award,
@@ -784,6 +783,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                       type="file"
                       accept="image/*"
                       className="hidden"
+                      suppressHydrationWarning
                       onChange={handleFileUpload}
                     />
                   </label>

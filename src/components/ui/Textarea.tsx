@@ -24,6 +24,7 @@ export function Textarea({
       )}
       <textarea
         id={inputId}
+        suppressHydrationWarning
         className={cn(
           "w-full rounded-sm border border-white/10 bg-navy-light/50 px-4 py-2.5 text-cream placeholder:text-cream/30 outline-none transition-colors focus:border-gold/50 focus:ring-1 focus:ring-gold/30 min-h-[100px] resize-y",
           error && "border-red-400/50",

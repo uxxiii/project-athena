@@ -22,6 +22,12 @@ export const events: SummitEvent[] = [
         image: "/devpreeti.jpeg",
       },
       {
+        id: "high-table-2",
+        name: "Saanwi Gupta",
+        role: "Secretary General",
+        image: "/Saanwi.jpeg",
+      },
+      {
         id: "high-table-4",
         name: "Siddhant Gautam",
         role: "Chief Advisor",

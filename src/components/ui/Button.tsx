@@ -45,7 +45,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button className={classes} suppressHydrationWarning {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}>
       {children}
     </button>
   );

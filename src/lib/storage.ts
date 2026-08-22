@@ -138,9 +138,56 @@ export async function readRegistrations(): Promise<Registration[]> {
   return readLocalRegistrations();
 }
 
+function stringToNumericId(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return Math.abs(hash) || 1;
+}
+
+function mapRegistrationToRow(registration: Registration, useNumericId = false): Record<string, unknown> {
+  let rawId: string | number = registration.id;
+  if (useNumericId) {
+    if (typeof rawId === "string" && !/^\d+$/.test(rawId)) {
+      rawId = stringToNumericId(rawId);
+    } else {
+      rawId = Number(rawId) || stringToNumericId(String(rawId));
+    }
+  }
+
+  return {
+    id: rawId,
+    event_slug: registration.eventSlug,
+    name: registration.name,
+    phone: registration.phone,
+    email: registration.email,
+    class_year: registration.classYear,
+    institution: registration.institution,
+    committee_preferences: registration.committeePreferences,
+    portfolio_preferences: registration.portfolioPreferences,
+    mun_experience: registration.munExperience,
+    reference: registration.reference,
+    payment_screenshot: registration.paymentScreenshot ?? null,
+    is_unsc_registration: Boolean(registration.isUnscRegistration),
+    unsc_delegate: registration.unscDelegate ?? null,
+    unsc_delegate_portfolio_preferences: registration.unscDelegatePortfolioPreferences ?? null,
+    created_at: registration.createdAt,
+    status: registration.status,
+    assigned_committee: registration.assignedCommittee ?? null,
+    assigned_portfolio: registration.assignedPortfolio ?? null,
+    assigned_agenda: registration.assignedAgenda ?? null,
+  };
+}
+
 export async function writeRegistrations(
   registrations: Registration[]
 ): Promise<void> {
+  // Always update local file as backup & immediate local sync
+  await writeLocalRegistrations(registrations);
+
   if (supabaseConfig.enabled && supabase) {
     try {
       const client = supabase as unknown as {
@@ -152,33 +199,27 @@ export async function writeRegistrations(
         };
       };
 
-      const rows = registrations.map((registration) => ({
-        id: registration.id,
-        event_slug: registration.eventSlug,
-        name: registration.name,
-        phone: registration.phone,
-        email: registration.email,
-        class_year: registration.classYear,
-        institution: registration.institution,
-        committee_preferences: registration.committeePreferences,
-        portfolio_preferences: registration.portfolioPreferences,
-        mun_experience: registration.munExperience,
-        reference: registration.reference,
-        payment_screenshot: registration.paymentScreenshot ?? null,
-        is_unsc_registration: Boolean(registration.isUnscRegistration),
-        unsc_delegate: registration.unscDelegate ?? null,
-        unsc_delegate_portfolio_preferences: registration.unscDelegatePortfolioPreferences ?? null,
-        created_at: registration.createdAt,
-        status: registration.status,
-        assigned_committee: registration.assignedCommittee ?? null,
-        assigned_portfolio: registration.assignedPortfolio ?? null,
-        assigned_agenda: registration.assignedAgenda ?? null,
-      }));
-
-      const { error } = await client.from("registrations").upsert(rows, {
+      let rows = registrations.map((r) => mapRegistrationToRow(r, false));
+      let { error } = await client.from("registrations").upsert(rows, {
         onConflict: "id",
         ignoreDuplicates: false,
       });
+
+      // If Postgres returns 22P02 (invalid_text_representation for integer column), retry with numeric ID mapping
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        (error as { code?: string }).code === "22P02"
+      ) {
+        console.warn("Supabase id column is INTEGER; converting string IDs to numeric for Supabase compatibility.");
+        rows = registrations.map((r) => mapRegistrationToRow(r, true));
+        const retry = await client.from("registrations").upsert(rows, {
+          onConflict: "id",
+          ignoreDuplicates: false,
+        });
+        error = retry.error;
+      }
 
       if (!error) {
         return;
@@ -189,8 +230,6 @@ export async function writeRegistrations(
       console.warn("Supabase write error; falling back to local JSON store.", error);
     }
   }
-
-  await writeLocalRegistrations(registrations);
 }
 
 export async function addRegistration(
