@@ -31,7 +31,7 @@ export const events: SummitEvent[] = [
         id: "high-table-4",
         name: "Siddhant Gautam",
         role: "Chief Advisor",
-        image: "/images/team/placeholder.png",
+        image: "/Siddhant.jpeg",
       },
     ],
     registrationOpen: true,
