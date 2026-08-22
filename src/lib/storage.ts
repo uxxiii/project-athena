@@ -11,36 +11,48 @@ function toThreeTuple(value: unknown): [string, string, string] {
   return [String(arr[0] ?? ""), String(arr[1] ?? ""), String(arr[2] ?? "")] as [string, string, string];
 }
 
+function parseJsonIfNeeded(val: unknown): unknown {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch {
+      return val;
+    }
+  }
+  return val;
+}
+
 function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
   const value = row ?? {};
-  const committeePreferences: [string, string, string] = Array.isArray(value.committeePreferences)
-    ? toThreeTuple(value.committeePreferences)
-    : Array.isArray(value.committee_preferences)
-      ? toThreeTuple(value.committee_preferences)
-      : ["", "", ""];
 
+  const rawCommPrefs = parseJsonIfNeeded(value.committeePreferences ?? value.committee_preferences);
+  const committeePreferences: [string, string, string] = Array.isArray(rawCommPrefs)
+    ? toThreeTuple(rawCommPrefs)
+    : ["", "", ""];
+
+  const rawPortPrefs = parseJsonIfNeeded(value.portfolioPreferences ?? value.portfolio_preferences);
   const portfolioPreferences =
-    typeof value.portfolioPreferences === "object" && value.portfolioPreferences
+    typeof rawPortPrefs === "object" && rawPortPrefs
       ? (Object.fromEntries(
-          Object.entries(value.portfolioPreferences as Record<string, unknown>).map(([key, pref]) => [
+          Object.entries(rawPortPrefs as Record<string, unknown>).map(([key, pref]) => [
             key,
-            toThreeTuple(pref),
+            toThreeTuple(parseJsonIfNeeded(pref)),
           ])
         ) as Record<string, [string, string, string]>)
-      : typeof value.portfolio_preferences === "object" && value.portfolio_preferences
-        ? (Object.fromEntries(
-            Object.entries(value.portfolio_preferences as Record<string, unknown>).map(([key, pref]) => [
-              key,
-              toThreeTuple(pref),
-            ])
-          ) as Record<string, [string, string, string]>)
-        : {};
+      : {};
 
-  const unscDelegatePortfolioPreferences = Array.isArray(value.unscDelegatePortfolioPreferences)
-    ? toThreeTuple(value.unscDelegatePortfolioPreferences)
-    : Array.isArray(value.unsc_delegate_portfolio_preferences)
-      ? toThreeTuple(value.unsc_delegate_portfolio_preferences)
-      : undefined;
+  const rawUnscPortPrefs = parseJsonIfNeeded(
+    value.unscDelegatePortfolioPreferences ?? value.unsc_delegate_portfolio_preferences
+  );
+  const unscDelegatePortfolioPreferences = Array.isArray(rawUnscPortPrefs)
+    ? toThreeTuple(rawUnscPortPrefs)
+    : undefined;
+
+  const rawUnscDelegate = parseJsonIfNeeded(value.unscDelegate ?? value.unsc_delegate);
+  const unscDelegate =
+    rawUnscDelegate && typeof rawUnscDelegate === "object"
+      ? (rawUnscDelegate as Registration["unscDelegate"])
+      : null;
 
   return {
     id: String(value.id ?? ""),
@@ -62,12 +74,7 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
     isUnscRegistration: Boolean(
       value.isUnscRegistration ?? value.is_unsc_registration ?? false
     ),
-    unscDelegate:
-      value.unscDelegate && typeof value.unscDelegate === "object"
-        ? (value.unscDelegate as Registration["unscDelegate"])
-        : value.unsc_delegate && typeof value.unsc_delegate === "object"
-          ? (value.unsc_delegate as Registration["unscDelegate"])
-          : null,
+    unscDelegate,
     unscDelegatePortfolioPreferences,
     createdAt: String(value.createdAt ?? value.created_at ?? new Date().toISOString()),
     status: (value.status as Registration["status"]) ?? "pending",
