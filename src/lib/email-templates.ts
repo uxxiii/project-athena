@@ -18,7 +18,7 @@ export function generateApprovalEmailHtml(registration: Registration): string {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Athena Summit — Registration Approved & Committee Assignment</title>
+  <title>Athena Summit: Registration Approved & Committee Assignment</title>
   <style>
     body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #0f0b1d; color: #f7f2e8; margin: 0; padding: 24px; }
     .container { max-width: 640px; margin: 0 auto; background: linear-gradient(135deg, #22143a 0%, #140d24 100%); border: 1px solid #c8a24a; border-radius: 16px; padding: 32px; box-shadow: 0 12px 36px rgba(0,0,0,0.28); }
@@ -41,7 +41,7 @@ export function generateApprovalEmailHtml(registration: Registration): string {
   <div class="container">
     <div class="header">
       <h1>PROJECT ATHENA</h1>
-      <p>Athena Summit 2026 — Official Delegate Allocation Confirmation</p>
+      <p>Athena Summit 2026: Official Delegate Allocation Confirmation</p>
     </div>
 
     <p>Dear <strong>${registration.name}</strong>,</p>
@@ -90,7 +90,7 @@ export function generateRejectionEmailHtml(registration: Registration, reason?: 
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Athena Summit — Payment Verification Status</title>
+  <title>Athena Summit: Payment Verification Status</title>
   <style>
     body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #0f0b1d; color: #f7f2e8; margin: 0; padding: 24px; }
     .container { max-width: 640px; margin: 0 auto; background: linear-gradient(135deg, #22143a 0%, #140d24 100%); border: 1px solid #e35a5a; border-radius: 16px; padding: 32px; box-shadow: 0 12px 36px rgba(0,0,0,0.28); }
@@ -105,7 +105,7 @@ export function generateRejectionEmailHtml(registration: Registration, reason?: 
   <div class="container">
     <div class="header">
       <h1>PROJECT ATHENA</h1>
-      <p>Athena Summit 2026 — Payment Verification Update</p>
+      <p>Athena Summit 2026: Payment Verification Update</p>
     </div>
 
     <p>Dear <strong>${registration.name}</strong>,</p>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Target, Eye, Heart, Sparkles, Quote, Shield } from "lucide-react";
+import { Target, Eye, Heart, Quote, Shield } from "lucide-react";
 
 const values = [
   {
@@ -43,7 +43,6 @@ export default function AboutPage() {
           className="text-center space-y-5 mb-20"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-            <Sparkles size={14} className="text-gold" />
             <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
               The Institution & Ethos
             </span>

@@ -10,7 +10,6 @@ import {
   Check,
   Upload,
   Loader2,
-  Sparkles,
   AlertCircle,
   Award,
 } from "lucide-react";
@@ -245,7 +244,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
           : `${avail?.available ?? c.maxDelegates} seats available`;
         return {
           value: c.id,
-          label: `${c.name}${isFull ? " — [FULL]" : ` (${availabilityText})`}`,
+          label: `${c.name}${isFull ? " [FULL]" : ` (${availabilityText})`}`,
           disabled: isFull || exclude.includes(c.id),
         };
       });
@@ -268,7 +267,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
         availability?.portfolios[committeeId]?.[p.id]?.taken ?? false;
       return {
         value: p.id,
-        label: `${p.name}${taken ? " — [TAKEN / ASSIGNED]" : ""}`,
+        label: `${p.name}${taken ? " [TAKEN / ASSIGNED]" : ""}`,
         disabled: taken || exclude.includes(p.id),
       };
     });
@@ -358,7 +357,6 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
           className="text-center mb-12 space-y-3"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-            <Sparkles size={14} className="text-gold" />
             <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
               Athena Summit 2026 Registration Dossier
             </span>
@@ -534,7 +532,6 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                       Because the UNSC partner delegate profile is present, this registration will proceed through the UNSC double-delegation pathway and will not ask for a generic committee selection.
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gold">
-                      <Sparkles size={13} />
                       <span>Committee preference override: UNSC</span>
                     </div>
                   </div>
@@ -583,7 +580,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                       <div className="glass-card rounded-xl p-5 space-y-4">
                         <div className="border-b border-gold/15 pb-3">
                           <h4 className="font-heading text-xl text-gold">
-                            UNSC — <span className="text-cream/70 text-sm font-sans font-light">United Nations Security Council</span>
+                            UNSC : <span className="text-cream/70 text-sm font-sans font-light">United Nations Security Council</span>
                           </h4>
                           <p className="text-xs text-cream/40 mt-1">
                             Both delegates will share the same UNSC portfolio preference set.
@@ -625,7 +622,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                           <div key={committeeId} className="glass-card rounded-xl p-5 space-y-4">
                             <div className="border-b border-gold/15 pb-3">
                               <h4 className="font-heading text-xl text-gold">
-                                {committee.name} — <span className="text-cream/70 text-sm font-sans font-light">{committee.fullName}</span>
+                                {committee.name} : <span className="text-cream/70 text-sm font-sans font-light">{committee.fullName}</span>
                               </h4>
                             </div>
 
@@ -910,7 +907,6 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   ) : (
                     <>
                       <span>Submit Registration Dossier</span>
-                      <Sparkles size={16} />
                     </>
                   )}
                 </Button>

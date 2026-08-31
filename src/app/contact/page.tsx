@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageSquare, Send, Sparkles, Clock } from "lucide-react";
+import { Mail, MessageSquare, Send, Clock } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -47,7 +47,6 @@ export default function ContactPage() {
           className="text-center space-y-4 mb-16"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-            <Sparkles size={14} className="text-gold" />
             <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
               Secretariat Concierge
             </span>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Core brand palette — derived from Athena Summit logo */
+  /* Core brand palette: derived from Athena Summit logo */
   --background: #0b0714;
   --foreground: #f7f3ec;
 

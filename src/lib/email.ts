@@ -42,7 +42,7 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
       body: JSON.stringify({
         from: getSenderAddress(),
         to: [registration.email],
-        subject: `Athena Summit — Registration Approved (${registration.assignedCommittee?.toUpperCase()} / ${getDisplayPortfolioName(registration)})`,
+        subject: `Athena Summit: Registration Approved (${registration.assignedCommittee?.toUpperCase()} / ${getDisplayPortfolioName(registration)})`,
         html,
       }),
     });
@@ -81,7 +81,7 @@ export async function sendRejectionEmail(registration: Registration, reason?: st
       body: JSON.stringify({
         from: getSenderAddress(),
         to: [registration.email],
-        subject: `Athena Summit — Payment Verification Action Required`,
+        subject: `Athena Summit: Payment Verification Action Required`,
         html,
       }),
     });

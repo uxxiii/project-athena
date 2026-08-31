@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Users, Award, Gavel, Sparkles, Quote, ChevronRight, X } from "lucide-react";
+import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
 
@@ -40,7 +40,7 @@ const pillars = [
     number: "01",
     icon: Globe,
     title: "11 Specialized Assemblies",
-    desc: "From sovereign UN organs to crisis councils and domestic Indian assemblies — structured for rigorous parliamentary debate.",
+    desc: "From sovereign UN organs to crisis councils and domestic Indian assemblies, structured for rigorous parliamentary debate.",
   },
   {
     number: "02",
@@ -208,10 +208,10 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-6 text-center relative">
           <Quote size={36} className="mx-auto text-gold/30 mb-4" />
           <blockquote className="font-heading text-2xl sm:text-3xl text-cream/90 italic leading-relaxed">
-            &ldquo;Diplomacy is not merely the resolution of conflict — it is the art of giving shape to human destiny.&rdquo;
+            &ldquo;Diplomacy is not merely the resolution of conflict; it is the art of giving shape to human destiny.&rdquo;
           </blockquote>
           <p className="mt-4 text-xs tracking-[0.3em] uppercase text-gold font-medium">
-            — Project Athena Secretariat
+            Project Athena Secretariat
           </p>
         </div>
       </section>
@@ -371,7 +371,6 @@ export default function HomePage() {
 
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
               <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-heading tracking-widest uppercase">
-                <Sparkles size={14} />
                 <span>Registrations Open</span>
               </div>
 

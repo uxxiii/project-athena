@@ -9,9 +9,9 @@ export const events: SummitEvent[] = [
     date: "October 2026",
     location: "TBA",
     description:
-      "Project Athena's flagship summit — a distinguished diplomatic experience bringing together delegates from across institutions.",
+      "Project Athena's flagship summit: a distinguished diplomatic experience bringing together delegates from across institutions.",
     longDescription:
-      "The Athena Summit represents the pinnacle of collegiate diplomacy — a carefully curated summit experience designed for delegates who seek intellectual rigour, procedural excellence, and meaningful debate on pressing global issues. From crisis committees to specialized agencies, every session is crafted to challenge, inspire, and transform.",
+      "The Athena Summit represents the pinnacle of collegiate diplomacy, offering a carefully curated summit experience designed for delegates who seek intellectual rigour, procedural excellence, and meaningful debate on pressing global issues. From crisis committees to specialized agencies, every session is crafted to challenge, inspire, and transform.",
     committees: committees.map((c) => c.id),
     brochureUrl: "/brochure/athena-summit.pdf",
     team: [

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { TeamSection } from "@/components/events/TeamSection";
 import { getLatestUpcomingEvent } from "@/data/events";
 
@@ -18,7 +17,6 @@ export default function TeamsPage() {
           className="text-center mb-16 space-y-6"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-4 py-1.5">
-            <Sparkles size={14} className="text-gold" />
             <span className="text-gold/80 text-xs tracking-[0.2em] uppercase">
               Meet the Team
             </span>

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { events } from "@/data/events";
 import { EventCard } from "@/components/events/EventCard";
 
@@ -16,7 +15,6 @@ export default function EventsPage() {
           className="text-center mb-16 space-y-6"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-4 py-1.5">
-            <Sparkles size={14} className="text-gold" />
             <span className="text-gold/80 text-xs tracking-[0.2em] uppercase">
               Upcoming & Past
             </span>

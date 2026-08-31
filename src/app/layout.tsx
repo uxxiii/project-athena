@@ -18,7 +18,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "Project Athena",
   description:
-    "Project Athena — a summit platform fostering diplomatic excellence and global discourse.",
+    "Project Athena: a summit platform fostering diplomatic excellence and global discourse.",
   icons: {
     icon: "/logo.jpeg",
     shortcut: "/logo.jpeg",

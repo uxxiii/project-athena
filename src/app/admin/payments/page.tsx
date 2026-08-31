@@ -275,7 +275,7 @@ export default function AdminPaymentsPage() {
                     <div className="rounded-lg border border-gold/20 bg-purple-deep/60 p-4 space-y-2">
                       <span className="text-[10px] uppercase tracking-wider text-gold/60">Allocation</span>
                       <p className="text-sm font-heading text-gold">
-                        {selectedRegistration.assignedCommittee?.toUpperCase()} — {selectedPortfolioName}
+                        {selectedRegistration.assignedCommittee?.toUpperCase()} : {selectedPortfolioName}
                       </p>
                       <p className="text-[11px] text-cream/60 leading-relaxed bg-purple-deep p-2 rounded">
                         {selectedRegistration.assignedAgenda}
