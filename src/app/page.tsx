@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
+import { RegistrationLaunchTimer } from "@/components/registration/RegistrationLaunchTimer";
 
 const featuredCommittees = committeeData.map((committee) => ({
   name: committee.name,
@@ -123,12 +124,9 @@ export default function HomePage() {
               transition={{ duration: 0.7 }}
               className="lg:col-span-7 space-y-7 text-left"
             >
-            {/*  <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/5 px-4 py-1.5 backdrop-blur-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-                <span className="text-gold text-xs font-sans tracking-[0.2em] uppercase font-medium">
-                  Athena Summit • Oct 2026
-                </span>
-              </div> */}
+              <div className="flex flex-wrap items-center gap-3">
+                <RegistrationLaunchTimer compact />
+              </div>
 
               <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[1.05] tracking-tight">
                 Where Diplomacy

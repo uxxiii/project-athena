@@ -1,5 +1,6 @@
 import type { SummitEvent } from "@/lib/types";
 import { committees } from "./committees";
+import { isRegistrationLaunched } from "@/lib/pricing";
 
 export const events: SummitEvent[] = [
   {
@@ -34,7 +35,9 @@ export const events: SummitEvent[] = [
         image: "/Siddhant.jpeg",
       },
     ],
-    registrationOpen: true,
+    get registrationOpen() {
+      return isRegistrationLaunched();
+    },
   },
 ];
 

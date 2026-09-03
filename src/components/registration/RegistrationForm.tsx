@@ -26,6 +26,10 @@ import {
 } from "@/lib/validations";
 import type { AvailabilitySnapshot, Registration } from "@/lib/types";
 
+import { PaymentPricingBanner } from "./PaymentPricingBanner";
+import { RegistrationLaunchBanner } from "./RegistrationLaunchBanner";
+import { isRegistrationLaunched } from "@/lib/pricing";
+
 const STEPS = [
   "Personal Credentials",
   "Committee Choices",
@@ -41,9 +45,14 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   const [step, setStep] = useState(1);
+  const [isFormLaunched, setIsFormLaunched] = useState(false);
   const [availability, setAvailability] = useState<AvailabilitySnapshot | null>(
     null
   );
+
+  useEffect(() => {
+    setIsFormLaunched(isRegistrationLaunched());
+  }, []);
   const [availabilityError, setAvailabilityError] = useState<string | null>(
     null
   );
@@ -349,25 +358,29 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
       <div className="filigree-divider mb-16" />
 
       <div className="mx-auto max-w-3xl px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12 space-y-3"
-        >
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-            <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
-              Athena Summit 2026 Registration Dossier
-            </span>
-          </div>
-          <h2 className="font-heading text-4xl sm:text-5xl text-cream">
-            Delegate <span className="text-gradient-gold italic font-normal">Registration</span>
-          </h2>
-          <p className="text-cream/50 text-sm max-w-md mx-auto font-sans font-light">
-            Complete the 5 registration steps to submit your portfolio preferences and obtain immediate allocation.
-          </p>
-        </motion.div>
+        {!isFormLaunched ? (
+          <RegistrationLaunchBanner onLaunch={() => setIsFormLaunched(true)} />
+        ) : (
+          <>
+            {/* Header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12 space-y-3"
+            >
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
+                <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
+                  Athena Summit 2026 Registration Dossier
+                </span>
+              </div>
+              <h2 className="font-heading text-4xl sm:text-5xl text-cream">
+                Delegate <span className="text-gradient-gold italic font-normal">Registration</span>
+              </h2>
+              <p className="text-cream/50 text-sm max-w-md mx-auto font-sans font-light">
+                Complete the 5 registration steps to submit your portfolio preferences and obtain immediate allocation.
+              </p>
+            </motion.div>
 
         {/* Step indicator */}
         <div className="mb-12 relative px-2">
@@ -715,6 +728,9 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   </p>
                 </div>
 
+                {/* E-Commerce Early Bird Pricing Banner with Strikethrough & Countdown Timer */}
+                <PaymentPricingBanner isUnscRegistration={isUnscRegistration} />
+
                 <div className="rounded-2xl border border-gold/30 bg-linear-to-b from-purple-dark to-purple-deep p-6 text-center space-y-4 shadow-xl">
                   <div className="mx-auto w-48 h-48 rounded-xl bg-white p-3 shadow-2xl flex items-center justify-center">
                     <img
@@ -914,6 +930,8 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
             </div>
           )}
         </form>
+        </>
+        )}
       </div>
     </section>
   );

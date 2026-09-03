@@ -89,7 +89,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         eventTitle={event.title}
       />
 
-      {event.registrationOpen && <RegistrationForm eventSlug={event.slug} />}
+      <RegistrationForm eventSlug={event.slug} />
     </>
   );
 }
