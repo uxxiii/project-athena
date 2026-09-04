@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
-import { RegistrationLaunchTimer } from "@/components/registration/RegistrationLaunchTimer";
 
 const featuredCommittees = committeeData.map((committee) => ({
   name: committee.name,
@@ -125,7 +124,9 @@ export default function HomePage() {
               className="lg:col-span-7 space-y-7 text-left"
             >
               <div className="flex flex-wrap items-center gap-3">
-                <RegistrationLaunchTimer compact />
+                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-dark/80 px-4 py-1.5 text-xs text-gold-light font-mono shadow-md">
+                  <span>REGISTRATION CLOSED FOR NOW</span>
+                </div>
               </div>
 
               <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[1.05] tracking-tight">
@@ -142,7 +143,7 @@ export default function HomePage() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Button href="/events/athena-summit#register" size="lg" className="rounded-full px-8 text-xs tracking-wider uppercase font-semibold shadow-lg shadow-gold/15">
-                  <span>Register Now</span>
+                  <span>View Details</span>
                   <ArrowRight size={16} />
                 </Button>
 
@@ -369,21 +370,21 @@ export default function HomePage() {
 
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
               <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-heading tracking-widest uppercase">
-                <span>Registrations Open</span>
+                <span>Registration Opening Soon</span>
               </div>
 
               <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl text-cream leading-tight">
-                Secure Your Seat at <span className="text-gradient-gold italic font-normal">Athena Summit</span>
+                Athena Summit <span className="text-gradient-gold italic font-normal">Convening</span>
               </h2>
 
               <p className="text-cream/60 text-sm leading-relaxed font-sans font-light">
-                Committees fill in real-time based on delegate portfolio preferences. Register now to claim your first-choice portfolio.
+                Committees fill in real-time based on delegate portfolio preferences when registrations open.
               </p>
 
               <div className="pt-2">
                 <Link href="/events/athena-summit#register">
                   <Button size="lg" className="rounded-full px-10 shadow-2xl shadow-gold/25 uppercase tracking-widest text-xs font-bold py-4">
-                    <span>Register Now</span>
+                    <span>Registration Opening Soon</span>
                     <ArrowRight size={16} />
                   </Button>
                 </Link>

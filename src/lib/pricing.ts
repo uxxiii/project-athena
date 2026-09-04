@@ -12,37 +12,34 @@ export interface CommitteePricing {
 export const PRICING_CONFIG: { normal: CommitteePricing; unsc: CommitteePricing } = {
   normal: {
     label: "Normal Committee",
-    earlyBirdPrice: 1200,
+    earlyBirdPrice: 1600,
     normalPrice: 1600,
-    discountAmount: 400,
-    discountPercent: 25,
+    discountAmount: 0,
+    discountPercent: 0,
   },
   unsc: {
     label: "UNSC Double Delegation",
-    earlyBirdPrice: 2600,
+    earlyBirdPrice: 3200,
     normalPrice: 3200,
-    discountAmount: 600,
-    discountPercent: 19,
+    discountAmount: 0,
+    discountPercent: 0,
   },
 };
 
-export function isRegistrationLaunched(now: Date = new Date()): boolean {
-  const launchDate = new Date(REGISTRATION_OPEN_DATE_ISO);
-  return now.getTime() >= launchDate.getTime();
+export function isRegistrationLaunched(): boolean {
+  return false;
 }
 
-export function isEarlyBirdActive(now: Date = new Date()): boolean {
-  const deadline = new Date(EARLY_BIRD_DEADLINE_ISO);
-  return now.getTime() <= deadline.getTime();
+export function isEarlyBirdActive(): boolean {
+  return false;
 }
 
-export function getPricing(isUnsc: boolean, now: Date = new Date()) {
+export function getPricing(isUnsc: boolean) {
   const config = isUnsc ? PRICING_CONFIG.unsc : PRICING_CONFIG.normal;
-  const isEarly = isEarlyBirdActive(now);
   return {
     ...config,
-    isEarlyBird: isEarly,
-    effectivePrice: isEarly ? config.earlyBirdPrice : config.normalPrice,
+    isEarlyBird: false,
+    effectivePrice: config.normalPrice,
   };
 }
 
