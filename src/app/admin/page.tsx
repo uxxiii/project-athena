@@ -4,14 +4,28 @@ export const dynamic = "force-dynamic";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, CreditCard, Mail, Users, CheckCircle, Clock, XCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { Shield, CreditCard, Mail, Users, CheckCircle, Clock, XCircle, ArrowRight, RefreshCw, Heart } from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
 import { committees } from "@/data/committees";
 
 const ADMIN_PASSWORD = "athena-portal";
 
+type Donation = {
+  id: string;
+  donorName: string;
+  donorEmail: string;
+  donorPhone: string;
+  amount: number;
+  transactionRef: string;
+  screenshot: string | null;
+  message: string;
+  createdAt: string;
+  status: string;
+};
+
 export default function AdminPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [donations, setDonations] = useState<Donation[]>([]);
   const [availability, setAvailability] = useState<AvailabilitySnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -22,9 +36,10 @@ export default function AdminPage() {
     if (!authenticated) return;
     setLoading(true);
     try {
-      const [regRes, availRes] = await Promise.all([
+      const [regRes, availRes, donationRes] = await Promise.all([
         fetch("/api/admin/registrations"),
         fetch("/api/availability"),
+        fetch("/api/admin/donations"),
       ]);
 
       if (regRes.ok) {
@@ -35,6 +50,11 @@ export default function AdminPage() {
       if (availRes.ok) {
         const availData = await availRes.json();
         setAvailability(availData);
+      }
+
+      if (donationRes.ok) {
+        const donationData = await donationRes.json();
+        setDonations(donationData.donations || []);
       }
     } catch (err) {
       console.error("Failed to fetch admin dashboard data", err);
@@ -129,7 +149,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
           <div className="glass-card rounded-xl p-6">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-cream/40 uppercase tracking-wider">Total Registrations</span>
@@ -160,6 +180,14 @@ export default function AdminPage() {
               <XCircle size={18} className="text-red-400" />
             </div>
             <p className="font-heading text-4xl text-red-400 font-bold">{rejectedCount}</p>
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-gold/80 uppercase tracking-wider">Donations Logged</span>
+              <Heart size={18} className="text-gold" />
+            </div>
+            <p className="font-heading text-4xl text-gold font-bold">{donations.length}</p>
           </div>
         </div>
 
@@ -204,6 +232,61 @@ export default function AdminPage() {
               <CheckCircle size={14} /> Active & Automated on Approval
             </div>
           </div>
+        </div>
+
+        {/* Donation Records */}
+        <div className="glass-card rounded-xl p-6 sm:p-8 mb-12">
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h3 className="font-heading text-2xl text-gold">Donation Records</h3>
+              <p className="text-xs text-cream/40 mt-1">Live contribution details submitted through the donation page</p>
+            </div>
+            <span className="shrink-0 rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-mono text-gold">
+              {donations.length} total
+            </span>
+          </div>
+
+          {loading ? (
+            <p className="text-sm text-cream/40">Loading donation records...</p>
+          ) : donations.length === 0 ? (
+            <p className="text-sm text-cream/40">No donations have been submitted yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] text-left text-xs">
+                <thead className="border-b border-white/10 text-[10px] uppercase tracking-wider text-cream/40">
+                  <tr>
+                    <th className="pb-3 pr-4 font-medium">Donor</th>
+                    <th className="pb-3 pr-4 font-medium">Contact</th>
+                    <th className="pb-3 pr-4 font-medium">Amount</th>
+                    <th className="pb-3 pr-4 font-medium">Transaction Ref</th>
+                    <th className="pb-3 pr-4 font-medium">Message</th>
+                    <th className="pb-3 pr-4 font-medium">Receipt</th>
+                    <th className="pb-3 font-medium">Submitted</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-cream/70">
+                  {donations.map((donation) => (
+                    <tr key={donation.id}>
+                      <td className="py-4 pr-4 font-medium text-cream">{donation.donorName}</td>
+                      <td className="py-4 pr-4 leading-relaxed">
+                        <span className="block">{donation.donorEmail}</span>
+                        {donation.donorPhone && <span className="text-cream/40">{donation.donorPhone}</span>}
+                      </td>
+                      <td className="py-4 pr-4 font-mono text-gold">₹{Number(donation.amount).toLocaleString("en-IN")}</td>
+                      <td className="py-4 pr-4 font-mono text-cream/80">{donation.transactionRef}</td>
+                      <td className="max-w-52 py-4 pr-4 text-cream/50">{donation.message || "—"}</td>
+                      <td className="py-4 pr-4">
+                        {donation.screenshot ? (
+                          <a href={donation.screenshot} target="_blank" rel="noreferrer" className="text-gold hover:text-gold-light">View</a>
+                        ) : "—"}
+                      </td>
+                      <td className="py-4 whitespace-nowrap text-cream/50">{new Date(donation.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Committee Fill Rates */}

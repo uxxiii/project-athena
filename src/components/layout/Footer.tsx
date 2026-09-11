@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Globe } from "lucide-react";
+import { Mail, MapPin, Globe, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -25,7 +25,7 @@ export function Footer() {
             </div>
 
             <p className="max-w-lg text-sm text-cream/65 leading-relaxed">
-              A focused platform for registration, committee updates, and event coordination across the Athena Summit.
+              A focused platform for registration, committee updates, and event coordination across the Athena Summit. 100% of event profits support our NGO societal mission.
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2 text-sm text-cream/60">
@@ -34,8 +34,10 @@ export function Footer() {
                 <p className="text-cream/60">Athena Summit • Oct 2026</p>
               </div>
               <div>
-                <p className="font-semibold text-cream">Status</p>
-                <p className="text-cream/60">Open for delegate registration</p>
+                <p className="font-semibold text-cream">Societal Mission</p>
+                <p className="text-gold/80 flex items-center gap-1.5 font-medium">
+                  <Heart size={12} className="fill-gold/20" /> A Step Taken Together
+                </p>
               </div>
             </div>
           </div>
@@ -48,6 +50,12 @@ export function Footer() {
               <ul className="space-y-3 text-sm text-cream/65">
                 <li><Link href="/" className="hover:text-gold transition-colors">Home</Link></li>
                 <li><Link href="/about" className="hover:text-gold transition-colors">About</Link></li>
+                <li>
+                  <Link href="/donate" className="text-gold hover:underline flex items-center gap-1.5 font-medium">
+                    <Heart size={13} className="text-gold fill-gold/20" />
+                    <span>Societal Mission</span>
+                  </Link>
+                </li>
                 <li><Link href="/events" className="hover:text-gold transition-colors">Committees</Link></li>
                 <li><Link href="/events/athena-summit#register" className="hover:text-gold transition-colors">Register</Link></li>
               </ul>

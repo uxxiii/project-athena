@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X } from "lucide-react";
+import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X, Heart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
 
@@ -197,6 +197,74 @@ export default function HomePage() {
             <div>
               <p className="font-heading text-3xl sm:text-4xl text-cream">Eldr.</p>
               <p className="text-xs text-cream/50 uppercase tracking-widest mt-1">Powered By</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Societal Mission & NGO Fundraiser Spotlight ─────────────────────────── */}
+      <section className="py-20 relative overflow-hidden bg-gradient-to-b from-purple-deep/60 via-purple-dark/80 to-purple-deep/60">
+        <div className="filigree-divider mb-16" />
+        <div className="mx-auto max-w-7xl px-6 relative z-10">
+          <div className="velvet-card rounded-3xl p-8 sm:p-14 border border-gold/30 shadow-2xl relative overflow-hidden">
+            {/* Full-bleed artwork keeps the mission card visually consistent with the donation page. */}
+            <div className="absolute inset-0 pointer-events-none">
+              <Image
+                src="/girl-illustration.png"
+                alt=""
+                fill
+                className="object-cover object-[68%_center] scale-105 opacity-65"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-deep/75 via-purple-deep/20 to-purple-deep/90" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-deep via-purple-deep/85 48% to-purple-deep/10" />
+            </div>
+
+            <div className="relative z-10 max-w-2xl space-y-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-dark px-4 py-1 text-gold text-xs font-mono">
+                  <Heart size={14} className="fill-gold/20 animate-pulse" />
+                  <span>ATHENA SOCIETAL MISSION</span>
+                </div>
+                <span className="text-[10px] text-gold/90 font-mono tracking-widest uppercase bg-gold/10 px-3 py-1 rounded-full border border-gold/25">
+                  DRIVE STARTS 07 SEPT. 2026
+                </span>
+              </div>
+
+              <h2 className="font-heading text-3xl sm:text-5xl text-cream leading-tight">
+                A Step Taken <span className="text-gradient-gold italic font-normal">Together</span>
+              </h2>
+
+              <p className="text-cream/80 text-sm sm:text-base leading-relaxed font-sans font-light">
+                Alongside Athena Summit 2026, we are running a dedicated fundraiser collaborating with local NGOs on two vital fronts: <strong className="text-gold font-medium">underprivileged children&apos;s education</strong> and <strong className="text-gold font-medium">rehabilitation for marginalized women & abuse survivors</strong>.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4 border-y border-gold/15 py-4 text-xs font-sans text-cream/70">
+                <div className="flex items-start gap-2.5">
+                  <Sparkles size={16} className="text-gold shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-gold block">100% NGO Proceeds Pledge</span>
+                    <span>All event profits and contributions go directly to verified partner NGOs.</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <Sparkles size={16} className="text-gold shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-gold block">Direct UPI Remittance</span>
+                    <span>Instant contribution via official QR code & instant receipt log.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <Button href="/donate" size="lg" className="rounded-full px-8 text-xs font-bold tracking-wider uppercase shadow-xl shadow-gold/20">
+                  <span>Explore Mission & Contribute</span>
+                  <ArrowRight size={16} />
+                </Button>
+
+                <Link href="/donate#donate-now" className="text-xs text-gold hover:underline font-mono tracking-wider uppercase">
+                  Scan UPI QR Code →
+                </Link>
+              </div>
             </div>
           </div>
         </div>

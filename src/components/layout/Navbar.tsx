@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Athena" },
+  { href: "/donate", label: "Societal Mission", badge: "Fundraiser" },
   { href: "/teams", label: "Teams" },
   { href: "/events", label: "Committees & Events" },
   { href: "/contact", label: "Contact Us" },
@@ -79,11 +80,16 @@ export function Navbar() {
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "relative text-xs tracking-wider uppercase font-medium transition-all duration-300 py-1 px-1",
+                    "relative text-xs tracking-wider uppercase font-medium transition-all duration-300 py-1 px-1 flex items-center gap-1.5",
                     isActive ? "text-gold font-semibold" : "text-cream/70 hover:text-gold"
                   )}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.badge && (
+                    <span className="text-[9px] font-mono uppercase bg-gold/15 text-gold border border-gold/30 px-1.5 py-0.5 rounded-full font-bold shadow-xs">
+                      {link.badge}
+                    </span>
+                  )}
                   {isActive && (
                     <motion.div
                       layoutId="nav-glow-bar"
@@ -136,7 +142,14 @@ export function Navbar() {
                     pathname === link.href ? "text-gold" : "text-cream/70"
                   )}
                 >
-                  <span>{link.label}</span>
+                  <span className="flex items-center gap-2">
+                    {link.label}
+                    {link.badge && (
+                      <span className="text-[9px] font-mono uppercase bg-gold/20 text-gold border border-gold/30 px-1.5 py-0.5 rounded-full font-bold">
+                        {link.badge}
+                      </span>
+                    )}
+                  </span>
                   <ArrowUpRight size={14} className="text-gold/40" />
                 </Link>
               ))}
