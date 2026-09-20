@@ -124,9 +124,14 @@ export default function HomePage() {
               className="lg:col-span-7 space-y-7 text-left"
             >
               <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-dark/80 px-4 py-1.5 text-xs text-gold-light font-mono shadow-md">
-                  <span>REGISTRATION CLOSED FOR NOW</span>
-                </div>
+                <Link
+                  href="/events/mun-picnic"
+                  className="group inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs text-gold font-mono hover:bg-gold/20 transition-colors shadow-md"
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>REGISTRATION OPEN: Athena MUN Picnic (27 Sept • Buddha Smriti Park)</span>
+                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                </Link>
               </div>
 
               <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[1.05] tracking-tight">
@@ -142,13 +147,13 @@ export default function HomePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Button href="/events/athena-summit#register" size="lg" className="rounded-full px-8 text-xs tracking-wider uppercase font-semibold shadow-lg shadow-gold/15">
-                  <span>View Details</span>
+                <Button href="/events/mun-picnic" size="lg" className="rounded-full px-8 text-xs tracking-wider uppercase font-semibold shadow-lg shadow-gold/20">
+                  <span>Register: MUN Picnic (₹100)</span>
                   <ArrowRight size={16} />
                 </Button>
 
                 <Button href="/events" size="lg" variant="outline" className="rounded-full px-7 text-xs tracking-wider uppercase">
-                  <span>View Events</span>
+                  <span>Explore Events</span>
                 </Button>
               </div>
             </motion.div>

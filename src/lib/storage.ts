@@ -96,6 +96,22 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
         : value.assigned_agenda !== undefined
           ? String(value.assigned_agenda)
           : undefined,
+    rejectionReason:
+      value.rejectionReason !== undefined
+        ? String(value.rejectionReason)
+        : value.rejection_reason !== undefined
+          ? String(value.rejection_reason)
+          : undefined,
+    foodPreference:
+      value.foodPreference !== undefined
+        ? String(value.foodPreference)
+        : value.food_preference !== undefined
+          ? String(value.food_preference)
+          : undefined,
+    notes:
+      value.notes !== undefined
+        ? String(value.notes)
+        : undefined,
   };
 }
 
@@ -190,6 +206,9 @@ function mapRegistrationToRow(registration: Registration, useNumericId = false):
     assigned_committee: registration.assignedCommittee ?? null,
     assigned_portfolio: registration.assignedPortfolio ?? null,
     assigned_agenda: registration.assignedAgenda ?? null,
+    rejection_reason: registration.rejectionReason ?? null,
+    food_preference: registration.foodPreference ?? null,
+    notes: registration.notes ?? null,
   };
 }
 

@@ -28,7 +28,7 @@ export function allocateDelegate(
 
   const preferences = unscLocked
     ? ["unsc"]
-    : input.committeePreferences.filter(Boolean);
+    : (input.committeePreferences?.filter(Boolean) ?? []);
 
   for (const committeeId of preferences) {
     if (!isCommitteeAvailable(availability, committeeId)) continue;
@@ -40,7 +40,7 @@ export function allocateDelegate(
     const portfolioPrefs =
       sharedPortfolioPrefs.length > 0
         ? sharedPortfolioPrefs
-        : (input.portfolioPreferences[committeeId]?.filter(Boolean) ?? []);
+        : (input.portfolioPreferences?.[committeeId]?.filter(Boolean) ?? []);
     const available = getAvailablePortfolios(availability, committeeId);
 
     for (const portfolioId of portfolioPrefs) {

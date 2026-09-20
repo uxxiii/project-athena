@@ -26,6 +26,7 @@ export interface SummitEvent {
   title: string;
   subtitle: string;
   date: string;
+  time?: string;
   location: string;
   description: string;
   longDescription: string;
@@ -33,6 +34,12 @@ export interface SummitEvent {
   brochureUrl?: string;
   team: EventTeamMember[];
   registrationOpen: boolean;
+  price?: number;
+  capacity?: number;
+  features?: string[];
+  mapEmbedUrl?: string;
+  mapDirectionsUrl?: string;
+  eventType?: "summit" | "picnic";
 }
 
 export interface DelegateProfile {
@@ -49,14 +56,16 @@ export interface RegistrationInput {
   email: string;
   classYear: string;
   institution: string;
-  committeePreferences: [string, string, string];
-  portfolioPreferences: Record<string, [string, string, string]>;
+  committeePreferences?: [string, string, string];
+  portfolioPreferences?: Record<string, [string, string, string]>;
   munExperience: string;
   reference: string;
   paymentScreenshot?: string;
   isUnscRegistration?: boolean;
   unscDelegate?: DelegateProfile | null;
   unscDelegatePortfolioPreferences?: [string, string, string];
+  foodPreference?: string;
+  notes?: string;
 }
 
 export interface Registration extends RegistrationInput {
@@ -67,6 +76,9 @@ export interface Registration extends RegistrationInput {
   assignedCommittee?: string;
   assignedPortfolio?: string;
   assignedAgenda?: string;
+  rejectionReason?: string;
+  foodPreference?: string;
+  notes?: string;
 }
 
 export interface AvailabilitySnapshot {

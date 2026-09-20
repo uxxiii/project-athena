@@ -192,7 +192,7 @@ export default function AdminPage() {
         </div>
 
         {/* Action Quick Links */}
-        <div className="grid gap-6 md:grid-cols-2 mb-12">
+        <div className="grid gap-6 md:grid-cols-2 mb-10">
           <Link
             href="/admin/payments"
             className="glass-card rounded-xl p-8 hover:border-gold/40 transition-all duration-300 group relative overflow-hidden"
@@ -214,7 +214,7 @@ export default function AdminPage() {
               Review delegate payment screenshots, verify UPI transactions, and approve or reject submissions with instant email dispatch.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-gold group-hover:translate-x-1 transition-transform">
-              Review Payments <ArrowRight size={14} />
+              Review All Payments <ArrowRight size={14} />
             </div>
           </Link>
 
@@ -226,13 +226,114 @@ export default function AdminPage() {
               Email Automation Engine
             </h3>
             <p className="text-sm text-cream/50 mt-2 leading-relaxed">
-              Automated dispatch of official committee assignment, portfolio details, Rules of Procedure (RoPs), and study guidelines upon payment approval.
+              Automated dispatch of verified entry passes, Buddha Smriti Park directions, RoPs, and allocations upon payment verification.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-emerald-400">
               <CheckCircle size={14} /> Active & Automated on Approval
             </div>
           </div>
         </div>
+
+        {/* Dedicated MUN Picnic 100-Seat Cap Hub */}
+        {(() => {
+          const picnicRegs = registrations.filter((r) => r.eventSlug === "mun-picnic");
+          const picnicPending = picnicRegs.filter((r) => r.status === "pending").length;
+          const picnicApproved = picnicRegs.filter((r) => r.status === "approved").length;
+          const seatsRemaining = Math.max(0, 100 - picnicRegs.length);
+          const percent = Math.min(100, Math.round((picnicRegs.length / 100) * 100));
+
+          return (
+            <div className="glass-card rounded-2xl p-6 sm:p-8 mb-12 border border-gold/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-[11px] font-mono text-gold uppercase tracking-wider mb-2">
+                    <span>Event Spotlight • 27th September</span>
+                  </div>
+                  <h3 className="font-heading text-2xl text-cream">
+                    Athena MUN Picnic: <span className="text-gradient-gold">Buddha Smriti Park</span>
+                  </h3>
+                  <p className="text-xs text-cream/55 mt-1">
+                    Training Workshop + Community Potluck + Diplomacy Games • ₹100 Flat Fee
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/admin/payments?event=mun-picnic"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2 text-xs font-semibold text-purple-deep hover:bg-gold-light transition-colors shadow-md"
+                  >
+                    <CreditCard size={14} />
+                    <span>Verify Picnic Payments ({picnicPending})</span>
+                  </Link>
+
+                  <Link
+                    href="/events/mun-picnic"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-gold/30 bg-purple-deep/60 px-3.5 py-2 text-xs font-medium text-cream hover:text-gold transition-colors"
+                  >
+                    <span>View Public Page</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Progress & Stats Bar */}
+              <div className="grid sm:grid-cols-3 gap-4 mb-6">
+                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
+                  <span className="text-[11px] uppercase tracking-wider text-cream/40 font-mono block">
+                    Seats Claimed
+                  </span>
+                  <p className="font-heading text-3xl text-cream font-bold mt-1">
+                    {picnicRegs.length} <span className="text-base text-cream/40 font-normal">/ 100</span>
+                  </p>
+                  <span className="text-[11px] text-gold/80 font-mono mt-0.5 block">
+                    {seatsRemaining} Seats Remaining
+                  </span>
+                </div>
+
+                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
+                  <span className="text-[11px] uppercase tracking-wider text-amber-400/70 font-mono block">
+                    Pending Payments
+                  </span>
+                  <p className="font-heading text-3xl text-amber-400 font-bold mt-1">
+                    {picnicPending}
+                  </p>
+                  <span className="text-[11px] text-cream/40 font-mono mt-0.5 block">
+                    Awaiting receipt verification
+                  </span>
+                </div>
+
+                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
+                  <span className="text-[11px] uppercase tracking-wider text-emerald-400/70 font-mono block">
+                    Verified Passes Issued
+                  </span>
+                  <p className="font-heading text-3xl text-emerald-400 font-bold mt-1">
+                    {picnicApproved}
+                  </p>
+                  <span className="text-[11px] text-cream/40 font-mono mt-0.5 block">
+                    Pass & map dispatched
+                  </span>
+                </div>
+              </div>
+
+              {/* Capacity Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-mono text-cream/60">
+                  <span>100-Seat Cap Progress ({percent}%)</span>
+                  <span>{picnicRegs.length >= 100 ? "Cap Reached" : `${seatsRemaining} available`}</span>
+                </div>
+                <div className="h-3 w-full bg-purple-dark rounded-full overflow-hidden border border-gold/20 p-0.5">
+                  <div
+                    style={{ width: `${percent}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-gold/80 via-gold to-amber-300 transition-all duration-500"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Donation Records */}
         <div className="glass-card rounded-xl p-6 sm:p-8 mb-12">

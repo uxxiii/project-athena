@@ -24,11 +24,22 @@ import { Button } from "@/components/ui/Button";
 export default function AdminPaymentsPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const [eventFilter, setEventFilter] = useState<"all" | "mun-picnic" | "athena-summit">("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ev = urlParams.get("event");
+      if (ev === "mun-picnic" || ev === "athena-summit") {
+        setEventFilter(ev);
+      }
+    }
+  }, []);
 
   const fetchRegistrations = useCallback(async () => {
     setLoading(true);
@@ -83,15 +94,22 @@ export default function AdminPaymentsPage() {
   };
 
   const filteredRegistrations = registrations.filter((r) => {
+    if (eventFilter === "mun-picnic" && r.eventSlug !== "mun-picnic") return false;
+    if (eventFilter === "athena-summit" && r.eventSlug === "mun-picnic") return false;
+
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
       r.name.toLowerCase().includes(q) ||
       r.email.toLowerCase().includes(q) ||
       r.phone.includes(q) ||
-      r.institution.toLowerCase().includes(q)
+      r.institution.toLowerCase().includes(q) ||
+      (r.foodPreference && r.foodPreference.toLowerCase().includes(q))
     );
   });
+
+  const picnicCount = registrations.filter((r) => r.eventSlug === "mun-picnic").length;
+  const summitCount = registrations.filter((r) => r.eventSlug !== "mun-picnic").length;
 
   return (
     <div className="pt-32 pb-20">
@@ -104,15 +122,15 @@ export default function AdminPaymentsPage() {
           Back to Admin Dashboard
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-heading text-4xl text-cream">
               Payment <span className="text-gradient-gold">Verification</span>
             </h1>
-            <p className="text-sm text-cream/40 mt-1">Review uploaded UPI screenshots & dispatch allocations</p>
+            <p className="text-sm text-cream/40 mt-1">Review uploaded UPI screenshots, verify payments & trigger passes</p>
           </div>
 
-          {/* Filter Tabs */}
+          {/* Status Filter Tabs */}
           <div className="flex flex-wrap gap-2 rounded-lg bg-purple-deep/60 p-1 border border-white/5">
             {(["pending", "approved", "rejected", "all"] as const).map((tab) => (
               <button
@@ -120,7 +138,7 @@ export default function AdminPaymentsPage() {
                 onClick={() => setFilter(tab)}
                 className={`px-4 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${
                   filter === tab
-                    ? "bg-gold text-purple-deep shadow"
+                    ? "bg-gold text-purple-deep shadow font-semibold"
                     : "text-cream/60 hover:text-cream"
                 }`}
               >
@@ -130,16 +148,56 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-6 max-w-md relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-cream/40" />
-          <input
-            type="text"
-            placeholder="Search by name, email, phone, institution..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-purple-deep/40 pl-10 pr-4 py-2 text-xs text-cream outline-none focus:border-gold/50"
-          />
+        {/* Event Filter & Search Bar Row */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+          {/* Event Filter Pills */}
+          <div className="flex items-center gap-2 bg-purple-deep/40 p-1 rounded-xl border border-gold/15 text-xs">
+            <button
+              onClick={() => setEventFilter("all")}
+              className={`px-3 py-1.5 rounded-lg transition-colors font-mono ${
+                eventFilter === "all"
+                  ? "bg-gold/20 text-gold border border-gold/40 font-semibold"
+                  : "text-cream/60 hover:text-cream"
+              }`}
+            >
+              All Events ({registrations.length})
+            </button>
+            <button
+              onClick={() => setEventFilter("mun-picnic")}
+              className={`px-3 py-1.5 rounded-lg transition-colors font-mono flex items-center gap-1.5 ${
+                eventFilter === "mun-picnic"
+                  ? "bg-gold text-purple-deep font-bold"
+                  : "text-gold/80 hover:text-gold"
+              }`}
+            >
+              <span>🌳 MUN Picnic ₹100</span>
+              <span className="text-[10px] bg-purple-dark/60 px-1.5 py-0.2 rounded font-bold">
+                {picnicCount}/100
+              </span>
+            </button>
+            <button
+              onClick={() => setEventFilter("athena-summit")}
+              className={`px-3 py-1.5 rounded-lg transition-colors font-mono ${
+                eventFilter === "athena-summit"
+                  ? "bg-gold text-purple-deep font-bold"
+                  : "text-cream/60 hover:text-cream"
+              }`}
+            >
+              Athena Summit ({summitCount})
+            </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="max-w-md w-full sm:w-80 relative">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-cream/40" />
+            <input
+              type="text"
+              placeholder="Search delegate, phone, email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-purple-deep/40 pl-10 pr-4 py-2 text-xs text-cream outline-none focus:border-gold/50"
+            />
+          </div>
         </div>
 
         {/* Main Grid: Registrations List + Detail Drawer */}
@@ -153,11 +211,12 @@ export default function AdminPaymentsPage() {
               </div>
             ) : filteredRegistrations.length === 0 ? (
               <div className="glass-card rounded-xl p-12 text-center text-cream/40">
-                No registrations found for status &quot;{filter}&quot;.
+                No registrations found for status &quot;{filter}&quot; in event &quot;{eventFilter}&quot;.
               </div>
             ) : (
               filteredRegistrations.map((reg) => {
                 const isSelected = selectedRegistration?.id === reg.id;
+                const isPicnic = reg.eventSlug === "mun-picnic";
                 const committee = getCommitteeById(reg.assignedCommittee ?? "");
                 const portfolioName =
                   committee?.portfolios.find((p) => p.id === reg.assignedPortfolio)?.name ??
@@ -173,8 +232,19 @@ export default function AdminPaymentsPage() {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                       <div>
-                        <h3 className="font-heading text-lg text-cream">{reg.name}</h3>
-                        <p className="text-xs text-cream/40 flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-heading text-lg text-cream">{reg.name}</h3>
+                          {isPicnic ? (
+                            <span className="text-[10px] font-mono uppercase bg-gold/15 text-gold px-2 py-0.5 rounded border border-gold/30 font-bold">
+                              🌳 Picnic • ₹100
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono uppercase bg-purple-deep text-cream/60 px-2 py-0.5 rounded border border-white/10">
+                              Conference
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-cream/40 flex items-center gap-2 mt-0.5">
                           <Mail size={12} className="text-gold/60" /> {reg.email}
                           <span className="text-white/10">•</span>
                           <Phone size={12} className="text-gold/60" /> {reg.phone}
@@ -194,20 +264,37 @@ export default function AdminPaymentsPage() {
                       </Badge>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-white/5 mb-4">
-                      <div>
-                        <span className="text-cream/35">Committee:</span>{" "}
-                        <span className="text-gold font-heading text-sm font-medium">
-                          {committee?.name ?? reg.assignedCommittee}
-                        </span>
+                    {isPicnic ? (
+                      <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-gold/10 mb-4">
+                        <div>
+                          <span className="text-cream/40">Event / Venue:</span>{" "}
+                          <span className="text-gold font-mono font-medium block">
+                            Buddha Smriti Park (27 Sept)
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-cream/40">Potluck / Food:</span>{" "}
+                          <span className="text-cream font-medium block truncate">
+                            {reg.foodPreference || "Community Potluck"}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-cream/35">Portfolio:</span>{" "}
-                        <span className="text-cream font-medium">
-                          {portfolioName}
-                        </span>
+                    ) : (
+                      <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-white/5 mb-4">
+                        <div>
+                          <span className="text-cream/35">Committee:</span>{" "}
+                          <span className="text-gold font-heading text-sm font-medium">
+                            {committee?.name ?? reg.assignedCommittee}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-cream/35">Portfolio:</span>{" "}
+                          <span className="text-cream font-medium">
+                            {portfolioName}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center justify-between pt-2 text-xs border-t border-white/5">
                       <span className="text-cream/30 text-[10px]">
@@ -266,7 +353,25 @@ export default function AdminPaymentsPage() {
                   <p className="text-xs text-cream/40">{selectedRegistration.institution} • {selectedRegistration.classYear}</p>
                 </div>
 
-                {(() => {
+                {selectedRegistration.eventSlug === "mun-picnic" ? (
+                  <div className="rounded-lg border border-gold/20 bg-purple-deep/60 p-4 space-y-2">
+                    <span className="text-[10px] uppercase tracking-wider text-gold font-mono">
+                      🌳 MUN Picnic Entry Pass (₹100)
+                    </span>
+                    <p className="text-sm font-heading text-gold">
+                      Buddha Smriti Park, Patna
+                    </p>
+                    <div className="text-[11px] text-cream/75 leading-relaxed bg-purple-deep p-2.5 rounded space-y-1">
+                      <div>
+                        <strong className="text-cream">Potluck Dish / Food:</strong>{" "}
+                        <span className="text-gold">{selectedRegistration.foodPreference || "Community Potluck"}</span>
+                      </div>
+                      <div>
+                        <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (27th Sept)
+                      </div>
+                    </div>
+                  </div>
+                ) : (() => {
                   const selectedCommittee = getCommitteeById(selectedRegistration.assignedCommittee ?? "");
                   const selectedPortfolioName =
                     selectedCommittee?.portfolios.find(

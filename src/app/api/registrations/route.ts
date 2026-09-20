@@ -43,11 +43,59 @@ export async function POST(request: Request) {
 
     if (duplicate) {
       return NextResponse.json(
-        { error: "A registration with this email address already exists." },
+        { error: "A registration with this email address already exists for this event." },
         { status: 409 }
       );
     }
 
+    // Specialized flow for MUN Picnic: Training Workshop + Potluck + Games
+    if (data.eventSlug === "mun-picnic") {
+      const picnicRegistrations = existingRegistrations.filter(
+        (r) => r.eventSlug === "mun-picnic"
+      );
+
+      const capacity = event.capacity ?? 100;
+      if (picnicRegistrations.length >= capacity) {
+        return NextResponse.json(
+          { error: `Registration is full! The ${capacity}-seat capacity limit has been reached.` },
+          { status: 403 }
+        );
+      }
+
+      const registration: Registration = {
+        id: randomUUID(),
+        eventSlug: data.eventSlug,
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        classYear: data.classYear,
+        institution: data.institution,
+        munExperience: data.munExperience,
+        reference: data.reference,
+        paymentScreenshot: data.paymentScreenshot,
+        foodPreference: data.foodPreference,
+        notes: data.notes,
+        createdAt: new Date().toISOString(),
+        status: "pending",
+        assignedCommittee: "Training Workshop & Potluck",
+        assignedPortfolio: "Picnic Delegate Pass",
+        assignedAgenda: "MUN Training Workshop, Diplomatic Games & Community Potluck",
+      };
+
+      await addRegistration(registration);
+
+      // Trigger asynchronous/simulated submission receipt email
+      try {
+        const { sendPicnicSubmissionEmail } = await import("@/lib/email");
+        await sendPicnicSubmissionEmail(registration);
+      } catch (emailErr) {
+        console.warn("Failed to send picnic submission email:", emailErr);
+      }
+
+      return NextResponse.json({ registration }, { status: 201 });
+    }
+
+    // Default flow for Athena Summit conference committees
     const availability = await getAvailability();
     const allocation = allocateDelegate(data, availability);
 

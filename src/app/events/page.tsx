@@ -30,7 +30,7 @@ export default function EventsPage() {
           </p>
         </motion.div>
 
-        <div className="grid gap-8 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto items-stretch">
           {events.map((event, i) => (
             <EventCard key={event.slug} event={event} index={i} />
           ))}
