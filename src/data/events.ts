@@ -43,7 +43,7 @@ export const events: SummitEvent[] = [
     slug: "mun-picnic",
     title: "Athena MUN Picnic",
     subtitle: "Training Workshop • Potluck • Diplomatic Games",
-    date: "27th September",
+    date: "4th October",
     time: "12:00 PM – 5:00 PM",
     location: "Buddha Smriti Park, Patna",
     description:

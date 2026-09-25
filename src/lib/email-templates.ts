@@ -178,7 +178,7 @@ export function generatePicnicApprovalEmailHtml(registration: Registration): str
       </div>
       <div class="item">
         <div class="label">Event Date & Time</div>
-        <div class="val">Sunday, 27th September | 12:00 PM to 5:00 PM</div>
+        <div class="val">Sunday, 4th October | 12:00 PM to 5:00 PM</div>
       </div>
       <div class="item">
         <div class="label">Venue Location</div>
@@ -218,7 +218,7 @@ export function generatePicnicApprovalEmailHtml(registration: Registration): str
 
     <div class="footer">
       <p>© ${new Date().getFullYear()} Project Athena. Powered by Eldr.</p>
-      <p>Buddha Smriti Park, Patna • 27th September, 12:00 PM – 5:00 PM</p>
+      <p>Buddha Smriti Park, Patna • 4th October, 12:00 PM – 5:00 PM</p>
     </div>
   </div>
 </body>
@@ -251,13 +251,13 @@ export function generatePicnicSubmissionEmailHtml(registration: Registration): s
 
     <p>Dear <strong>${registration.name}</strong>,</p>
 
-    <p>We have successfully received your registration details and payment screenshot (₹100) for the <strong>Athena MUN Picnic</strong> on 27th September at Buddha Smriti Park.</p>
+    <p>We have successfully received your registration details and payment screenshot (₹100) for the <strong>Athena MUN Picnic</strong> on 4th October at Buddha Smriti Park.</p>
 
     <div class="card">
       <p style="margin: 4px 0;"><strong>Registration ID:</strong> ${registration.id}</p>
       <p style="margin: 4px 0;"><strong>Payment Status:</strong> Pending Verification</p>
       <p style="margin: 4px 0;"><strong>Venue:</strong> Buddha Smriti Park, Patna</p>
-      <p style="margin: 4px 0;"><strong>Date & Time:</strong> 27th September, 12:00 PM – 5:00 PM</p>
+      <p style="margin: 4px 0;"><strong>Date & Time:</strong> 4th October, 12:00 PM – 5:00 PM</p>
     </div>
 
     <p>Our Secretariat team will verify your payment and send your official entry pass shortly.</p>

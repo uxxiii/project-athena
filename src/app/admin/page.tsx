@@ -249,7 +249,7 @@ export default function AdminPage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-[11px] font-mono text-gold uppercase tracking-wider mb-2">
-                    <span>Event Spotlight • 27th September</span>
+                    <span>Event Spotlight • 4th October</span>
                   </div>
                   <h3 className="font-heading text-2xl text-cream">
                     Athena MUN Picnic: <span className="text-gradient-gold">Buddha Smriti Park</span>

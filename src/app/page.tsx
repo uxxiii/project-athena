@@ -129,7 +129,7 @@ export default function HomePage() {
                   className="group inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs text-gold font-mono hover:bg-gold/20 transition-colors shadow-md"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>REGISTRATION OPEN: Athena MUN Picnic (27 Sept • Buddha Smriti Park)</span>
+                  <span>REGISTRATION OPEN: Athena MUN Picnic (4 Oct • Buddha Smriti Park)</span>
                   <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>

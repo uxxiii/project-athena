@@ -39,7 +39,7 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
   if (!apiKey) {
     console.log(`[EMAIL SIMULATION] Sending Approval Email to ${registration.email}`);
     if (isPicnic) {
-      console.log(`Event: MUN Picnic, Venue: Buddha Smriti Park, Time: 12PM-5PM, Date: 27 Sept`);
+      console.log(`Event: MUN Picnic, Venue: Buddha Smriti Park, Time: 12PM-5PM, Date: 4 Oct`);
     } else {
       console.log(`Committee: ${registration.assignedCommittee}, Portfolio: ${getDisplayPortfolioName(registration)}`);
     }
@@ -122,7 +122,7 @@ export async function sendRejectionEmail(registration: Registration, reason?: st
 
 export async function sendPicnicSubmissionEmail(registration: Registration): Promise<EmailResult> {
   const html = generatePicnicSubmissionEmailHtml(registration);
-  const subject = `Athena MUN Picnic: Registration Received (27th Sept, Buddha Smriti Park)`;
+  const subject = `Athena MUN Picnic: Registration Received (4th Oct, Buddha Smriti Park)`;
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {

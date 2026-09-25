@@ -18,7 +18,7 @@ export function PicnicMapSection({
   address = "Frazer Road, Near Patna Junction, Patna, Bihar 800001",
   mapEmbedUrl = "https://maps.google.com/maps?q=Buddha+Smriti+Park+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
   mapDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=Buddha+Smriti+Park+Patna",
-  date = "Sunday, 27th September",
+  date = "Sunday, 4th October",
   time = "12:00 PM – 5:00 PM",
 }: PicnicMapSectionProps) {
   return (

@@ -38,7 +38,7 @@ export function PicnicRegistrationForm() {
     seatsRemaining: 100,
     isFull: false,
     registrationOpen: true,
-    date: "27th September",
+    date: "4th October",
     time: "12:00 PM – 5:00 PM",
     location: "Buddha Smriti Park, Patna",
     price: 100,
@@ -283,7 +283,7 @@ export function PicnicRegistrationForm() {
                 </div>
                 <div className="flex justify-between border-b border-gold/15 pb-2">
                   <span className="text-gold">Date & Time:</span>
-                  <span>27th September | 12:00 PM – 5:00 PM</span>
+                  <span>4th October | 12:00 PM – 5:00 PM</span>
                 </div>
                 <div className="flex justify-between border-b border-gold/15 pb-2">
                   <span className="text-gold">Venue:</span>

@@ -269,7 +269,7 @@ export default function AdminPaymentsPage() {
                         <div>
                           <span className="text-cream/40">Event / Venue:</span>{" "}
                           <span className="text-gold font-mono font-medium block">
-                            Buddha Smriti Park (27 Sept)
+                            Buddha Smriti Park (4 Oct)
                           </span>
                         </div>
                         <div>
@@ -367,7 +367,7 @@ export default function AdminPaymentsPage() {
                         <span className="text-gold">{selectedRegistration.foodPreference || "Community Potluck"}</span>
                       </div>
                       <div>
-                        <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (27th Sept)
+                        <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (4th Oct)
                       </div>
                     </div>
                   </div>

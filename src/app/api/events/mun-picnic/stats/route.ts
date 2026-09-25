@@ -28,7 +28,7 @@ export async function GET() {
       seatsRemaining,
       isFull,
       registrationOpen: Boolean(event?.registrationOpen) && !isFull,
-      date: event?.date ?? "27th September",
+      date: event?.date ?? "4th October",
       time: event?.time ?? "12:00 PM – 5:00 PM",
       location: event?.location ?? "Buddha Smriti Park, Patna",
       price: event?.price ?? 100,

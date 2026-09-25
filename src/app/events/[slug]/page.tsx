@@ -113,7 +113,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 </div>
                 <h3 className="font-heading text-xl text-cream">5 Hours of Action</h3>
                 <p className="text-xs text-cream/60 leading-relaxed">
-                  Packed schedule from 12:00 PM to 5:00 PM on Sunday, 27th September at the iconic Buddha Smriti Park, Patna.
+                  Packed schedule from 12:00 PM to 5:00 PM on Sunday, 4th October at the iconic Buddha Smriti Park, Patna.
                 </p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div className="text-center mb-10 space-y-2">
                 <p className="text-gold/70 text-xs font-mono tracking-widest uppercase">Event Timeline</p>
                 <h3 className="font-heading text-2xl sm:text-3xl text-cream">
-                  Schedule for <span className="text-gradient-gold">27th September</span>
+                  Schedule for <span className="text-gradient-gold">4th October</span>
                 </h3>
               </div>
 
