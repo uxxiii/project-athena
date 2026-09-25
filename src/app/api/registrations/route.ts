@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { registrationApiSchema } from "@/lib/api-schemas";
 import { getAvailability } from "@/lib/availability";
 import { allocateDelegate } from "@/lib/allocation";
 import { addRegistration, readRegistrations } from "@/lib/storage";
 import { getCommitteeById } from "@/data/committees";
 import { getEventBySlug } from "@/data/events";
+import { generateSequentialRegistrationId } from "@/lib/registration-id";
 import type { Registration } from "@/lib/types";
 
 export async function POST(request: Request) {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       }
 
       const registration: Registration = {
-        id: randomUUID(),
+        id: generateSequentialRegistrationId(data.eventSlug, existingRegistrations),
         eventSlug: data.eventSlug,
         name: data.name,
         phone: data.phone,
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     const committee = getCommitteeById(allocation.committeeId);
 
     const registration: Registration = {
-      id: randomUUID(),
+      id: generateSequentialRegistrationId(data.eventSlug, existingRegistrations),
       eventSlug: data.eventSlug,
       name: data.name,
       phone: data.phone,
