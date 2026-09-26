@@ -5,7 +5,6 @@ import { getAvailability } from "@/lib/availability";
 import { EventHero } from "@/components/events/EventHero";
 import { BrochureDownload } from "@/components/events/BrochureDownload";
 import { CommitteeCard } from "@/components/events/CommitteeCard";
-import { TeamSection } from "@/components/events/TeamSection";
 import { PicnicMapSection } from "@/components/events/PicnicMapSection";
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
 import { PicnicRegistrationForm } from "@/components/registration/PicnicRegistrationForm";
@@ -239,7 +238,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               Committees & <span className="text-gradient-gold">Agendas</span>
             </h2>
             <p className="text-cream/45 text-sm max-w-lg mx-auto">
-              Real-time seat availability across all 11 committees. Select your top 3 preferences during registration.
+              Real-time seat availability across all {eventCommittees.length} committees. Select your top 3 preferences during registration.
             </p>
           </div>
 
@@ -262,10 +261,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       />
 
       <RegistrationForm eventSlug={event.slug} />
-
-      {event.team && event.team.length > 0 && (
-        <TeamSection team={event.team} />
-      )}
     </>
   );
 }

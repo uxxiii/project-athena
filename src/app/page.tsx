@@ -24,22 +24,26 @@ const featuredCommittees = committeeData.map((committee) => ({
             ? "Global Human Rights"
             : committee.name === "UNHRC"
               ? "International Law"
-              : committee.name === "DISEC"
+              : committee.name === "UNGA-DISEC" || committee.name === "DISEC"
                 ? "Security Affairs"
                 : committee.name === "AIPPM"
                   ? "Indian Governance"
                   : committee.name === "BLA"
                     ? "State Governance"
-                    : committee.name === "UNW"
-                      ? "Gender & Tech"
-                      : "Transnational Crime",
+                    : committee.name === "Lok Sabha"
+                      ? "Indian Parliament"
+                      : committee.name === "JPC"
+                        ? "Parliamentary Committee"
+                        : committee.name === "UNW"
+                          ? "Gender & Tech"
+                          : "Transnational Crime",
 }));
 
 const pillars = [
   {
     number: "01",
     icon: Globe,
-    title: "11 Specialized Assemblies",
+    title: `${committeeData.length} Specialized Assemblies`,
     desc: "From sovereign UN organs to crisis councils and domestic Indian assemblies, structured for rigorous parliamentary debate.",
   },
   {
@@ -188,7 +192,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <p className="font-heading text-3xl sm:text-4xl text-gold">11</p>
+              <p className="font-heading text-3xl sm:text-4xl text-gold">{committeeData.length}</p>
               <p className="text-xs text-cream/50 uppercase tracking-widest mt-1">Committees</p>
             </div>
             <div>
@@ -357,7 +361,7 @@ export default function HomePage() {
                 Featured <span className="text-gradient-gold italic font-normal">Committees</span>
               </h2>
               <p className="text-cream/50 text-sm max-w-xl font-sans font-light">
-                11 prestigious committees spanning global security, human rights, national governance, and specialized press.
+                {committeeData.length} prestigious committees spanning global security, human rights, national governance, and specialized press.
               </p>
             </div>
 

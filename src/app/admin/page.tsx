@@ -394,7 +394,7 @@ export default function AdminPage() {
         <div className="glass-card rounded-xl p-8 space-y-6">
           <div>
             <h3 className="font-heading text-2xl text-gold">Committee Fill Rates</h3>
-            <p className="text-xs text-cream/40 mt-1">Live seat allocation statistics across all 11 committees</p>
+            <p className="text-xs text-cream/40 mt-1">Live seat allocation statistics across all {committees.length} committees</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
