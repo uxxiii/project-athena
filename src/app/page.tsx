@@ -129,11 +129,11 @@ export default function HomePage() {
             >
               <div className="flex flex-wrap items-center gap-3">
                 <Link
-                  href="/events/mun-picnic"
+                  href="/events/athena-summit"
                   className="group inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs text-gold font-mono hover:bg-gold/20 transition-colors shadow-md"
                 >
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>REGISTRATION OPEN: Athena MUN Picnic (4 Oct • Buddha Smriti Park)</span>
+                  <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+                  <span>ATHENA SUMMIT 2026 • REGISTRATION OPENING SOON</span>
                   <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
@@ -151,8 +151,8 @@ export default function HomePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Button href="/events/mun-picnic" size="lg" className="rounded-full px-8 text-xs tracking-wider uppercase font-semibold shadow-lg shadow-gold/20">
-                  <span>Register: MUN Picnic (₹100)</span>
+                <Button href="/events/athena-summit" size="lg" className="rounded-full px-8 text-xs tracking-wider uppercase font-semibold shadow-lg shadow-gold/20">
+                  <span>Explore Athena Summit</span>
                   <ArrowRight size={16} />
                 </Button>
 
