@@ -6,6 +6,8 @@ import { supabase, supabaseConfig } from "@/lib/supabase-client";
 const DATA_DIR = path.join(process.cwd(), "data");
 const REGISTRATIONS_FILE = path.join(DATA_DIR, "registrations.json");
 
+let cachedSupportsExtendedColumns: boolean | null = null;
+
 function toThreeTuple(value: unknown): [string, string, string] {
   const arr = Array.isArray(value) ? value : [];
   return [String(arr[0] ?? ""), String(arr[1] ?? ""), String(arr[2] ?? "")] as [string, string, string];
@@ -31,15 +33,23 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
     : ["", "", ""];
 
   const rawPortPrefs = parseJsonIfNeeded(value.portfolioPreferences ?? value.portfolio_preferences);
-  const portfolioPreferences =
-    typeof rawPortPrefs === "object" && rawPortPrefs
-      ? (Object.fromEntries(
-          Object.entries(rawPortPrefs as Record<string, unknown>).map(([key, pref]) => [
-            key,
-            toThreeTuple(parseJsonIfNeeded(pref)),
-          ])
-        ) as Record<string, [string, string, string]>)
-      : {};
+  let meta: Record<string, unknown> | undefined;
+  let portfolioPreferences: Record<string, [string, string, string]> = {};
+
+  if (typeof rawPortPrefs === "object" && rawPortPrefs) {
+    const obj = rawPortPrefs as Record<string, unknown>;
+    if ("_meta" in obj && typeof obj._meta === "object" && obj._meta) {
+      meta = obj._meta as Record<string, unknown>;
+    }
+    const cleanObj = { ...obj };
+    delete cleanObj._meta;
+    portfolioPreferences = Object.fromEntries(
+      Object.entries(cleanObj).map(([key, pref]) => [
+        key,
+        toThreeTuple(parseJsonIfNeeded(pref)),
+      ])
+    );
+  }
 
   const rawUnscPortPrefs = parseJsonIfNeeded(
     value.unscDelegatePortfolioPreferences ?? value.unsc_delegate_portfolio_preferences
@@ -54,8 +64,40 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
       ? (rawUnscDelegate as Registration["unscDelegate"])
       : null;
 
+  // Restore sequential formatted string ID (e.g. ATH-PICNIC-001) if preserved in _meta
+  const restoredId = meta?.registrationCode
+    ? String(meta.registrationCode)
+    : String(value.id ?? "");
+
+  const foodPreference =
+    value.foodPreference !== undefined
+      ? String(value.foodPreference)
+      : value.food_preference !== undefined
+        ? String(value.food_preference)
+        : meta?.foodPreference !== undefined
+          ? String(meta.foodPreference)
+          : undefined;
+
+  const notes =
+    value.notes !== undefined
+      ? String(value.notes)
+      : value.notes_text !== undefined
+        ? String(value.notes_text)
+        : meta?.notes !== undefined
+          ? String(meta.notes)
+          : undefined;
+
+  const rejectionReason =
+    value.rejectionReason !== undefined
+      ? String(value.rejectionReason)
+      : value.rejection_reason !== undefined
+        ? String(value.rejection_reason)
+        : meta?.rejectionReason !== undefined
+          ? String(meta.rejectionReason)
+          : undefined;
+
   return {
-    id: String(value.id ?? ""),
+    id: restoredId,
     eventSlug: String(value.eventSlug ?? value.event_slug ?? ""),
     name: String(value.name ?? ""),
     phone: String(value.phone ?? value.whatsapp ?? ""),
@@ -96,22 +138,9 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
         : value.assigned_agenda !== undefined
           ? String(value.assigned_agenda)
           : undefined,
-    rejectionReason:
-      value.rejectionReason !== undefined
-        ? String(value.rejectionReason)
-        : value.rejection_reason !== undefined
-          ? String(value.rejection_reason)
-          : undefined,
-    foodPreference:
-      value.foodPreference !== undefined
-        ? String(value.foodPreference)
-        : value.food_preference !== undefined
-          ? String(value.food_preference)
-          : undefined,
-    notes:
-      value.notes !== undefined
-        ? String(value.notes)
-        : undefined,
+    rejectionReason,
+    foodPreference,
+    notes,
   };
 }
 
@@ -153,7 +182,16 @@ export async function readRegistrations(): Promise<Registration[]> {
 
       const { data, error } = await client.from("registrations").select("*");
       if (!error && Array.isArray(data)) {
-        return data.map((row) => normalizeRegistrationRow(row as Record<string, unknown>));
+        // Exclude fallback donation records
+        const list = data
+          .filter((row: unknown) => (row as Record<string, unknown>).event_slug !== "donation")
+          .map((row) => normalizeRegistrationRow(row as Record<string, unknown>));
+
+        // Background sync to local JSON
+        if (list.length > 0) {
+          writeLocalRegistrations(list).catch(() => {});
+        }
+        return list;
       }
 
       console.warn("Supabase read failed; falling back to local JSON store.", error);
@@ -162,7 +200,8 @@ export async function readRegistrations(): Promise<Registration[]> {
     }
   }
 
-  return readLocalRegistrations();
+  const local = await readLocalRegistrations();
+  return local.filter((r) => r.eventSlug !== "donation");
 }
 
 function stringToNumericId(str: string): number {
@@ -175,18 +214,44 @@ function stringToNumericId(str: string): number {
   return Math.abs(hash) || 1;
 }
 
-function mapRegistrationToRow(registration: Registration, useNumericId = false): Record<string, unknown> {
-  let rawId: string | number = registration.id;
-  if (useNumericId) {
-    if (typeof rawId === "string" && !/^\d+$/.test(rawId)) {
-      rawId = stringToNumericId(rawId);
-    } else {
-      rawId = Number(rawId) || stringToNumericId(String(rawId));
-    }
+export function registrationIdToInteger(id: string | number): number {
+  if (typeof id === "number" && Number.isInteger(id)) return id;
+  const strId = String(id);
+  const match = strId.match(/^ATH-(?:(PICNIC|SUMMIT)|[A-Z0-9]+)-(\d+)$/i);
+  if (match) {
+    const isPicnic = /picnic/i.test(match[1] || strId);
+    const num = parseInt(match[2], 10);
+    return isPicnic ? 200000 + num : 100000 + num;
   }
+  if (/^\d+$/.test(strId)) {
+    const n = Number(strId);
+    if (!isNaN(n) && n > 0 && n < 2147483647) return n;
+  }
+  return (stringToNumericId(strId) % 1000000000) || 1;
+}
 
-  return {
-    id: rawId,
+function mapRegistrationToRow(
+  registration: Registration,
+  includeExtendedColumns = true
+): Record<string, unknown> {
+  const numericId = registrationIdToInteger(registration.id);
+
+  const existingPrefs =
+    registration.portfolioPreferences && typeof registration.portfolioPreferences === "object"
+      ? { ...registration.portfolioPreferences }
+      : {};
+
+  // Store metadata inside portfolio_preferences._meta so it is ALWAYS preserved in PostgreSQL
+  // even if specific columns (food_preference, notes, rejection_reason) do not exist yet
+  const meta: Record<string, unknown> = {
+    registrationCode: registration.id,
+    ...(registration.foodPreference ? { foodPreference: registration.foodPreference } : {}),
+    ...(registration.notes ? { notes: registration.notes } : {}),
+    ...(registration.rejectionReason ? { rejectionReason: registration.rejectionReason } : {}),
+  };
+
+  const row: Record<string, unknown> = {
+    id: numericId,
     event_slug: registration.eventSlug,
     name: registration.name,
     phone: registration.phone,
@@ -194,7 +259,10 @@ function mapRegistrationToRow(registration: Registration, useNumericId = false):
     class_year: registration.classYear,
     institution: registration.institution,
     committee_preferences: registration.committeePreferences,
-    portfolio_preferences: registration.portfolioPreferences,
+    portfolio_preferences: {
+      ...existingPrefs,
+      _meta: meta,
+    },
     mun_experience: registration.munExperience,
     reference: registration.reference,
     payment_screenshot: registration.paymentScreenshot ?? null,
@@ -206,10 +274,15 @@ function mapRegistrationToRow(registration: Registration, useNumericId = false):
     assigned_committee: registration.assignedCommittee ?? null,
     assigned_portfolio: registration.assignedPortfolio ?? null,
     assigned_agenda: registration.assignedAgenda ?? null,
-    rejection_reason: registration.rejectionReason ?? null,
-    food_preference: registration.foodPreference ?? null,
-    notes: registration.notes ?? null,
   };
+
+  if (includeExtendedColumns) {
+    row.rejection_reason = registration.rejectionReason ?? null;
+    row.food_preference = registration.foodPreference ?? null;
+    row.notes = registration.notes ?? null;
+  }
+
+  return row;
 }
 
 export async function writeRegistrations(
@@ -229,26 +302,29 @@ export async function writeRegistrations(
         };
       };
 
-      let rows = registrations.map((r) => mapRegistrationToRow(r, false));
+      const tryWithExtended = cachedSupportsExtendedColumns !== false;
+      let rows = registrations.map((r) => mapRegistrationToRow(r, tryWithExtended));
       let { error } = await client.from("registrations").upsert(rows, {
         onConflict: "id",
         ignoreDuplicates: false,
       });
 
-      // If Postgres returns 22P02 (invalid_text_representation for integer column), retry with numeric ID mapping
+      // If PostgREST reports column missing (PGRST204), fallback to inserting without extended columns
       if (
         error &&
         typeof error === "object" &&
         "code" in error &&
-        (error as { code?: string }).code === "22P02"
+        (error as { code?: string }).code === "PGRST204"
       ) {
-        console.warn("Supabase id column is INTEGER; converting string IDs to numeric for Supabase compatibility.");
-        rows = registrations.map((r) => mapRegistrationToRow(r, true));
+        cachedSupportsExtendedColumns = false;
+        rows = registrations.map((r) => mapRegistrationToRow(r, false));
         const retry = await client.from("registrations").upsert(rows, {
           onConflict: "id",
           ignoreDuplicates: false,
         });
         error = retry.error;
+      } else if (!error && tryWithExtended) {
+        cachedSupportsExtendedColumns = true;
       }
 
       if (!error) {

@@ -462,7 +462,7 @@ export default function AdminPaymentsPage() {
                   <p className="text-cream/80 font-medium">{selectedRegistration.reference}</p>
                 </div>
 
-                {selectedRegistration.paymentScreenshot && (
+                {selectedRegistration.paymentScreenshot ? (
                   <div className="space-y-2">
                     <span className="text-xs text-cream/40 block">Uploaded Payment Receipt:</span>
                     <div
@@ -481,6 +481,13 @@ export default function AdminPaymentsPage() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-300 space-y-1">
+                    <span className="font-semibold block">⚠️ No Payment Receipt Attached</span>
+                    <p className="text-amber-200/70 text-[11px] leading-relaxed">
+                      This registration was recovered from email dispatch records. Please verify their ₹100 payment via your UPI app transaction history matching their name, or reach out to their email.
+                    </p>
                   </div>
                 )}
               </div>
