@@ -37,7 +37,7 @@ export function PicnicRegistrationForm() {
     registeredCount: 0,
     seatsRemaining: 100,
     isFull: false,
-    registrationOpen: true,
+    registrationOpen: false,
     date: "4th October",
     time: "12:00 PM – 5:00 PM",
     location: "Buddha Smriti Park, Patna",
@@ -321,8 +321,54 @@ export function PicnicRegistrationForm() {
           )}
         </AnimatePresence>
 
-        {/* The Registration Form */}
-        {!confirmedRegistration && (
+        {/* The Registration Form — or Coming Soon banner if closed */}
+        {!confirmedRegistration && !stats.registrationOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl glass-card border border-gold/30 p-8 sm:p-12 text-center space-y-6 shadow-2xl relative overflow-hidden"
+          >
+            <div className="absolute -top-16 -right-16 w-56 h-56 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-purple-mid/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative space-y-5">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold ring-2 ring-gold/30">
+                <Sparkles size={30} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-mono uppercase tracking-widest">
+                  <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+                  <span>Opening Soon</span>
+                </div>
+                <h3 className="font-heading text-2xl sm:text-3xl text-cream">
+                  Registrations Will Open <span className="text-gradient-gold">Shortly</span>
+                </h3>
+                <p className="text-sm text-cream/60 max-w-md mx-auto leading-relaxed">
+                  We&apos;re preparing the registration portal for the Athena MUN Picnic. Stay tuned — registrations will be live very soon!
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-3 max-w-lg mx-auto pt-2">
+                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
+                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Date</span>
+                  <span className="text-gold font-heading text-sm">{stats.date}</span>
+                </div>
+                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
+                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Venue</span>
+                  <span className="text-gold font-heading text-sm">Buddha Smriti Park</span>
+                </div>
+                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
+                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Entry Fee</span>
+                  <span className="text-gold font-heading text-sm">₹{stats.price}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {!confirmedRegistration && stats.registrationOpen && (
           <form onSubmit={handleSubmit} className="space-y-8" suppressHydrationWarning>
             <div className="grid lg:grid-cols-12 gap-8 items-start">
               {/* Left Column: Delegate Details */}

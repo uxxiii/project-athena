@@ -84,7 +84,7 @@ export const events: SummitEvent[] = [
         image: "/Siddhant.jpeg",
       },
     ],
-    registrationOpen: true,
+    registrationOpen: false,
   },
 ];
 
