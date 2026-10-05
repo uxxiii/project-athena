@@ -43,13 +43,13 @@ export const events: SummitEvent[] = [
     slug: "mun-picnic",
     title: "Athena MUN Picnic",
     subtitle: "Training Workshop • Potluck • Diplomatic Games",
-    date: "4th October",
+    date: "11th October",
     time: "12:00 PM – 5:00 PM",
-    location: "Buddha Smriti Park, Patna",
+    location: "Energy Park, Patna",
     description:
       "An immersive diplomatic gathering featuring a high-impact MUN training workshop, community potluck lunch, and interactive diplomacy simulation games.",
     longDescription:
-      "Project Athena cordially invites delegates, MUN enthusiasts, and aspiring diplomats to our MUN Picnic at Buddha Smriti Park, Patna. This special one-day experience blends intensive procedural training, resolution drafting tactics, and unmoderated caucus simulations with a delightful shared community potluck and lively diplomatic games. Strictly capped at 100 seats to ensure close mentorship and personal interaction.",
+      "Project Athena cordially invites delegates, MUN enthusiasts, and aspiring diplomats to our MUN Picnic at Energy Park, Patna. This special one-day experience blends intensive procedural training, resolution drafting tactics, and unmoderated caucus simulations with a delightful shared community potluck and lively diplomatic games. Strictly capped at 100 seats to ensure close mentorship and personal interaction.",
     committees: [],
     price: 100,
     capacity: 100,
@@ -61,9 +61,9 @@ export const events: SummitEvent[] = [
       "Official Project Athena Delegate Participation Pass",
     ],
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=Buddha+Smriti+Park+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "https://maps.google.com/maps?q=Energy+Park+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
     mapDirectionsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Buddha+Smriti+Park+Patna",
+      "https://www.google.com/maps/search/?api=1&query=Energy+Park+Patna",
     team: [
       {
         id: "picnic-team-1",

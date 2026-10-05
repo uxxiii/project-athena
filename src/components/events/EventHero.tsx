@@ -159,7 +159,7 @@ export function EventHero({ event }: EventHeroProps) {
               <div className="space-y-1">
                 <p className="text-xs text-cream/70 font-sans">
                   {event.slug === "mun-picnic"
-                    ? "Registrations are live for the Athena MUN Picnic at Buddha Smriti Park! Limited to 100 seats."
+                    ? "Registrations are live for the Athena MUN Picnic at Energy Park! Limited to 100 seats."
                     : "Delegate registrations are opening soon! Portfolios will be allocated on a first-come basis upon launch."}
                 </p>
               </div>

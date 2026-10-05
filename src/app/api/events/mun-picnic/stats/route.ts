@@ -28,9 +28,9 @@ export async function GET() {
       seatsRemaining,
       isFull,
       registrationOpen: Boolean(event?.registrationOpen) && !isFull,
-      date: event?.date ?? "4th October",
+      date: event?.date ?? "11th October",
       time: event?.time ?? "12:00 PM – 5:00 PM",
-      location: event?.location ?? "Buddha Smriti Park, Patna",
+      location: event?.location ?? "Energy Park, Patna",
       price: event?.price ?? 100,
     });
   } catch (error) {

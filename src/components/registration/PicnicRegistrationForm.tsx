@@ -38,9 +38,9 @@ export function PicnicRegistrationForm() {
     seatsRemaining: 100,
     isFull: false,
     registrationOpen: false,
-    date: "4th October",
+    date: "11th October",
     time: "12:00 PM – 5:00 PM",
-    location: "Buddha Smriti Park, Patna",
+    location: "Energy Park, Patna",
     price: 100,
   });
 
@@ -283,11 +283,11 @@ export function PicnicRegistrationForm() {
                 </div>
                 <div className="flex justify-between border-b border-gold/15 pb-2">
                   <span className="text-gold">Date & Time:</span>
-                  <span>4th October | 12:00 PM – 5:00 PM</span>
+                  <span>11th October | 12:00 PM – 5:00 PM</span>
                 </div>
                 <div className="flex justify-between border-b border-gold/15 pb-2">
                   <span className="text-gold">Venue:</span>
-                  <span>Buddha Smriti Park, Patna</span>
+                  <span>Energy Park, Patna</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gold">Payment Verification:</span>
@@ -301,7 +301,7 @@ export function PicnicRegistrationForm() {
 
               <div className="pt-2 flex justify-center gap-4">
                 <Button
-                  href="https://maps.google.com/?q=Buddha+Smriti+Park+Patna"
+                  href="https://maps.google.com/?q=Energy+Park+Patna"
                   target="_blank"
                   rel="noopener noreferrer"
                   size="md"
@@ -357,7 +357,7 @@ export function PicnicRegistrationForm() {
                 </div>
                 <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
                   <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Venue</span>
-                  <span className="text-gold font-heading text-sm">Buddha Smriti Park</span>
+                  <span className="text-gold font-heading text-sm">Energy Park</span>
                 </div>
                 <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
                   <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Entry Fee</span>

@@ -31,7 +31,7 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
     : generateApprovalEmailHtml(registration);
 
   const subject = isPicnic
-    ? `Athena MUN Picnic: Official Delegate Entry Pass Confirmed (Buddha Smriti Park)`
+    ? `Athena MUN Picnic: Official Delegate Entry Pass Confirmed (Energy Park)`
     : `Athena Summit: Registration Approved (${registration.assignedCommittee?.toUpperCase()} / ${getDisplayPortfolioName(registration)})`;
 
   const apiKey = process.env.RESEND_API_KEY;
@@ -39,7 +39,7 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
   if (!apiKey) {
     console.log(`[EMAIL SIMULATION] Sending Approval Email to ${registration.email}`);
     if (isPicnic) {
-      console.log(`Event: MUN Picnic, Venue: Buddha Smriti Park, Time: 12PM-5PM, Date: 4 Oct`);
+      console.log(`Event: MUN Picnic, Venue: Energy Park, Time: 12PM-5PM, Date: 11 Oct`);
     } else {
       console.log(`Committee: ${registration.assignedCommittee}, Portfolio: ${getDisplayPortfolioName(registration)}`);
     }
@@ -122,7 +122,7 @@ export async function sendRejectionEmail(registration: Registration, reason?: st
 
 export async function sendPicnicSubmissionEmail(registration: Registration): Promise<EmailResult> {
   const html = generatePicnicSubmissionEmailHtml(registration);
-  const subject = `Athena MUN Picnic: Registration Received (4th Oct, Buddha Smriti Park)`;
+  const subject = `Athena MUN Picnic: Registration Received (11th Oct, Energy Park)`;
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {

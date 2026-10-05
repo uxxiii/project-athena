@@ -112,7 +112,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 </div>
                 <h3 className="font-heading text-xl text-cream">5 Hours of Action</h3>
                 <p className="text-xs text-cream/60 leading-relaxed">
-                  Packed schedule from 12:00 PM to 5:00 PM on Sunday, 4th October at the iconic Buddha Smriti Park, Patna.
+                  Packed schedule from 12:00 PM to 5:00 PM on Sunday, 11th October at Energy Park, Patna.
                 </p>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div className="text-center mb-10 space-y-2">
                 <p className="text-gold/70 text-xs font-mono tracking-widest uppercase">Event Timeline</p>
                 <h3 className="font-heading text-2xl sm:text-3xl text-cream">
-                  Schedule for <span className="text-gradient-gold">4th October</span>
+                  Schedule for <span className="text-gradient-gold">11th October</span>
                 </h3>
               </div>
 
@@ -183,13 +183,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
         </section>
 
-        {/* Buddha Smriti Park Location & Map */}
+        {/* Energy Park Location & Map */}
         <PicnicMapSection
-          venueName="Buddha Smriti Park"
-          address="Frazer Road, Near Patna Junction, Patna, Bihar 800001"
+          venueName="Energy Park"
+          address="Road No. 1, North Patel Nagar, East Patel Nagar, Adarsh Colony, Rajbansi Nagar, Patna, Bihar 800023"
           mapEmbedUrl={event.mapEmbedUrl}
           mapDirectionsUrl={event.mapDirectionsUrl}
-          date={event.date}
+          date={`Sunday, ${event.date}`}
           time={event.time}
         />
 

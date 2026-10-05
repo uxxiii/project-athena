@@ -269,7 +269,7 @@ export default function AdminPaymentsPage() {
                         <div>
                           <span className="text-cream/40">Event / Venue:</span>{" "}
                           <span className="text-gold font-mono font-medium block">
-                            Buddha Smriti Park (4 Oct)
+                            Energy Park (11 Oct)
                           </span>
                         </div>
                         <div>
@@ -359,7 +359,7 @@ export default function AdminPaymentsPage() {
                       🌳 MUN Picnic Entry Pass (₹100)
                     </span>
                     <p className="text-sm font-heading text-gold">
-                      Buddha Smriti Park, Patna
+                      Energy Park, Patna
                     </p>
                     <div className="text-[11px] text-cream/75 leading-relaxed bg-purple-deep p-2.5 rounded space-y-1">
                       <div>
@@ -367,7 +367,7 @@ export default function AdminPaymentsPage() {
                         <span className="text-gold">{selectedRegistration.foodPreference || "Community Potluck"}</span>
                       </div>
                       <div>
-                        <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (4th Oct)
+                        <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (11th Oct)
                       </div>
                     </div>
                   </div>

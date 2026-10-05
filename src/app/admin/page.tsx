@@ -226,7 +226,7 @@ export default function AdminPage() {
               Email Automation Engine
             </h3>
             <p className="text-sm text-cream/50 mt-2 leading-relaxed">
-              Automated dispatch of verified entry passes, Buddha Smriti Park directions, RoPs, and allocations upon payment verification.
+              Automated dispatch of verified entry passes, Energy Park directions, RoPs, and allocations upon payment verification.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-emerald-400">
               <CheckCircle size={14} /> Active & Automated on Approval
@@ -249,10 +249,10 @@ export default function AdminPage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-[11px] font-mono text-gold uppercase tracking-wider mb-2">
-                    <span>Event Spotlight • 4th October</span>
+                    <span>Event Spotlight • 11th October</span>
                   </div>
                   <h3 className="font-heading text-2xl text-cream">
-                    Athena MUN Picnic: <span className="text-gradient-gold">Buddha Smriti Park</span>
+                    Athena MUN Picnic: <span className="text-gradient-gold">Energy Park</span>
                   </h3>
                   <p className="text-xs text-cream/55 mt-1">
                     Training Workshop + Community Potluck + Diplomacy Games • ₹100 Flat Fee

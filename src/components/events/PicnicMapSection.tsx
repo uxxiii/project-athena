@@ -14,11 +14,11 @@ interface PicnicMapSectionProps {
 }
 
 export function PicnicMapSection({
-  venueName = "Buddha Smriti Park",
-  address = "Frazer Road, Near Patna Junction, Patna, Bihar 800001",
-  mapEmbedUrl = "https://maps.google.com/maps?q=Buddha+Smriti+Park+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
-  mapDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=Buddha+Smriti+Park+Patna",
-  date = "Sunday, 4th October",
+  venueName = "Energy Park",
+  address = "Road No. 1, North Patel Nagar, East Patel Nagar, Adarsh Colony, Rajbansi Nagar, Patna, Bihar 800023",
+  mapEmbedUrl = "https://maps.google.com/maps?q=Energy+Park+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+  mapDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=Energy+Park+Patna",
+  date = "Sunday, 11th October",
   time = "12:00 PM – 5:00 PM",
 }: PicnicMapSectionProps) {
   return (
@@ -38,7 +38,7 @@ export function PicnicMapSection({
           </h2>
 
           <p className="text-cream/60 text-sm sm:text-base leading-relaxed">
-            Nestled in the heart of Patna right next to Patna Junction, Buddha Smriti Park offers lush open lawns, tranquil stupa ambiance, and the perfect backdrop for outdoor diplomatic debate, unmoderated caucuses, and a shared community potluck.
+            Surrounded by serene greenery in Patna, Energy Park offers vibrant open lawns, eco-friendly spaces, and the perfect backdrop for outdoor diplomatic debate, unmoderated caucuses, and a shared community potluck.
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export function PicnicMapSection({
                   <Sparkles size={18} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="text-xs uppercase tracking-wider text-gold/60 font-mono block">Key Landmark</span>
-                    <span className="text-cream/80">Opposite Patna Junction Railway Station (Walking distance)</span>
+                    <span className="text-cream/80">Near Rajbansi Nagar & Patel Nagar (Easily accessible via Bailey Road)</span>
                   </div>
                 </div>
               </div>
@@ -148,15 +148,15 @@ export function PicnicMapSection({
             <div className="bg-purple-deep/95 px-5 py-3 border-b border-gold/20 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-cream font-mono font-medium">Live Pin: Buddha Smriti Park</span>
+                <span className="text-cream font-mono font-medium">Live Pin: {venueName}</span>
               </div>
-              <span className="text-gold/70 font-mono text-[11px]">Latitude 25.6042° N, 85.1350° E</span>
+              <span className="text-gold/70 font-mono text-[11px]">Latitude 25.6080° N, 85.0995° E</span>
             </div>
 
             {/* Map Frame */}
             <div className="relative flex-1 w-full h-full min-h-[380px]">
               <iframe
-                title="Buddha Smriti Park Location Map"
+                title={`${venueName} Location Map`}
                 src={mapEmbedUrl}
                 width="100%"
                 height="100%"
