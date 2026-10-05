@@ -386,10 +386,10 @@ export function generatePicnicApprovalEmailHtml(registration: Registration): str
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #160a2b; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 24px; padding: 14px 18px;">
                 <tr>
                   <td style="padding: 6px 0; font-size: 13px; color: #ede3fd; line-height: 1.6;">
-                    <strong style="color: #f0d48c;">12:00 PM – 1:30 PM:</strong> Hands-on MUN Training & Parliamentary Procedures<br/>
-                    <strong style="color: #f0d48c;">1:30 PM – 2:45 PM:</strong> Delegate Networking & Shared Community Potluck Lunch<br/>
-                    <strong style="color: #f0d48c;">2:45 PM – 4:30 PM:</strong> Interactive Diplomacy Simulation Games & Crisis Scenarios<br/>
-                    <strong style="color: #f0d48c;">4:30 PM – 5:00 PM:</strong> Group Photos, Secretariat Feedback & Delegate Passes
+                    <strong style="color: #f0d48c;">12:00 PM – 2:00 PM:</strong> Clause 4: Learn — Training Workshop by Eldr Education<br/>
+                    <strong style="color: #f0d48c;">2:00 PM – 3:00 PM:</strong> Clause 1: Eat — Community Potluck Lunch<br/>
+                    <strong style="color: #f0d48c;">3:00 PM – 4:30 PM:</strong> Clause 2: Play & Clause 3: Network — Interactive Games & Crisis Scenarios<br/>
+                    <strong style="color: #f0d48c;">4:30 PM – 5:00 PM:</strong> Signatories & Wrap-up: Photos, Official Passes & Awards (No vetoes accepted!)
                   </td>
                 </tr>
               </table>

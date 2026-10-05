@@ -37,7 +37,7 @@ export function PicnicRegistrationForm() {
     registeredCount: 0,
     seatsRemaining: 100,
     isFull: false,
-    registrationOpen: false,
+    registrationOpen: true,
     date: "11th October",
     time: "12:00 PM – 5:00 PM",
     location: "Energy Park, Patna",
@@ -182,17 +182,17 @@ export function PicnicRegistrationForm() {
       <div className="mx-auto max-w-5xl px-6">
         {/* Section Title */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-mono uppercase tracking-widest">
-            <Sparkles size={14} className="text-gold" />
-            <span>Secure Your Pass</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1 text-emerald-300 text-xs font-mono uppercase tracking-widest">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Official Notice • Registration Live 🌿</span>
           </div>
 
           <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl text-cream">
             Register for <span className="text-gradient-gold">MUN Picnic</span>
           </h2>
 
-          <p className="text-cream/60 text-sm sm:text-base leading-relaxed">
-            Training workshop, diplomacy games, and a community potluck. All included for just ₹100.
+          <p className="text-cream/70 text-sm sm:text-base leading-relaxed">
+            Official notice: we&apos;re touching grass. 🌿 Training by Eldr Education, potluck, games & networking. All 4 clauses included for just ₹100.
           </p>
         </div>
 
@@ -288,6 +288,10 @@ export function PicnicRegistrationForm() {
                 <div className="flex justify-between border-b border-gold/15 pb-2">
                   <span className="text-gold">Venue:</span>
                   <span>Energy Park, Patna</span>
+                </div>
+                <div className="flex justify-between border-b border-gold/15 pb-2">
+                  <span className="text-gold">Signatories:</span>
+                  <span className="text-emerald-400">Signed (No vetoes accepted)</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gold">Payment Verification:</span>

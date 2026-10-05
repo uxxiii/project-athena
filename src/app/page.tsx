@@ -129,11 +129,19 @@ export default function HomePage() {
             >
               <div className="flex flex-wrap items-center gap-3">
                 <Link
+                  href="/events/mun-picnic"
+                  className="group inline-flex items-center gap-2 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-4 py-1.5 text-xs text-emerald-300 font-mono hover:bg-emerald-500/20 transition-colors shadow-md ring-1 ring-emerald-500/30"
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>MUN PICNIC (11TH OCT) • REGISTRATION LIVE 🌿</span>
+                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+                <Link
                   href="/events/athena-summit"
                   className="group inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs text-gold font-mono hover:bg-gold/20 transition-colors shadow-md"
                 >
                   <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
-                  <span>ATHENA SUMMIT 2026 • REGISTRATION OPENING SOON</span>
+                  <span>ATHENA SUMMIT 2026 • OPENING SOON</span>
                   <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
