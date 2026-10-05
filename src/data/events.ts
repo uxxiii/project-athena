@@ -46,6 +46,12 @@ export const events: SummitEvent[] = [
         role: "Advisor",
         image: "/manav-mitra.jpeg",
       },
+      {
+        id: "high-table-6",
+        name: "Swara Sinha",
+        role: "Advisor",
+        image: "/Swara Sinha.jpeg",
+      },
     ],
     get registrationOpen() {
       return isRegistrationLaunched();
@@ -106,6 +112,12 @@ export const events: SummitEvent[] = [
         name: "Manav Mitra",
         role: "Advisor",
         image: "/manav-mitra.jpeg",
+      },
+      {
+        id: "picnic-team-6",
+        name: "Swara Sinha",
+        role: "Advisor",
+        image: "/Swara Sinha.jpeg",
       },
     ],
     registrationOpen: true,

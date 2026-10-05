@@ -82,7 +82,7 @@ export function TeamSection({ team }: TeamSectionProps) {
   const president = team.find((m) => m.role.toLowerCase() === "president");
   const secGen = team.find((m) => m.role.toLowerCase().includes("secretary general"));
   const chiefAdvisor = team.find((m) => m.role.toLowerCase().includes("chief advisor"));
-  const advisor = team.find(
+  const advisors = team.filter(
     (m) =>
       m.role.toLowerCase().includes("advisor") &&
       !m.role.toLowerCase().includes("chief")
@@ -90,7 +90,7 @@ export function TeamSection({ team }: TeamSectionProps) {
 
   // Grouped executive and advisory pairs
   const executiveTier = [president, secGen].filter(Boolean) as EventTeamMember[];
-  const advisoryTier = [chiefAdvisor, advisor].filter(Boolean) as EventTeamMember[];
+  const advisoryTier = [chiefAdvisor, ...advisors].filter(Boolean) as EventTeamMember[];
 
   return (
     <section className="py-8 relative">
@@ -194,8 +194,8 @@ export function TeamSection({ team }: TeamSectionProps) {
                 </div>
               </div>
 
-              {/* Symmetrical 2-Column Mid-Aligned Branch */}
-              <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 max-w-2xl mx-auto">
+              {/* Symmetrical 3-Column Mid-Aligned Branch */}
+              <div className="grid sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
                 {advisoryTier.map((member) => (
                   <LeaderCard key={member.id} member={member} size="md" />
                 ))}
