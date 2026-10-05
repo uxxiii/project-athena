@@ -14,9 +14,9 @@ export async function GET() {
       (r) => r.eventSlug === "mun-picnic"
     );
 
-    const registeredCount = picnicRegistrations.length;
     const approvedCount = picnicRegistrations.filter((r) => r.status === "approved").length;
     const pendingCount = picnicRegistrations.filter((r) => r.status === "pending").length;
+    const registeredCount = approvedCount + pendingCount;
     const seatsRemaining = Math.max(0, totalCapacity - registeredCount);
     const isFull = registeredCount >= totalCapacity;
 

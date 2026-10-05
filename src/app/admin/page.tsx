@@ -236,7 +236,8 @@ export default function AdminPage() {
 
         {/* Dedicated MUN Picnic 100-Seat Cap Hub */}
         {(() => {
-          const picnicRegs = registrations.filter((r) => r.eventSlug === "mun-picnic");
+          const allPicnicRegs = registrations.filter((r) => r.eventSlug === "mun-picnic");
+          const picnicRegs = allPicnicRegs.filter((r) => r.status !== "rejected");
           const picnicPending = picnicRegs.filter((r) => r.status === "pending").length;
           const picnicApproved = picnicRegs.filter((r) => r.status === "approved").length;
           const seatsRemaining = Math.max(0, 100 - picnicRegs.length);

@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     // Specialized flow for MUN Picnic: Training Workshop + Potluck + Games
     if (data.eventSlug === "mun-picnic") {
       const picnicRegistrations = existingRegistrations.filter(
-        (r) => r.eventSlug === "mun-picnic"
+        (r) => r.eventSlug === "mun-picnic" && r.status !== "rejected"
       );
 
       const capacity = event.capacity ?? 100;
