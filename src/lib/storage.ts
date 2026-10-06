@@ -437,20 +437,32 @@ export async function updateRegistrationStatus(
   status: "approved" | "rejected" | "pending",
   rejectionReason?: string
 ): Promise<Registration | null> {
-  // 1. Update local JSON store
+  // Read registrations (queries Supabase when enabled, fallback to local store)
+  const registrations = await readRegistrations();
+  const target = registrations.find((r) => r.id === id);
+
+  if (!target) {
+    console.warn(`Registration with id ${id} not found in database.`);
+    return null;
+  }
+
+  target.status = status;
+  if (rejectionReason !== undefined) {
+    target.rejectionReason = rejectionReason;
+  }
+
+  // 1. Update local JSON store if present in local file
   const localList = await readLocalRegistrations();
-  const index = localList.findIndex((r) => r.id === id);
-  let updatedReg: Registration | null = null;
-  if (index !== -1) {
-    localList[index].status = status;
+  const localIndex = localList.findIndex((r) => r.id === id);
+  if (localIndex !== -1) {
+    localList[localIndex].status = status;
     if (rejectionReason !== undefined) {
-      localList[index].rejectionReason = rejectionReason;
+      localList[localIndex].rejectionReason = rejectionReason;
     }
-    updatedReg = localList[index];
     await writeLocalRegistrations(localList);
   }
 
-  // 2. Directly update only this specific row in Supabase (avoids touching other records or screenshots)
+  // 2. Directly update only this specific row in Supabase
   if (supabaseConfig.enabled && supabase) {
     try {
       const numericId = registrationIdToInteger(id);
@@ -482,7 +494,7 @@ export async function updateRegistrationStatus(
     }
   }
 
-  return updatedReg;
+  return target;
 }
 
 export async function getRegistrationById(

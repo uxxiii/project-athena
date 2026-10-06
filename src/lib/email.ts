@@ -66,12 +66,14 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
 
     const json = await res.json();
     if (!res.ok) {
-      return { success: false, error: json.message ?? "Failed to send email" };
+      console.error("[RESEND APPROVAL EMAIL ERROR]:", json);
+      return { success: false, error: json.message ?? json.name ?? "Failed to send email" };
     }
 
     return { success: true, messageId: json.id };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Network error";
+    console.error("[EMAIL NETWORK ERROR]:", err);
     return { success: false, error: message };
   }
 }

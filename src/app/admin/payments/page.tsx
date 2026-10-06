@@ -78,13 +78,22 @@ export default function AdminPaymentsPage() {
       });
 
       if (res.ok) {
+        const data = await res.json();
         fetchRegistrations();
         if (selectedRegistration?.id === id) {
-          const updated = await res.json();
-          setSelectedRegistration(updated.registration);
+          setSelectedRegistration(data.registration);
+        }
+
+        if (data.emailStatus?.success) {
+          alert(`Success: Registration ${status} and email notification successfully delivered!`);
+        } else if (data.emailStatus?.error) {
+          alert(`Notice: Registration ${status}, but email failed to deliver: ${data.emailStatus.error}`);
+        } else {
+          alert(`Registration ${status} successfully.`);
         }
       } else {
-        alert("Failed to update status.");
+        const errJson = await res.json().catch(() => ({}));
+        alert(`Failed to update status: ${errJson.error || res.statusText}`);
       }
     } catch (err) {
       console.error("Error updating status", err);
@@ -320,7 +329,7 @@ export default function AdminPaymentsPage() {
                           </button>
                         )}
 
-                        {reg.status !== "approved" && (
+                        {reg.status !== "approved" ? (
                           <Button
                             size="sm"
                             disabled={actionId === reg.id}
@@ -329,6 +338,18 @@ export default function AdminPaymentsPage() {
                           >
                             {actionId === reg.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle size={12} />}
                             Approve
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={actionId === reg.id}
+                            onClick={() => handleUpdateStatus(reg.id, "approved")}
+                            className="text-xs py-1 px-2.5 text-gold border-gold/40 hover:bg-gold/10"
+                            title="Resend entry pass / confirmation email"
+                          >
+                            {actionId === reg.id ? <Loader2 size={12} className="animate-spin" /> : <Mail size={12} />}
+                            Resend Email
                           </Button>
                         )}
 
