@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X, Heart, Sparkles } from "lucide-react";
+import { ArrowRight, Globe, Users, Award, Gavel, Quote, ChevronRight, X, Heart, ShieldCheck, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
 
@@ -257,14 +257,14 @@ export default function HomePage() {
 
               <div className="grid sm:grid-cols-2 gap-4 border-y border-gold/15 py-4 text-xs font-sans text-cream/70">
                 <div className="flex items-start gap-2.5">
-                  <Sparkles size={16} className="text-gold shrink-0 mt-0.5" />
+                  <ShieldCheck size={16} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold text-gold block">100% NGO Proceeds Pledge</span>
                     <span>All event profits and contributions go directly to verified partner NGOs.</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Sparkles size={16} className="text-gold shrink-0 mt-0.5" />
+                  <QrCode size={16} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold text-gold block">Direct UPI Remittance</span>
                     <span>Instant contribution via official QR code & instant receipt log.</span>

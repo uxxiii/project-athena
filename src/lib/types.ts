@@ -19,6 +19,8 @@ export interface EventTeamMember {
   name: string;
   role: string;
   image?: string;
+  department?: "Secretariat" | "Advisory Board";
+  bio?: string;
 }
 
 export interface SummitEvent {

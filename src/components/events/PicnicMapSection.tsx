@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Navigation, Clock, Calendar, Compass, ShieldCheck, Sparkles } from "lucide-react";
+import { MapPin, Navigation, Clock, Calendar, Compass, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface PicnicMapSectionProps {
@@ -90,7 +90,7 @@ export function PicnicMapSection({
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Sparkles size={18} className="text-gold shrink-0 mt-0.5" />
+                  <Compass size={18} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="text-xs uppercase tracking-wider text-gold/60 font-mono block">Key Landmark</span>
                     <span className="text-cream/80">Near Rajbansi Nagar & Patel Nagar (Easily accessible via Bailey Road)</span>

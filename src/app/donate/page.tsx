@@ -10,7 +10,7 @@ import {
   QrCode,
   Copy,
   Check,
-  Sparkles,
+
   Upload,
   ExternalLink,
   Maximize2,
@@ -237,7 +237,7 @@ export default function DonatePage() {
                 </div>
                 <div className="pt-4 border-t border-gold/15 flex items-center justify-between text-xs text-gold font-mono">
                   <span>100% Direct Learning Aid</span>
-                  <Sparkles size={14} />
+                  <BookOpen size={14} />
                 </div>
               </div>
             </motion.div>
@@ -275,7 +275,7 @@ export default function DonatePage() {
                 </div>
                 <div className="pt-4 border-t border-gold/15 flex items-center justify-between text-xs text-gold font-mono">
                   <span>Sustainable Self-Reliance</span>
-                  <Sparkles size={14} />
+                  <HandHeart size={14} />
                 </div>
               </div>
             </motion.div>
@@ -385,7 +385,7 @@ export default function DonatePage() {
                 className="rounded-xl border border-gold/25 bg-gold/5 p-5 sm:p-6 space-y-2"
               >
                 <div className="flex items-center gap-2 text-gold text-xs font-mono uppercase tracking-wider">
-                  <Sparkles size={16} />
+                  <Heart size={16} />
                   <span>Tangible Impact of ₹{currentAmountValue.toLocaleString("en-IN")}</span>
                 </div>
                 <p className="text-cream/90 text-sm font-sans font-medium leading-relaxed">

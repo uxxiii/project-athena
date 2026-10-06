@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react";
 import type { SummitEvent } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 
@@ -72,8 +72,8 @@ export function EventCard({ event, index = 0 }: EventCardProps) {
                   {event.date}
                 </span>
                 {event.time && (
-                  <span className="flex items-center gap-1.5 font-mono text-gold/90">
-                    <span className="text-[11px]">⏰</span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={13} className="text-gold shrink-0" />
                     {event.time}
                   </span>
                 )}

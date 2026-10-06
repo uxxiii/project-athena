@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
-  Sparkles,
+  CalendarClock,
   Copy,
   Check,
   Upload,
@@ -338,7 +338,7 @@ export function PicnicRegistrationForm() {
 
             <div className="relative space-y-5">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold ring-2 ring-gold/30">
-                <Sparkles size={30} />
+                <CalendarClock size={30} />
               </div>
 
               <div className="space-y-2">

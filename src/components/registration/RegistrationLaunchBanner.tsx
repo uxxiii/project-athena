@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, Tag, ArrowRight } from "lucide-react";
+import { Lock, Tag, ArrowRight, Bell } from "lucide-react";
 import { PRICING_CONFIG, isRegistrationLaunched } from "@/lib/pricing";
 
 interface RegistrationLaunchBannerProps {
@@ -86,7 +86,7 @@ export function RegistrationLaunchBanner({
       </div>
 
       <div className="rounded-xl bg-purple-deep/80 p-3 border border-gold/15 text-[11px] text-cream/60 flex items-center justify-between">
-        <span>⏰ Stay tuned for the official registration opening announcements.</span>
+        <span className="flex items-center gap-1.5"><Bell className="w-3.5 h-3.5 text-gold shrink-0" /> Stay tuned for the official registration opening announcements.</span>
         <ArrowRight className="w-4 h-4 text-gold shrink-0 ml-2" />
       </div>
     </div>
