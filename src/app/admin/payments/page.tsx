@@ -100,11 +100,13 @@ export default function AdminPaymentsPage() {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
+      r.id.toLowerCase().includes(q) ||
       r.name.toLowerCase().includes(q) ||
       r.email.toLowerCase().includes(q) ||
       r.phone.includes(q) ||
       r.institution.toLowerCase().includes(q) ||
-      (r.foodPreference && r.foodPreference.toLowerCase().includes(q))
+      (r.foodPreference && r.foodPreference.toLowerCase().includes(q)) ||
+      (r.notes && r.notes.toLowerCase().includes(q))
     );
   });
 
@@ -265,19 +267,26 @@ export default function AdminPaymentsPage() {
                     </div>
 
                     {isPicnic ? (
-                      <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-gold/10 mb-4">
-                        <div>
-                          <span className="text-cream/40">Event / Venue:</span>{" "}
-                          <span className="text-gold font-mono font-medium block">
-                            Energy Park (11 Oct)
-                          </span>
+                      <div className="space-y-2 mb-4">
+                        <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-gold/10">
+                          <div>
+                            <span className="text-cream/40">Event / Venue:</span>{" "}
+                            <span className="text-gold font-mono font-medium block">
+                              Energy Park (11 Oct)
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-cream/40">Potluck / Food:</span>{" "}
+                            <span className="text-cream font-medium block truncate">
+                              {reg.foodPreference || "Community Potluck"}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-cream/40">Potluck / Food:</span>{" "}
-                          <span className="text-cream font-medium block truncate">
-                            {reg.foodPreference || "Community Potluck"}
-                          </span>
-                        </div>
+                        {reg.notes && (
+                          <div className="text-[11px] font-mono text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20 truncate">
+                            {reg.notes}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="grid sm:grid-cols-2 gap-3 text-xs bg-purple-deep/40 p-3 rounded-lg border border-white/5 mb-4">
@@ -369,6 +378,12 @@ export default function AdminPaymentsPage() {
                       <div>
                         <strong className="text-cream">Time:</strong> 12:00 PM – 5:00 PM (11th Oct)
                       </div>
+                      {selectedRegistration.notes && (
+                        <div className="pt-1.5 border-t border-white/10">
+                          <strong className="text-gold">Transaction Ref:</strong>{" "}
+                          <span className="text-cream font-mono font-medium">{selectedRegistration.notes}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (() => {

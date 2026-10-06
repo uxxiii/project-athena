@@ -12,7 +12,12 @@ import {
   AlertCircle,
   MapPin,
   ArrowRight,
-  PartyPopper,
+  Clock,
+  Smartphone,
+  CalendarPlus,
+  ShieldCheck,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -29,6 +34,87 @@ interface PicnicStats {
   time: string;
   location: string;
   price: number;
+}
+
+const CLASS_YEAR_PILLS = [
+  "School (Grade 9-10)",
+  "School (Grade 11-12)",
+  "1st Year College",
+  "2nd Year College",
+  "3rd Year College",
+  "4th Year+ / Postgrad",
+  "Working Professional",
+];
+
+const EXPERIENCE_PILLS = [
+  { label: "First-Timer 🌿", value: "First-Timer / Beginner" },
+  { label: "1–2 MUNs", value: "1-2 Conferences" },
+  { label: "3–5 MUNs", value: "3-5 Conferences" },
+  { label: "Veteran (6+)", value: "6+ Conferences (Veteran)" },
+];
+
+const FOOD_PILLS = [
+  { label: "🥗 Veg Snacks / Dish", value: "Veg Snacks / Dish" },
+  { label: "🍗 Non-Veg Snacks", value: "Non-Veg Snacks / Dish" },
+  { label: "🥤 Drinks & Beverages", value: "Beverages / Cold Drinks" },
+  { label: "🍰 Desserts & Sweets", value: "Desserts / Pastries / Sweets" },
+  { label: "🌱 Jain / Pure Veg", value: "Jain / Pure Veg Only" },
+  { label: "✨ Other Surprise Dish", value: "Other / Surprise" },
+];
+
+/**
+ * Client-side Canvas Image Compressor
+ * Resizes and compresses any phone screenshot (even 10MB+) down to ~200KB in milliseconds.
+ */
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (file.type === "image/svg+xml" || file.size < 200 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(event.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        // Compress as JPEG at 0.78 quality for crisp text with tiny file footprint
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+        resolve(dataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 export function PicnicRegistrationForm() {
@@ -57,7 +143,9 @@ export function PicnicRegistrationForm() {
     paymentScreenshot: "",
   });
 
+  const [utrNumber, setUtrNumber] = useState("");
   const [copiedUpi, setCopiedUpi] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmedRegistration, setConfirmedRegistration] = useState<Registration | null>(null);
@@ -91,24 +179,26 @@ export function PicnicRegistrationForm() {
     setTimeout(() => setCopiedUpi(false), 2500);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadMessage("File size exceeds 5MB. Please upload a smaller image.");
-      return;
-    }
+    setCompressing(true);
+    setUploadMessage("Optimizing screenshot...");
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const compressedDataUrl = await compressImage(file);
       setFormData((prev) => ({
         ...prev,
-        paymentScreenshot: reader.result as string,
+        paymentScreenshot: compressedDataUrl,
       }));
-      setUploadMessage("Payment screenshot attached successfully!");
-    };
-    reader.readAsDataURL(file);
+      setUploadMessage(null);
+    } catch (err) {
+      console.error("Image compression error:", err);
+      setUploadMessage("Could not process image. Please try another image file.");
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -126,7 +216,7 @@ export function PicnicRegistrationForm() {
     }
 
     if (!formData.paymentScreenshot) {
-      setErrorMsg("Please upload your ₹100 UPI payment verification screenshot.");
+      setErrorMsg("Please attach your ₹100 payment receipt screenshot.");
       return;
     }
 
@@ -136,6 +226,10 @@ export function PicnicRegistrationForm() {
       const combinedFoodInfo = formData.potluckNote.trim()
         ? `${formData.foodPreference} (${formData.potluckNote.trim()})`
         : formData.foodPreference;
+
+      const notesPayload = utrNumber.trim()
+        ? `UPI UTR: ${utrNumber.trim()}`
+        : undefined;
 
       const res = await fetch("/api/registrations", {
         method: "POST",
@@ -150,6 +244,7 @@ export function PicnicRegistrationForm() {
           munExperience: formData.munExperience,
           reference: formData.reference,
           foodPreference: combinedFoodInfo,
+          notes: notesPayload,
           paymentScreenshot: formData.paymentScreenshot,
         }),
       });
@@ -174,6 +269,8 @@ export function PicnicRegistrationForm() {
     100,
     Math.round((stats.registeredCount / stats.totalCapacity) * 100)
   );
+
+  const upiIntentUrl = "upi://pay?pa=6202910742@fam&pn=Project%20Athena&am=100&cu=INR&tn=Athena%20Picnic";
 
   return (
     <section id="register" className="py-20 relative scroll-mt-20">
@@ -253,79 +350,119 @@ export function PicnicRegistrationForm() {
           </div>
         </motion.div>
 
-        {/* Confirmation Modal / Pass Display */}
+        {/* Confirmation State: Application Received & Verification Pending */}
         <AnimatePresence>
           {confirmedRegistration && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="rounded-2xl border-2 border-gold/50 bg-gradient-to-br from-purple-dark to-purple-deep p-8 text-center space-y-6 shadow-2xl mb-12"
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="rounded-3xl border-2 border-gold/40 bg-gradient-to-br from-purple-dark via-purple-deep to-navy p-8 sm:p-10 text-center space-y-6 shadow-2xl mb-12 relative overflow-hidden"
             >
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/20 text-gold ring-2 ring-gold/40">
-                <PartyPopper size={32} />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/15 text-gold ring-1 ring-gold/30">
+                <Clock size={32} className="text-gold" />
               </div>
 
               <div className="space-y-2">
-                <Badge variant="success">Registration Received!</Badge>
-                <h3 className="font-heading text-3xl text-cream">
-                  Welcome to the <span className="text-gradient-gold">Athena MUN Picnic</span>!
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3.5 py-1 text-amber-300 text-xs font-mono uppercase tracking-widest">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span>Application Logged • Under Verification</span>
+                </div>
+                <h3 className="font-heading text-2xl sm:text-3xl text-cream">
+                  Registration Received for <span className="text-gradient-gold">MUN Picnic</span>!
                 </h3>
-                <p className="text-sm text-cream/70 max-w-md mx-auto">
-                  Thank you, <strong>{confirmedRegistration.name}</strong>! Your registration and ₹100 payment receipt have been logged.
+                <p className="text-xs sm:text-sm text-cream/70 max-w-md mx-auto leading-relaxed">
+                  Thank you, <strong>{confirmedRegistration.name}</strong>! Your application and payment screenshot have been submitted to the Secretariat.
                 </p>
               </div>
 
-              <div className="max-w-md mx-auto rounded-xl border border-gold/20 bg-purple-deep/70 p-5 text-left text-xs space-y-2.5 font-mono text-cream/80">
-                <div className="flex justify-between border-b border-gold/15 pb-2">
-                  <span className="text-gold">Pass ID:</span>
+              <div className="max-w-md mx-auto rounded-2xl border border-gold/25 bg-purple-deep/80 p-5 text-left text-xs space-y-3 font-mono text-cream/80 shadow-inner">
+                <div className="flex justify-between border-b border-gold/15 pb-2.5">
+                  <span className="text-gold">Application ID:</span>
                   <span className="text-cream font-bold">{confirmedRegistration.id}</span>
                 </div>
-                <div className="flex justify-between border-b border-gold/15 pb-2">
-                  <span className="text-gold">Date & Time:</span>
-                  <span>11th October | 12:00 PM – 5:00 PM</span>
+                <div className="flex justify-between border-b border-gold/15 pb-2.5">
+                  <span className="text-gold">Verification Status:</span>
+                  <span className="text-amber-300 font-semibold flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    Secretariat Review
+                  </span>
                 </div>
-                <div className="flex justify-between border-b border-gold/15 pb-2">
+                <div className="flex justify-between border-b border-gold/15 pb-2.5">
+                  <span className="text-gold">Event Date & Time:</span>
+                  <span>11th Oct 2026 • 12 PM – 5 PM</span>
+                </div>
+                <div className="flex justify-between border-b border-gold/15 pb-2.5">
                   <span className="text-gold">Venue:</span>
                   <span>Energy Park, Patna</span>
                 </div>
-                <div className="flex justify-between border-b border-gold/15 pb-2">
-                  <span className="text-gold">Signatories:</span>
-                  <span className="text-emerald-400">Signed (No vetoes accepted)</span>
-                </div>
                 <div className="flex justify-between">
-                  <span className="text-gold">Payment Verification:</span>
-                  <span className="text-amber-400 font-semibold">Under Review (Pass via Email)</span>
+                  <span className="text-gold">Next Step:</span>
+                  <span className="text-emerald-400">Official Pass emailed upon approval</span>
                 </div>
               </div>
 
-              <p className="text-xs text-cream/50 max-w-md mx-auto">
-                Our Secretariat team is verifying your payment screenshot. Once approved, you will receive your official entry pass with gate instructions via email at <strong>{confirmedRegistration.email}</strong>.
-              </p>
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 max-w-md mx-auto text-xs text-cream/80 space-y-1">
+                <p className="font-medium text-emerald-300 flex items-center justify-center gap-1.5">
+                  <ShieldCheck size={16} /> Official Entry Pass Delivery
+                </p>
+                <p className="text-[11px] text-cream/60 leading-relaxed">
+                  Once our team verifies your ₹100 payment receipt against the UPI bank record, your official delegate entry pass with gate entry details and potluck coordination will be dispatched to <strong>{confirmedRegistration.email}</strong>.
+                </p>
+              </div>
 
-              <div className="pt-2 flex justify-center gap-4">
+              <div className="pt-2 flex flex-wrap justify-center gap-3">
+                <Button
+                  href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Athena+MUN+Picnic&dates=20261011T063000Z/20261011T113000Z&details=Training+Workshop+by+Eldr+Education,+Community+Potluck,+Diplomatic+Games+at+Energy+Park,+Patna&location=Energy+Park,+Patna"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="md"
+                  variant="primary"
+                >
+                  <CalendarPlus size={16} />
+                  <span>Add to Google Calendar</span>
+                </Button>
                 <Button
                   href="https://maps.google.com/?q=Energy+Park+Patna"
                   target="_blank"
                   rel="noopener noreferrer"
+                  variant="outline"
                   size="md"
                 >
                   <MapPin size={16} />
-                  <span>View Park Location</span>
+                  <span>Park Directions</span>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="md"
-                  onClick={() => setConfirmedRegistration(null)}
+                  onClick={() => {
+                    setConfirmedRegistration(null);
+                    setFormData({
+                      name: "",
+                      phone: "",
+                      email: "",
+                      institution: "",
+                      classYear: "1st Year College",
+                      munExperience: "First-Timer / Beginner",
+                      foodPreference: "Veg Snacks / Dish",
+                      potluckNote: "",
+                      reference: "Instagram",
+                      paymentScreenshot: "",
+                    });
+                    setUtrNumber("");
+                  }}
                 >
-                  Register Another Delegate
+                  <RefreshCw size={14} />
+                  <span>Register Another Delegate</span>
                 </Button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* The Registration Form — or Coming Soon banner if closed */}
+        {/* Coming Soon if Closed */}
         {!confirmedRegistration && !stats.registrationOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -333,66 +470,55 @@ export function PicnicRegistrationForm() {
             viewport={{ once: true }}
             className="rounded-2xl glass-card border border-gold/30 p-8 sm:p-12 text-center space-y-6 shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute -top-16 -right-16 w-56 h-56 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-purple-mid/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold ring-2 ring-gold/30">
+              <CalendarClock size={30} />
+            </div>
 
-            <div className="relative space-y-5">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold ring-2 ring-gold/30">
-                <CalendarClock size={30} />
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-mono uppercase tracking-widest">
+                <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+                <span>Opening Soon</span>
               </div>
-
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-mono uppercase tracking-widest">
-                  <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
-                  <span>Opening Soon</span>
-                </div>
-                <h3 className="font-heading text-2xl sm:text-3xl text-cream">
-                  Registrations Will Open <span className="text-gradient-gold">Shortly</span>
-                </h3>
-                <p className="text-sm text-cream/60 max-w-md mx-auto leading-relaxed">
-                  We&apos;re preparing the registration portal for the Athena MUN Picnic. Stay tuned — registrations will be live very soon!
-                </p>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-3 max-w-lg mx-auto pt-2">
-                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
-                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Date</span>
-                  <span className="text-gold font-heading text-sm">{stats.date}</span>
-                </div>
-                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
-                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Venue</span>
-                  <span className="text-gold font-heading text-sm">Energy Park</span>
-                </div>
-                <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3 text-center">
-                  <span className="text-cream/50 text-[10px] block font-sans uppercase tracking-wider">Entry Fee</span>
-                  <span className="text-gold font-heading text-sm">₹{stats.price}</span>
-                </div>
-              </div>
+              <h3 className="font-heading text-2xl sm:text-3xl text-cream">
+                Registrations Will Open <span className="text-gradient-gold">Shortly</span>
+              </h3>
+              <p className="text-sm text-cream/60 max-w-md mx-auto leading-relaxed">
+                We&apos;re preparing the registration portal for the Athena MUN Picnic. Stay tuned — registrations will be live very soon!
+              </p>
             </div>
           </motion.div>
         )}
 
+        {/* The Frictionless Registration Form */}
         {!confirmedRegistration && stats.registrationOpen && (
           <form onSubmit={handleSubmit} className="space-y-8" suppressHydrationWarning>
             <div className="grid lg:grid-cols-12 gap-8 items-start">
-              {/* Left Column: Delegate Details */}
+              {/* Left Column: Delegate Information */}
               <div className="lg:col-span-7 rounded-2xl glass-card border border-gold/20 p-6 sm:p-8 space-y-6">
-                <div className="border-b border-gold/15 pb-4">
-                  <span className="text-[10px] font-mono text-gold uppercase tracking-widest block">
-                    Step 1 of 2
-                  </span>
-                  <h3 className="font-heading text-2xl text-cream">Delegate Information</h3>
-                  <p className="text-xs text-cream/50 mt-1">
-                    Provide your contact details so we can issue your delegate pass.
-                  </p>
+                <div className="border-b border-gold/15 pb-4 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono text-gold uppercase tracking-widest block">
+                      Step 1 of 2
+                    </span>
+                    <h3 className="font-heading text-2xl text-cream">Delegate Profile</h3>
+                    <p className="text-xs text-cream/50 mt-0.5">
+                      Enter your details to generate your delegate verification record.
+                    </p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                    <Sparkles size={13} />
+                    <span>Quick Fill Enabled</span>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
                       Full Name *
                     </label>
                     <Input
+                      name="name"
+                      autoComplete="name"
                       placeholder="e.g. Aarav Sharma"
                       value={formData.name}
                       onChange={(e) =>
@@ -408,7 +534,9 @@ export function PicnicRegistrationForm() {
                         WhatsApp / Phone *
                       </label>
                       <Input
+                        name="tel"
                         type="tel"
+                        autoComplete="tel"
                         placeholder="e.g. 9876543210"
                         value={formData.phone}
                         onChange={(e) =>
@@ -423,7 +551,9 @@ export function PicnicRegistrationForm() {
                         Email Address *
                       </label>
                       <Input
+                        name="email"
                         type="email"
+                        autoComplete="email"
                         placeholder="e.g. delegate@gmail.com"
                         value={formData.email}
                         onChange={(e) =>
@@ -434,93 +564,114 @@ export function PicnicRegistrationForm() {
                     </div>
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
-                        College / School / Institution *
-                      </label>
-                      <Input
-                        placeholder="e.g. Patna University"
-                        value={formData.institution}
-                        onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, institution: e.target.value }))
-                        }
-                        required
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
+                      College / School / Institution
+                    </label>
+                    <Input
+                      name="organization"
+                      autoComplete="organization"
+                      placeholder="e.g. Patna University, St. Xavier's, or Independent"
+                      value={formData.institution}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, institution: e.target.value }))
+                      }
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
-                        Year / Grade
-                      </label>
-                      <select
-                        suppressHydrationWarning
-                        value={formData.classYear}
-                        onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, classYear: e.target.value }))
-                        }
-                        className="w-full rounded-sm border border-white/10 bg-navy-light/50 px-4 py-2.5 text-cream outline-none transition-colors focus:border-gold/50 focus:ring-1 focus:ring-gold/30 cursor-pointer text-xs"
-                      >
-                        <option value="School (Grade 9-10)" className="bg-navy text-cream">School (Grade 9-10)</option>
-                        <option value="School (Grade 11-12)" className="bg-navy text-cream">School (Grade 11-12)</option>
-                        <option value="1st Year College" className="bg-navy text-cream">1st Year College</option>
-                        <option value="2nd Year College" className="bg-navy text-cream">2nd Year College</option>
-                        <option value="3rd Year College" className="bg-navy text-cream">3rd Year College</option>
-                        <option value="4th Year+ / Postgrad" className="bg-navy text-cream">4th Year+ / Postgrad</option>
-                        <option value="Working Professional" className="bg-navy text-cream">Working Professional</option>
-                      </select>
+                  {/* Year / Grade Tap Pills */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2 font-sans">
+                      Grade / Year
+                    </label>
+                    <div className="flex flex-wrap gap-2" suppressHydrationWarning>
+                      {CLASS_YEAR_PILLS.map((option) => {
+                        const isSelected = formData.classYear === option;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            suppressHydrationWarning
+                            onClick={() =>
+                              setFormData((prev) => ({ ...prev, classYear: option }))
+                            }
+                            className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-sans ${
+                              isSelected
+                                ? "bg-gold text-purple-deep border-gold font-semibold shadow-md shadow-gold/20"
+                                : "bg-purple-deep/40 text-cream/70 border-white/10 hover:border-gold/40 hover:text-cream"
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* MUN Experience & Potluck Contribution */}
-                  <div className="grid sm:grid-cols-2 gap-4 pt-2">
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
-                        Prior MUN Experience
-                      </label>
-                      <select
-                        suppressHydrationWarning
-                        value={formData.munExperience}
-                        onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, munExperience: e.target.value }))
-                        }
-                        className="w-full rounded-sm border border-white/10 bg-navy-light/50 px-4 py-2.5 text-cream outline-none transition-colors focus:border-gold/50 focus:ring-1 focus:ring-gold/30 cursor-pointer text-xs"
-                      >
-                        <option value="First-Timer / Beginner" className="bg-navy text-cream">First-Timer (Here to learn!)</option>
-                        <option value="1-2 Conferences" className="bg-navy text-cream">1–2 Conferences</option>
-                        <option value="3-5 Conferences" className="bg-navy text-cream">3–5 Conferences</option>
-                        <option value="6+ Conferences (Veteran)" className="bg-navy text-cream">6+ Conferences (Veteran)</option>
-                      </select>
+                  {/* Prior Experience Tap Pills */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2 font-sans">
+                      Prior MUN Experience
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" suppressHydrationWarning>
+                      {EXPERIENCE_PILLS.map((exp) => {
+                        const isSelected = formData.munExperience === exp.value;
+                        return (
+                          <button
+                            key={exp.value}
+                            type="button"
+                            suppressHydrationWarning
+                            onClick={() =>
+                              setFormData((prev) => ({ ...prev, munExperience: exp.value }))
+                            }
+                            className={`text-xs px-2.5 py-2 rounded-lg border text-center transition-all cursor-pointer font-sans ${
+                              isSelected
+                                ? "bg-gold text-purple-deep border-gold font-semibold shadow-md shadow-gold/20"
+                                : "bg-purple-deep/40 text-cream/70 border-white/10 hover:border-gold/40 hover:text-cream"
+                            }`}
+                          >
+                            {exp.label}
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
-                        Potluck Contribution / Food
-                      </label>
-                      <select
-                        suppressHydrationWarning
-                        value={formData.foodPreference}
-                        onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, foodPreference: e.target.value }))
-                        }
-                        className="w-full rounded-sm border border-white/10 bg-navy-light/50 px-4 py-2.5 text-cream outline-none transition-colors focus:border-gold/50 focus:ring-1 focus:ring-gold/30 cursor-pointer text-xs"
-                      >
-                        <option value="Veg Snacks / Dish" className="bg-navy text-cream">Veg Snacks / Dish</option>
-                        <option value="Non-Veg Snacks / Dish" className="bg-navy text-cream">Non-Veg Snacks / Dish</option>
-                        <option value="Beverages / Cold Drinks" className="bg-navy text-cream">Beverages / Cold Drinks</option>
-                        <option value="Desserts / Pastries / Sweets" className="bg-navy text-cream">Desserts / Pastries / Sweets</option>
-                        <option value="Jain / Pure Veg Only" className="bg-navy text-cream">Jain / Pure Veg Only</option>
-                        <option value="Other / Surprise" className="bg-navy text-cream">Other Surprise Dish!</option>
-                      </select>
+                  {/* Potluck Food Contribution Tap Pills */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2 font-sans">
+                      Clause 1: Potluck Food Contribution
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" suppressHydrationWarning>
+                      {FOOD_PILLS.map((food) => {
+                        const isSelected = formData.foodPreference === food.value;
+                        return (
+                          <button
+                            key={food.value}
+                            type="button"
+                            suppressHydrationWarning
+                            onClick={() =>
+                              setFormData((prev) => ({ ...prev, foodPreference: food.value }))
+                            }
+                            className={`text-xs px-3 py-2 rounded-lg border text-left transition-all cursor-pointer font-sans ${
+                              isSelected
+                                ? "bg-gold text-purple-deep border-gold font-semibold shadow-md shadow-gold/20"
+                                : "bg-purple-deep/40 text-cream/70 border-white/10 hover:border-gold/40 hover:text-cream"
+                            }`}
+                          >
+                            {food.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-cream/70 mb-1.5 font-sans">
-                      What are you bringing for the Potluck? (Optional)
+                      Specific Dish / Snack (Optional)
                     </label>
                     <Input
-                      placeholder="e.g. Samosas, homemade sandwiches, cookies, chips, etc."
+                      placeholder="e.g. Samosas, sandwiches, homemade cookies, chips, etc."
                       value={formData.potluckNote}
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, potluckNote: e.target.value }))
@@ -530,22 +681,37 @@ export function PicnicRegistrationForm() {
                 </div>
               </div>
 
-              {/* Right Column: UPI Payment & QR Code */}
+              {/* Right Column: 1-Tap UPI Payment & Screenshot */}
               <div className="lg:col-span-5 rounded-2xl glass-card border border-gold/20 p-6 sm:p-8 space-y-6">
                 <div className="border-b border-gold/15 pb-4">
                   <span className="text-[10px] font-mono text-gold uppercase tracking-widest block">
                     Step 2 of 2
                   </span>
-                  <h3 className="font-heading text-2xl text-cream">Payment Verification</h3>
+                  <h3 className="font-heading text-2xl text-cream">Payment & Receipt</h3>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-cream/50">Fee per delegate:</p>
+                    <p className="text-xs text-cream/50">Delegate Fee:</p>
                     <span className="font-heading text-xl text-gold font-bold">₹100</span>
                   </div>
                 </div>
 
-                {/* UPI QR Code Container */}
+                {/* 1-Tap Mobile UPI Intent Button */}
+                <div className="space-y-2">
+                  <a
+                    href={upiIntentUrl}
+                    className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 px-4 py-3.5 text-xs font-semibold text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all text-center group"
+                  >
+                    <Smartphone size={16} className="text-emerald-100 group-hover:rotate-12 transition-transform" />
+                    <span>Pay ₹100 via UPI App (GPay / PhonePe / Paytm)</span>
+                  </a>
+                  <p className="text-[10px] text-cream/45 text-center leading-relaxed">
+                    On mobile, tapping opens your UPI app with ₹100 pre-filled. Pay, take a screenshot, and attach it below!
+                  </p>
+                </div>
+
+                {/* UPI QR Code Container for Desktop / Manual */}
                 <div className="rounded-2xl border border-gold/30 bg-purple-dark/80 p-5 text-center space-y-4 shadow-xl">
-                  <div className="mx-auto w-44 h-44 rounded-xl bg-white p-3 shadow-inner flex items-center justify-center">
+                  <div className="mx-auto w-40 h-40 rounded-xl bg-white p-2.5 shadow-inner flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/upi-qr.png"
                       alt="Athena MUN Picnic UPI QR Code"
@@ -560,7 +726,7 @@ export function PicnicRegistrationForm() {
                         type="button"
                         suppressHydrationWarning
                         onClick={handleCopyUpi}
-                        className="text-gold hover:text-gold-light transition-colors ml-1"
+                        className="text-gold hover:text-gold-light transition-colors ml-1 cursor-pointer"
                         title="Copy UPI ID"
                       >
                         {copiedUpi ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -570,20 +736,26 @@ export function PicnicRegistrationForm() {
                       <p className="text-[11px] text-emerald-400 font-mono">UPI ID copied to clipboard!</p>
                     )}
                     <p className="text-[11px] text-cream/45">
-                      Pay ₹100 via Google Pay, PhonePe, Paytm, or BHIM
+                      Supports Google Pay, PhonePe, Paytm, BHIM, and CRED
                     </p>
                   </div>
                 </div>
 
-                {/* Screenshot Upload */}
+                {/* Screenshot Upload with Instant Client Auto-Compression */}
                 <div className="space-y-2">
-                  <label className="block text-xs uppercase tracking-wider text-cream/70 font-sans">
-                    Upload Payment Screenshot *
-                  </label>
+                  <div className="flex items-center justify-between text-xs uppercase tracking-wider text-cream/70 font-sans">
+                    <span>Payment Screenshot *</span>
+                    {formData.paymentScreenshot && (
+                      <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 lowercase">
+                        <Check size={12} /> ready
+                      </span>
+                    )}
+                  </div>
 
                   {formData.paymentScreenshot ? (
                     <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 flex items-center justify-between">
                       <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={formData.paymentScreenshot}
                           alt="Screenshot preview"
@@ -591,7 +763,7 @@ export function PicnicRegistrationForm() {
                         />
                         <div className="text-left">
                           <p className="text-xs text-cream font-medium">Receipt Attached</p>
-                          <p className="text-[10px] text-emerald-400 font-mono">Ready for verification</p>
+                          <p className="text-[10px] text-emerald-400 font-mono">Optimized for fast verification</p>
                         </div>
                       </div>
                       <button
@@ -600,7 +772,7 @@ export function PicnicRegistrationForm() {
                         onClick={() =>
                           setFormData((prev) => ({ ...prev, paymentScreenshot: "" }))
                         }
-                        className="text-xs text-red-400 hover:underline"
+                        className="text-xs text-red-400 hover:underline cursor-pointer"
                       >
                         Remove
                       </button>
@@ -608,13 +780,22 @@ export function PicnicRegistrationForm() {
                   ) : (
                     <label className="flex flex-col items-center justify-center w-full h-28 rounded-xl border-2 border-dashed border-gold/30 hover:border-gold transition-all cursor-pointer bg-purple-deep/40 hover:bg-purple-deep/70 group">
                       <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <Upload size={20} className="text-gold/60 group-hover:text-gold transition-colors mb-1.5" />
-                        <p className="text-xs text-cream/80 font-medium">
-                          Click to upload payment screenshot
-                        </p>
-                        <p className="text-[10px] text-cream/40 font-mono mt-0.5">
-                          PNG, JPG or WebP (Max 5MB)
-                        </p>
+                        {compressing ? (
+                          <>
+                            <Loader2 size={22} className="text-gold animate-spin mb-1.5" />
+                            <p className="text-xs text-cream/80 font-medium">Optimizing receipt...</p>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={20} className="text-gold/60 group-hover:text-gold transition-colors mb-1.5" />
+                            <p className="text-xs text-cream/80 font-medium">
+                              Click or tap to upload receipt
+                            </p>
+                            <p className="text-[10px] text-cream/40 font-mono mt-0.5">
+                              Any screenshot accepted (auto-compressed)
+                            </p>
+                          </>
+                        )}
                       </div>
                       <input
                         type="file"
@@ -622,13 +803,31 @@ export function PicnicRegistrationForm() {
                         onChange={handleFileUpload}
                         className="hidden"
                         suppressHydrationWarning
+                        disabled={compressing}
                       />
                     </label>
                   )}
 
                   {uploadMessage && !formData.paymentScreenshot && (
-                    <p className="text-xs text-red-400">{uploadMessage}</p>
+                    <p className="text-xs text-amber-300 font-mono">{uploadMessage}</p>
                   )}
+                </div>
+
+                {/* Optional UPI Ref / UTR Number */}
+                <div className="space-y-1">
+                  <label className="block text-xs uppercase tracking-wider text-cream/70 font-sans">
+                    UPI Reference / UTR Number <span className="text-cream/40 lowercase font-normal">(optional)</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. 428190382910"
+                    value={utrNumber}
+                    onChange={(e) => setUtrNumber(e.target.value.replace(/[^0-9a-zA-Z]/g, ""))}
+                    maxLength={16}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-[10px] text-cream/40 leading-relaxed">
+                    Optional 12-digit reference number to help Secretariat speed up bank cross-matching.
+                  </p>
                 </div>
 
                 {/* Error Banner */}
@@ -642,20 +841,20 @@ export function PicnicRegistrationForm() {
                 {/* Submit Action */}
                 <Button
                   type="submit"
-                  disabled={submitting || stats.isFull}
+                  disabled={submitting || stats.isFull || compressing}
                   size="lg"
                   className="w-full py-3.5 rounded-xl font-semibold uppercase tracking-wider text-xs shadow-xl shadow-gold/20 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      <span>Confirming Registration...</span>
+                      <span>Submitting Registration...</span>
                     </>
                   ) : stats.isFull ? (
                     <span>Housefull (100/100 Seats Claimed)</span>
                   ) : (
                     <>
-                      <span>Complete Registration (₹100)</span>
+                      <span>Submit Registration (₹100)</span>
                       <ArrowRight size={16} />
                     </>
                   )}
