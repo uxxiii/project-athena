@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { readRegistrations } from "@/lib/storage";
 import { getEventBySlug } from "@/data/events";
 
-export const dynamic = "force-dynamic";
+// Cache stats response for 30s to shield Supabase from repetitive traffic and polling
+export const revalidate = 30;
 
 export async function GET() {
   try {
@@ -20,19 +21,26 @@ export async function GET() {
     const seatsRemaining = Math.max(0, totalCapacity - registeredCount);
     const isFull = registeredCount >= totalCapacity;
 
-    return NextResponse.json({
-      totalCapacity,
-      registeredCount,
-      approvedCount,
-      pendingCount,
-      seatsRemaining,
-      isFull,
-      registrationOpen: Boolean(event?.registrationOpen) && !isFull,
-      date: event?.date ?? "11th October",
-      time: event?.time ?? "12:00 PM – 5:00 PM",
-      location: event?.location ?? "Energy Park, Patna",
-      price: event?.price ?? 100,
-    });
+    return NextResponse.json(
+      {
+        totalCapacity,
+        registeredCount,
+        approvedCount,
+        pendingCount,
+        seatsRemaining,
+        isFull,
+        registrationOpen: Boolean(event?.registrationOpen) && !isFull,
+        date: event?.date ?? "11th October",
+        time: event?.time ?? "12:00 PM – 5:00 PM",
+        location: event?.location ?? "Energy Park, Patna",
+        price: event?.price ?? 100,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error getting picnic stats:", error);
     return NextResponse.json(

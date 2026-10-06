@@ -4,7 +4,8 @@ import { getEventBySlug } from "@/data/events";
 import { committees } from "@/data/committees";
 import { getAvailability } from "@/lib/availability";
 
-export const dynamic = "force-dynamic";
+// Cache stats response for 30s to shield Supabase from repetitive traffic
+export const revalidate = 30;
 
 export async function GET() {
   try {
@@ -27,20 +28,27 @@ export async function GET() {
     const seatsRemaining = Math.max(0, totalCapacity - registeredCount);
     const availability = await getAvailability();
 
-    return NextResponse.json({
-      eventSlug: "athena-summit",
-      title: event?.title ?? "Athena Summit",
-      totalCommittees: committees.length,
-      totalCapacity,
-      registeredCount,
-      approvedCount,
-      pendingCount,
-      seatsRemaining,
-      registrationOpen: Boolean(event?.registrationOpen),
-      date: event?.date ?? "October 2026",
-      location: event?.location ?? "TBA",
-      availability: availability.committees,
-    });
+    return NextResponse.json(
+      {
+        eventSlug: "athena-summit",
+        title: event?.title ?? "Athena Summit",
+        totalCommittees: committees.length,
+        totalCapacity,
+        registeredCount,
+        approvedCount,
+        pendingCount,
+        seatsRemaining,
+        registrationOpen: Boolean(event?.registrationOpen),
+        date: event?.date ?? "October 2026",
+        location: event?.location ?? "TBA",
+        availability: availability.committees,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error getting summit stats:", error);
     return NextResponse.json(

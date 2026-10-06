@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readRegistrations, writeRegistrations } from "@/lib/storage";
+import { readRegistrations, updateRegistrationStatus } from "@/lib/storage";
 import { sendApprovalEmail, sendRejectionEmail } from "@/lib/email";
 
 interface RouteProps {
@@ -23,21 +23,14 @@ export async function PATCH(request: Request, { params }: RouteProps) {
       );
     }
 
-    const registrations = await readRegistrations();
-    const index = registrations.findIndex((r) => r.id === id);
+    const registration = await updateRegistrationStatus(id, status, rejectionReason);
 
-    if (index === -1) {
+    if (!registration) {
       return NextResponse.json(
         { error: "Registration not found" },
         { status: 404 }
       );
     }
-
-    const registration = registrations[index];
-    registration.status = status;
-    registrations[index] = registration;
-
-    await writeRegistrations(registrations);
 
     // Trigger Email Automation
     let emailStatus = null;

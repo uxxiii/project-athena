@@ -171,7 +171,11 @@ async function writeLocalRegistrations(registrations: Registration[]): Promise<v
   }
 }
 
-export async function readRegistrations(): Promise<Registration[]> {
+export async function readRegistrations(
+  options: { includeScreenshots?: boolean } = {}
+): Promise<Registration[]> {
+  const includeScreenshots = options.includeScreenshots ?? false;
+
   if (supabaseConfig.enabled && supabase) {
     try {
       const client = supabase as {
@@ -180,15 +184,50 @@ export async function readRegistrations(): Promise<Registration[]> {
         };
       };
 
-      const { data, error } = await client.from("registrations").select("*");
+      let data: unknown[] | null = null;
+      let error: unknown = null;
+
+      if (includeScreenshots) {
+        // Fetch all columns including heavy base64 screenshots (used by admin payment verification)
+        const res = await client.from("registrations").select("*");
+        data = res.data;
+        error = res.error;
+      } else {
+        // Exclude payment_screenshot to save 99%+ bandwidth on public routes & stats
+        const extendedColumns =
+          "id, event_slug, name, phone, email, class_year, institution, committee_preferences, portfolio_preferences, mun_experience, reference, is_unsc_registration, unsc_delegate, unsc_delegate_portfolio_preferences, created_at, status, assigned_committee, assigned_portfolio, assigned_agenda, rejection_reason, food_preference, notes";
+        const basicColumns =
+          "id, event_slug, name, phone, email, class_year, institution, committee_preferences, portfolio_preferences, mun_experience, reference, is_unsc_registration, unsc_delegate, unsc_delegate_portfolio_preferences, created_at, status, assigned_committee, assigned_portfolio, assigned_agenda";
+
+        const res = await client
+          .from("registrations")
+          .select(cachedSupportsExtendedColumns !== false ? extendedColumns : basicColumns);
+
+        if (res.error && cachedSupportsExtendedColumns !== false) {
+          // Fallback to basic columns if extended columns are not present in table
+          const retryRes = await client.from("registrations").select(basicColumns);
+          data = retryRes.data;
+          error = retryRes.error;
+          if (!retryRes.error) {
+            cachedSupportsExtendedColumns = false;
+          }
+        } else {
+          data = res.data;
+          error = res.error;
+          if (!res.error && cachedSupportsExtendedColumns === null) {
+            cachedSupportsExtendedColumns = true;
+          }
+        }
+      }
+
       if (!error && Array.isArray(data)) {
         // Exclude fallback donation records
         const list = data
           .filter((row: unknown) => (row as Record<string, unknown>).event_slug !== "donation")
           .map((row) => normalizeRegistrationRow(row as Record<string, unknown>));
 
-        // Background sync to local JSON
-        if (list.length > 0) {
+        // Sync to local JSON store only when full records (including screenshots) are fetched
+        if (list.length > 0 && includeScreenshots) {
           writeLocalRegistrations(list).catch(() => {});
         }
         return list;
@@ -341,15 +380,115 @@ export async function writeRegistrations(
 export async function addRegistration(
   registration: Registration
 ): Promise<Registration> {
-  const registrations = await readRegistrations();
-  registrations.push(registration);
-  await writeRegistrations(registrations);
+  // 1. Update local JSON backup
+  const localList = await readLocalRegistrations();
+  localList.push(registration);
+  await writeLocalRegistrations(localList);
+
+  // 2. Directly upsert only this single new registration into Supabase (instead of uploading all existing records)
+  if (supabaseConfig.enabled && supabase) {
+    try {
+      const client = supabase as unknown as {
+        from: (table: string) => {
+          upsert: (
+            rows: Array<Record<string, unknown>>,
+            options: { onConflict: string; ignoreDuplicates: boolean }
+          ) => Promise<{ error: unknown }>;
+        };
+      };
+
+      const tryWithExtended = cachedSupportsExtendedColumns !== false;
+      let singleRow = mapRegistrationToRow(registration, tryWithExtended);
+      let { error } = await client.from("registrations").upsert([singleRow], {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      });
+
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        (error as { code?: string }).code === "PGRST204"
+      ) {
+        cachedSupportsExtendedColumns = false;
+        singleRow = mapRegistrationToRow(registration, false);
+        const retry = await client.from("registrations").upsert([singleRow], {
+          onConflict: "id",
+          ignoreDuplicates: false,
+        });
+        error = retry.error;
+      } else if (!error && tryWithExtended) {
+        cachedSupportsExtendedColumns = true;
+      }
+
+      if (error) {
+        console.warn("Supabase single registration insert failed; fallback to local.", error);
+      }
+    } catch (error) {
+      console.warn("Supabase addRegistration error:", error);
+    }
+  }
+
   return registration;
 }
 
+export async function updateRegistrationStatus(
+  id: string,
+  status: "approved" | "rejected" | "pending",
+  rejectionReason?: string
+): Promise<Registration | null> {
+  // 1. Update local JSON store
+  const localList = await readLocalRegistrations();
+  const index = localList.findIndex((r) => r.id === id);
+  let updatedReg: Registration | null = null;
+  if (index !== -1) {
+    localList[index].status = status;
+    if (rejectionReason !== undefined) {
+      localList[index].rejectionReason = rejectionReason;
+    }
+    updatedReg = localList[index];
+    await writeLocalRegistrations(localList);
+  }
+
+  // 2. Directly update only this specific row in Supabase (avoids touching other records or screenshots)
+  if (supabaseConfig.enabled && supabase) {
+    try {
+      const numericId = registrationIdToInteger(id);
+      const client = supabase as unknown as {
+        from: (table: string) => {
+          update: (payload: Record<string, unknown>) => {
+            eq: (col: string, val: unknown) => Promise<{ error: unknown }>;
+          };
+        };
+      };
+
+      const updatePayload: Record<string, unknown> = {
+        status,
+      };
+      if (rejectionReason !== undefined) {
+        updatePayload.rejection_reason = rejectionReason;
+      }
+
+      const { error } = await client
+        .from("registrations")
+        .update(updatePayload)
+        .eq("id", numericId);
+
+      if (error) {
+        console.warn("Supabase updateRegistrationStatus error:", error);
+      }
+    } catch (error) {
+      console.warn("Supabase updateRegistrationStatus exception:", error);
+    }
+  }
+
+  return updatedReg;
+}
+
 export async function getRegistrationById(
-  id: string
+  id: string,
+  options: { includeScreenshots?: boolean } = {}
 ): Promise<Registration | undefined> {
-  const registrations = await readRegistrations();
+  const registrations = await readRegistrations(options);
   return registrations.find((r) => r.id === id);
 }
