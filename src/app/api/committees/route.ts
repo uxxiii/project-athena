@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    let committeesData = staticCommittees;
+    const committeesData = staticCommittees;
 
     if (supabaseConfig.enabled && supabase) {
       try {
@@ -24,7 +24,7 @@ export async function GET() {
           .select("*")
           .order("id");
 
-        const { data: dbPortfolios, error: portError } = await client
+        const { data: dbPortfolios } = await client
           .from("portfolios")
           .select("*")
           .order("id");
