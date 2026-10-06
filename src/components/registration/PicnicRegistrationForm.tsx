@@ -165,12 +165,6 @@ export function PicnicRegistrationForm() {
 
   useEffect(() => {
     fetchStats();
-    const interval = setInterval(() => {
-      if (typeof document !== "undefined" && !document.hidden) {
-        fetchStats();
-      }
-    }, 30000);
-    return () => clearInterval(interval);
   }, [fetchStats]);
 
   const handleCopyUpi = () => {
@@ -265,11 +259,6 @@ export function PicnicRegistrationForm() {
     }
   };
 
-  const percentageFilled = Math.min(
-    100,
-    Math.round((stats.registeredCount / stats.totalCapacity) * 100)
-  );
-
   const upiIntentUrl = "upi://pay?pa=6202910742@fam&pn=Project%20Athena&am=100&cu=INR&tn=Athena%20Picnic";
 
   return (
@@ -292,63 +281,6 @@ export function PicnicRegistrationForm() {
             Official notice: we&apos;re touching grass. 🌿 Training by Eldr Education, potluck, games & networking. All 4 clauses included for just ₹100.
           </p>
         </div>
-
-        {/* 100 Seats Live Capacity Tracker Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="rounded-2xl glass-card border border-gold/30 p-6 sm:p-8 mb-10 shadow-2xl relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold/15 text-gold ring-1 ring-gold/30">
-                <Users size={20} />
-              </div>
-              <div>
-                <span className="text-[11px] font-mono text-gold tracking-widest uppercase block">
-                  Capacity Monitor
-                </span>
-                <h3 className="font-heading text-lg sm:text-xl text-cream">
-                  Strict Limit: <span className="text-gradient-gold">100 Seats Only</span>
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {stats.isFull ? (
-                <Badge variant="danger">Housefull (100/100 Filled)</Badge>
-              ) : (
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-emerald-400 text-xs font-mono">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>{stats.seatsRemaining} Seats Remaining</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs font-mono text-cream/60">
-              <span>{stats.registeredCount} Delegates Registered</span>
-              <span>100 Max Capacity</span>
-            </div>
-            <div className="h-3 w-full bg-purple-dark/80 rounded-full overflow-hidden p-0.5 border border-gold/20">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${percentageFilled}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className={`h-full rounded-full ${
-                  stats.isFull
-                    ? "bg-red-500"
-                    : "bg-gradient-to-r from-gold/80 via-gold to-amber-300 shadow-[0_0_12px_rgba(212,175,55,0.5)]"
-                }`}
-              />
-            </div>
-          </div>
-        </motion.div>
 
         {/* Confirmation State: Application Received & Verification Pending */}
         <AnimatePresence>
