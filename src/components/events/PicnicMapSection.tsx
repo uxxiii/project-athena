@@ -126,12 +126,12 @@ export function PicnicMapSection({
               </Button>
 
               <Button
-                href="#register"
                 size="md"
                 variant="outline"
                 className="w-full sm:w-auto rounded-xl"
+                disabled
               >
-                <span>Register (₹100)</span>
+                <span>Registration Closed</span>
               </Button>
             </div>
           </motion.div>

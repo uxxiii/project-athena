@@ -31,7 +31,7 @@ export function Footer() {
             <div className="grid gap-3 sm:grid-cols-2 text-sm text-cream/60">
               <div>
                 <p className="font-semibold text-cream">Summit</p>
-                <p className="text-cream/60">Athena Summit • Oct 2026</p>
+                <p className="text-cream/60">Athena Summit • Nov 2026</p>
               </div>
               <div>
                 <p className="font-semibold text-cream">Societal Mission</p>

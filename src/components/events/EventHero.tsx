@@ -52,6 +52,8 @@ export function EventHero({ event }: EventHeroProps) {
             <div className="flex flex-wrap items-center gap-3">
               {event.registrationOpen ? (
                 <Badge variant="success">Registration Open</Badge>
+              ) : event.slug === "mun-picnic" ? (
+                <Badge variant="warning">Registration Closed</Badge>
               ) : isLaunched ? (
                 <Badge variant="success">Registration Open</Badge>
               ) : (
@@ -119,7 +121,13 @@ export function EventHero({ event }: EventHeroProps) {
                 size="lg"
                 className="bg-gold text-purple-deep font-semibold hover:bg-gold-light"
               >
-                <span>{event.registrationOpen ? "Register Now" : "Registration Opening Soon"}</span>
+                <span>
+                  {event.registrationOpen
+                    ? "Register Now"
+                    : event.slug === "mun-picnic"
+                      ? "Registration Closed"
+                      : "Registration Opening Soon"}
+                </span>
                 <ArrowDown size={16} />
               </Button>
               {event.slug === "mun-picnic" ? (
@@ -152,14 +160,18 @@ export function EventHero({ event }: EventHeroProps) {
                   </span>
                 </div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-gold/70 bg-gold/5 px-2 py-0.5 rounded border border-gold/15">
-                  {event.registrationOpen ? "Open Now" : "Opening Soon"}
+                  {event.registrationOpen
+                    ? "Open Now"
+                    : event.slug === "mun-picnic"
+                      ? "Closed"
+                      : "Opening Soon"}
                 </span>
               </div>
 
               <div className="space-y-1">
                 <p className="text-xs text-cream/70 font-sans">
                   {event.slug === "mun-picnic"
-                    ? "Registrations are live for the Athena MUN Picnic at Energy Park! Limited to 100 seats."
+                    ? "Registration for the Athena MUN Picnic is closed. We are no longer accepting submissions for this event."
                     : "Delegate registrations are opening soon! Portfolios will be allocated on a first-come basis upon launch."}
                 </p>
               </div>

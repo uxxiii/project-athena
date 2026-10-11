@@ -7,7 +7,7 @@ export const events: SummitEvent[] = [
     slug: "athena-summit",
     title: "Athena Summit",
     subtitle: "Where Diplomacy Meets Excellence",
-    date: "October 2026",
+    date: "November 2026",
     location: "TBA",
     description:
       "Project Athena's flagship summit: a distinguished diplomatic experience bringing together delegates from across institutions.",
@@ -146,7 +146,7 @@ export const events: SummitEvent[] = [
         department: "Advisory Board",
       },
     ],
-    registrationOpen: true,
+    registrationOpen: false,
   },
 ];
 

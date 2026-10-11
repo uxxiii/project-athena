@@ -56,7 +56,7 @@ export default function TeamsPage() {
             </span>
             <span className="inline-flex items-center gap-1.5 bg-purple-deep/70 px-3.5 py-1.5 rounded-full border border-white/10">
               <Calendar size={13} className="text-purple-300" />
-              <span>October 2026</span>
+              <span>November 2026</span>
             </span>
           </div>
         </motion.div>

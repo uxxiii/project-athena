@@ -39,7 +39,7 @@ export async function GET() {
         pendingCount,
         seatsRemaining,
         registrationOpen: Boolean(event?.registrationOpen),
-        date: event?.date ?? "October 2026",
+        date: event?.date ?? "November 2026",
         location: event?.location ?? "TBA",
         availability: availability.committees,
       },

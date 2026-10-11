@@ -16,7 +16,7 @@ export default function EventsPage() {
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-4 py-1.5">
             <span className="text-gold/80 text-xs tracking-[0.2em] uppercase">
-              Upcoming & Past
+              Athena Summit • November 2026
             </span>
           </div>
 
@@ -24,9 +24,8 @@ export default function EventsPage() {
             Our <span className="text-gradient-gold">Events</span>
           </h1>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto" />
-          <p className="text-cream/45 max-w-xl mx-auto">
-            Discover upcoming summits and register to be part of the diplomatic
-            experience.
+            <p className="text-cream/45 max-w-xl mx-auto">
+            Athena Summit is our current focus. Explore the November conference and revisit past events.
           </p>
         </motion.div>
 

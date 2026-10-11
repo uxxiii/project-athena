@@ -123,7 +123,7 @@ export function PicnicRegistrationForm() {
     registeredCount: 0,
     seatsRemaining: 100,
     isFull: false,
-    registrationOpen: true,
+    registrationOpen: false,
     date: "11th October",
     time: "12:00 PM – 5:00 PM",
     location: "Energy Park, Patna",
@@ -270,7 +270,7 @@ export function PicnicRegistrationForm() {
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1 text-emerald-300 text-xs font-mono uppercase tracking-widest">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Official Notice • Registration Live 🌿</span>
+            <span>Official Notice • Registration Closed</span>
           </div>
 
           <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl text-cream">
@@ -409,13 +409,13 @@ export function PicnicRegistrationForm() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1 text-gold text-xs font-mono uppercase tracking-widest">
                 <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
-                <span>Opening Soon</span>
+                <span>Registration Closed</span>
               </div>
               <h3 className="font-heading text-2xl sm:text-3xl text-cream">
-                Registrations Will Open <span className="text-gradient-gold">Shortly</span>
+                Registrations Are <span className="text-gradient-gold">Closed</span>
               </h3>
               <p className="text-sm text-cream/60 max-w-md mx-auto leading-relaxed">
-                We&apos;re preparing the registration portal for the Athena MUN Picnic. Stay tuned — registrations will be live very soon!
+                Registration for the Athena MUN Picnic is now closed. We&apos;re no longer accepting submissions for this event.
               </p>
             </div>
           </motion.div>

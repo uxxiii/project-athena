@@ -43,7 +43,11 @@ export function EventCard({ event, index = 0 }: EventCardProps) {
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <Badge variant={event.registrationOpen ? "success" : "warning"}>
-                  {event.registrationOpen ? "Registration Open" : "Opening Soon"}
+                  {event.registrationOpen
+                    ? "Registration Open"
+                    : event.slug === "mun-picnic"
+                      ? "Registration Closed"
+                      : "Opening Soon"}
                 </Badge>
                 <span className="font-heading text-4xl sm:text-5xl text-gold/10 group-hover:text-gold/20 transition-colors duration-500">
                   {String(index + 1).padStart(2, "0")}
@@ -96,7 +100,7 @@ export function EventCard({ event, index = 0 }: EventCardProps) {
               </div>
 
               <div className="flex items-center justify-between text-xs sm:text-sm text-gold font-medium group-hover:text-gold-light transition-colors pt-1">
-                <span>View Details & Register</span>
+                <span>{event.slug === "mun-picnic" ? "View Event Details" : "View Details & Register"}</span>
                 <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform duration-300" />
               </div>
             </div>
