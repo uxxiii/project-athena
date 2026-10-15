@@ -45,8 +45,9 @@
   --color-gold-muted: var(--gold-muted);
   --color-cream: var(--cream);
   --color-cream-dark: var(--cream-dark);
-  --font-sans: var(--font-manrope);
-  --font-heading: var(--font-cormorant);
+  --font-sans: var(--font-outfit), var(--font-manrope), system-ui, sans-serif;
+  --font-heading: var(--font-outfit), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
 }
 
 /* ─── Base Typography & Body ───────────────────────────────────────── */
@@ -54,13 +55,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-family: var(--font-outfit), var(--font-manrope), system-ui, sans-serif;
   overflow-x: hidden;
 }
 
 .font-heading {
-  font-family: var(--font-cormorant), Georgia, serif;
-  letter-spacing: -0.01em;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 html {
@@ -256,4 +257,116 @@ body::before {
   left: 1rem;
   color: rgba(212, 175, 55, 0.15);
   pointer-events: none;
+}
+
+/* ─── Behes-Inspired Neo-Brutalist Utilities (Athena Palette) ─────────────── */
+
+/* ─── Behes-Inspired Neo-Brutalist Utilities (Calibrated Athena Palette) ──── */
+
+/* Architectural blueprint grid (subtle, non-distracting) */
+.neo-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.neo-grid-bg-dense {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Crisp Neo-Brutalist Hard Offset Shadows (Authentic Black Shadow) */
+.neo-shadow-sm {
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-shadow-lg {
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-shadow-xl {
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.neo-shadow-cream {
+  box-shadow: 4px 4px 0px 0px #f7f3ec;
+}
+
+.neo-shadow-gold {
+  box-shadow: 4px 4px 0px 0px #d4af37;
+}
+
+/* Neo-Brutalist Sticker Badges */
+.neo-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  border: 2px solid #000000;
+  background: #d4af37;
+  color: #0b0714;
+  box-shadow: 3px 3px 0px 0px #000000;
+  transition: all 0.15s ease;
+}
+
+.neo-sticker-purple {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #1f1238;
+  color: #f7f3ec;
+  box-shadow: 3px 3px 0px 0px #000000;
+}
+
+/* Neo-Brutalist Container Cards */
+.neo-card {
+  background: #140b24;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neo-card:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 6px 6px 0px 0px #000000;
+  transform: translateY(-2px);
+}
+
+.neo-card-gold {
+  background: #140b24;
+  border: 2px solid #d4af37;
+  box-shadow: 5px 5px 0px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neo-card-gold:hover {
+  box-shadow: 7px 7px 0px 0px #000000;
+  transform: translateY(-2px);
+}
+
+/* Sawtooth Divider */
+.neo-sawtooth {
+  clip-path: polygon(
+    0% 100%, 4% 25%, 8% 45%, 12% 20%, 16% 35%, 20% 15%, 24% 30%, 28% 20%,
+    32% 40%, 36% 25%, 40% 35%, 44% 15%, 48% 30%, 52% 20%, 56% 40%, 60% 15%,
+    64% 30%, 68% 20%, 72% 35%, 76% 15%, 80% 30%, 84% 25%, 88% 40%, 92% 20%,
+    96% 30%, 100% 20%, 100% 100%
+  );
 }

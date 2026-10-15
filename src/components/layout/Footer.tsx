@@ -1,106 +1,168 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Globe, Heart } from "lucide-react";
+import { Mail, MapPin, Globe, Heart, ArrowRight } from "lucide-react";
+
+function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 export function Footer() {
   return (
-    <footer className="border-t border-gold/15 bg-purple-deep/95 text-cream">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] xl:grid-cols-[1.25fr_0.9fr]">
-          <div className="space-y-5">
+    <footer className="border-t-2 border-white/10 bg-[#0b0714] text-cream relative overflow-hidden neo-grid-bg">
+      <div className="mx-auto max-w-7xl px-6 py-16 sm:py-20 relative z-10">
+        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] xl:grid-cols-[1.3fr_0.9fr] items-start">
+          
+          {/* Left Column: Brand & Mission */}
+          <div className="space-y-6">
+            <div className="inline-block transform -rotate-1">
+              <div className="px-4 py-1.5 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
+                Collegiate Diplomacy For All
+              </div>
+            </div>
+
             <div className="flex items-center gap-3">
               <Image
                 src="/logo.jpeg"
                 alt="Project Athena"
-                width={42}
-                height={42}
-                className="rounded-full ring-1 ring-gold/40"
+                width={48}
+                height={48}
+                className="border-2 border-white/20 shadow-[2px_2px_0px_0px_#000000]"
               />
               <div>
-                <p className="font-heading text-2xl text-cream">Project Athena</p>
-                <p className="text-[11px] uppercase tracking-[0.25em] text-gold/70">
-                  Summit for student diplomacy
+                <p className="font-heading text-2xl sm:text-3xl text-cream font-extrabold uppercase tracking-tight">Project Athena</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-cream/60 font-mono font-bold">
+                  Summit For Student Diplomacy
                 </p>
               </div>
             </div>
 
-            <p className="max-w-lg text-sm text-cream/65 leading-relaxed">
-              A focused platform for registration, committee updates, and event coordination across the Athena Summit. 100% of event profits support our NGO societal mission.
+            <p className="max-w-xl text-sm text-cream/70 leading-relaxed font-sans font-normal">
+              For leaders, debaters, and delegates across the nation. Project Athena brings together premier institutions for rigorous diplomatic discourse, authentic crisis simulations, and 100% direct societal aid.
             </p>
 
-            <div className="grid gap-3 sm:grid-cols-2 text-sm text-cream/60">
-              <div>
-                <p className="font-semibold text-cream">Summit</p>
-                <p className="text-cream/60">Athena Summit • Nov 2026</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
+                <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Summit Convening</p>
+                <p className="text-sm text-cream font-medium mt-0.5">Athena Summit • Nov 2026</p>
               </div>
-              <div>
-                <p className="font-semibold text-cream">Societal Mission</p>
-                <p className="text-gold/80 flex items-center gap-1.5 font-medium">
-                  <Heart size={12} className="fill-gold/20" /> A Step Taken Together
+              <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
+                <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Societal Mission</p>
+                <p className="text-sm text-cream font-medium mt-0.5 flex items-center gap-1.5">
+                  <Heart size={14} className="text-gold fill-gold/20" /> 100% NGO Remittance
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Right Column: Links & Contact */}
           <div className="grid gap-8 sm:grid-cols-2">
-            <div>
-              <h4 className="text-xs uppercase tracking-[0.3em] text-gold mb-4">
-                Useful links
-              </h4>
-              <ul className="space-y-3 text-sm text-cream/65">
-                <li><Link href="/" className="hover:text-gold transition-colors">Home</Link></li>
-                <li><Link href="/about" className="hover:text-gold transition-colors">About</Link></li>
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <div className="inline-block">
+                <span className="text-xs uppercase tracking-[0.2em] font-mono font-bold text-cream/80 border-b-2 border-white/20 pb-1 block">
+                  EXPLORE SUMMIT
+                </span>
+              </div>
+              <ul className="space-y-2.5 text-xs font-bold uppercase tracking-wider text-cream/70">
                 <li>
-                  <Link href="/donate" className="text-gold hover:underline flex items-center gap-1.5 font-medium">
-                    <Heart size={13} className="text-gold fill-gold/20" />
-                    <span>Societal Mission</span>
+                  <Link href="/" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> Home
                   </Link>
                 </li>
-                <li><Link href="/events" className="hover:text-gold transition-colors">Committees</Link></li>
-                <li><Link href="/events/athena-summit#register" className="hover:text-gold transition-colors">Register</Link></li>
+                <li>
+                  <Link href="/about" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> About Athena
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/events" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> Events
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/teams" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> Secretariat & Team
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/donate" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> Societal Mission & Waitlist
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/events/athena-summit#register" className="text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-gold" /> Summit Registration
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            <div>
-              <h4 className="text-xs uppercase tracking-[0.3em] text-gold mb-4">
-                Get in touch
-              </h4>
-              <div className="space-y-3 text-sm text-cream/65">
-                <div className="flex items-center gap-2">
-                  <Mail size={14} className="text-gold/70" />
-                  <span>official@projectathena.site</span>
+            {/* Contact Details */}
+            <div className="space-y-4">
+              <div className="inline-block">
+                <span className="text-xs uppercase tracking-[0.2em] font-mono font-bold text-cream/80 border-b-2 border-white/20 pb-1 block">
+                  SECRETARIAT HQ
+                </span>
+              </div>
+              <div className="space-y-2.5 text-xs text-cream/70">
+                <a
+                  href="mailto:project.athena03@gmail.com"
+                  className="flex items-center gap-2.5 p-2.5 bg-[#140b24] border border-white/15 hover:border-gold/50 transition-colors group"
+                >
+                  <Mail size={15} className="text-gold shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="font-mono text-cream/90 group-hover:text-gold transition-colors">project.athena03@gmail.com</span>
+                </a>
+                <div className="flex items-center gap-2.5 p-2.5 bg-[#140b24] border border-white/15">
+                  <MapPin size={15} className="text-gold shrink-0" />
+                  <span className="font-mono text-cream/90">India (Collegiate Circuit)</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={14} className="text-gold/70" />
-                  <span>India</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe size={14} className="text-gold/70" />
-                  <span>@athena.summit</span>
-                </div>
+                <a
+                  href="https://www.instagram.com/athena.summit/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 p-2.5 bg-[#140b24] border border-white/15 hover:border-gold/50 transition-colors group"
+                >
+                  <InstagramIcon size={15} className="text-gold shrink-0" />
+                  <span className="font-mono text-cream/90 group-hover:text-gold transition-colors">@athena.summit</span>
+                </a>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-cream/10">
-                <p className="text-xs uppercase tracking-[0.3em] text-gold mb-3">Quick links</p>
-                <div className="flex items-center gap-4">
-                  <Link href="/contact" className="text-cream/60 hover:text-gold transition-colors" aria-label="Contact the Secretariat">
-                    <Mail size={16} />
-                  </Link>
-                  <Link href="/about" className="text-cream/60 hover:text-gold transition-colors" aria-label="Learn more about Athena">
-                    <Globe size={16} />
-                  </Link>
-                  <Link href="/events" className="text-cream/60 hover:text-gold transition-colors" aria-label="Explore events">
-                    <MapPin size={16} />
-                  </Link>
-                </div>
+              <div className="pt-2">
+                <Link
+                  href="/events/athena-summit#register"
+                  className="inline-flex items-center justify-center w-full px-4 py-3 bg-gold text-[#0b0714] font-extrabold text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                >
+                  Join Delegation Registry
+                </Link>
               </div>
             </div>
           </div>
+
         </div>
 
-        <div className="mt-10 border-t border-gold/10 pt-5 text-sm text-cream/55 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Project Athena • Designed for academic delegates</p>
-          <p className="text-cream/60">Powered by Eldr.</p>
+        {/* Bottom Bar */}
+        <div className="mt-14 pt-6 border-t border-white/10 text-xs text-cream/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-mono">
+          <p>© {new Date().getFullYear()} Project Athena. All rights reserved. Built for collegiate delegates.</p>
+          <div className="flex items-center gap-4 text-cream/60">
+            <span className="font-bold">Athena Summit • &ldquo;We debate, therefore we lead.&rdquo;</span>
+          </div>
         </div>
       </div>
     </footer>

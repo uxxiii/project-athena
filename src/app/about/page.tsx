@@ -2,71 +2,77 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Target, Eye, Heart, Quote, Shield } from "lucide-react";
+import { Target, Eye, Heart, Quote, Shield, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 const values = [
   {
     icon: Target,
     title: "Intellectual Rigour",
-    desc: "Every committee, agenda, and document is crafted to challenge delegates to engage in deep analytical debate.",
+    desc: "Every committee, agenda, and study guide is crafted to challenge delegates to engage in deep analytical debate.",
   },
   {
     icon: Eye,
     title: "Procedural Excellence",
-    desc: "Authentic rules of procedure that maintain parliamentary decorum while encouraging creative resolution drafting.",
+    desc: "Authentic rules of procedure that maintain parliamentary decorum while encouraging bold, creative resolution drafting.",
   },
   {
     icon: Heart,
     title: "Inclusive Leadership",
-    desc: "A summit that welcomes first-time debaters alongside veteran delegates in an atmosphere of mutual respect.",
+    desc: "A summit that welcomes first-time debaters alongside veteran delegates in an atmosphere of mutual respect and empowerment.",
   },
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 25 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.1 },
+    transition: { duration: 0.5, delay: i * 0.1 },
   }),
 };
 
 export default function AboutPage() {
   return (
-    <div className="pt-32 pb-24">
-      <div className="mx-auto max-w-5xl px-6">
+    <div className="pt-32 sm:pt-40 pb-24 neo-grid-bg relative overflow-hidden">
+      {/* Corner Architectural Brackets */}
+      <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
+
+      <div className="mx-auto max-w-6xl px-6 relative z-10">
+        
         {/* ─── Hero Header ─────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center space-y-5 mb-20"
+          className="text-center space-y-6 mb-20"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-            <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
+          <div className="inline-block transform -rotate-1">
+            <div className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
               The Institution & Ethos
-            </span>
+            </div>
           </div>
 
-          <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl text-cream leading-tight">
-            About <span className="text-gradient-gold italic font-normal">Project Athena</span>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight text-cream leading-tight">
+            About <span className="text-gold">Project Athena</span>
           </h1>
-          <div className="filigree-divider max-w-xs mx-auto" />
-          <p className="text-cream/65 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto font-sans font-light">
-            Named after the goddess of wisdom and strategic council, Athena represents
-            intellectual fortitude, procedural clarity, and diplomatic grace.
+
+          <p className="text-cream/75 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto font-normal">
+            Named after the goddess of wisdom and strategic council, Athena represents intellectual fortitude, procedural clarity, and diplomatic grace across the collegiate circuit.
           </p>
         </motion.div>
 
-        {/* ─── Framed Banner Image ──────────────────────────────────── */}
+        {/* ─── Framed Banner Image (Neo-Brutalist Frame) ────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="relative mb-24 flex justify-center"
         >
-          <div className="relative rounded-2xl overflow-hidden p-2 bg-gradient-to-br from-gold/30 via-purple-mid/40 to-gold/20 border border-gold/40 shadow-2xl shadow-purple-deep/90 max-w-3xl w-full">
-            <div className="relative rounded-xl overflow-hidden">
+          <div className="border-2 border-white/20 bg-[#140b24] p-3 shadow-[6px_6px_0px_0px_#000000] max-w-3xl w-full">
+            <div className="relative border border-white/15 overflow-hidden bg-[#1f1238]">
               <Image
                 src="/full-logo.jpeg"
                 alt="Athena Summit Banner"
@@ -75,32 +81,31 @@ export default function AboutPage() {
                 className="w-full h-auto object-cover opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0b0714] via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-xs text-cream/70 font-heading">
-                <span>PROJECT ATHENA CONCLAVE</span>
-                <span className="text-gold font-medium">POWERED BY ELDR.</span>
+              <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-xs text-cream font-mono font-bold">
+                <span className="bg-[#0b0714] border border-white/20 px-2.5 py-1 text-cream/90 shadow-[2px_2px_0px_0px_#000]">PROJECT ATHENA CONCLAVE</span>
+                <span className="bg-gold text-[#0b0714] px-2.5 py-1 border border-black shadow-[1px_1px_0px_0px_#000]">NOV 2026</span>
               </div>
             </div>
           </div>
         </motion.div>
 
         {/* ─── Mission & Vision Grid ────────────────────────────────── */}
-        <div className="grid md:grid-cols-2 gap-10 mb-24">
+        <div className="grid md:grid-cols-2 gap-8 mb-24">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="glass-card rounded-2xl p-8 space-y-4 relative"
+            className="bg-[#140b24] border-2 border-white/15 hover:border-gold/60 p-8 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-1 transition-all space-y-4"
           >
-            <div className="flex items-center gap-3">
-              <Shield size={20} className="text-gold" />
-              <span className="text-gold text-xs tracking-[0.25em] uppercase font-medium">Our Mission</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0b0714] text-cream font-mono font-bold text-xs uppercase tracking-wider border border-white/20 shadow-[2px_2px_0px_0px_#000000]">
+              <Shield size={14} className="text-gold" />
+              <span>Our Mission</span>
             </div>
-            <h2 className="font-heading text-3xl text-cream">
-              Fostering Diplomatic <span className="text-gold italic font-normal">Excellence</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold uppercase text-cream tracking-tight">
+              Fostering Diplomatic <span className="text-gold">Excellence</span>
             </h2>
-            <p className="text-cream/60 text-sm leading-relaxed font-sans font-light">
-              Project Athena was founded to elevate the standards of collegiate diplomacy conferences.
-              We construct agendas that mirror complex real-world dynamics, encouraging delegates to negotiate beyond rhetoric and arrive at actionable resolutions.
+            <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
+              Project Athena was founded to elevate the standards of collegiate diplomacy conferences. We construct agendas that mirror complex real-world dynamics, encouraging delegates to negotiate beyond rhetoric and arrive at actionable resolutions.
             </p>
           </motion.div>
 
@@ -108,44 +113,44 @@ export default function AboutPage() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="glass-card rounded-2xl p-8 space-y-4 relative"
+            className="bg-[#140b24] border-2 border-white/15 hover:border-gold/60 p-8 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-1 transition-all space-y-4"
           >
-            <div className="flex items-center gap-3">
-              <Target size={20} className="text-gold" />
-              <span className="text-gold text-xs tracking-[0.25em] uppercase font-medium">Our Vision</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0b0714] text-cream font-mono font-bold text-xs uppercase tracking-wider border border-white/20 shadow-[2px_2px_0px_0px_#000000]">
+              <Target size={14} className="text-gold" />
+              <span>Our Vision</span>
             </div>
-            <h2 className="font-heading text-3xl text-cream">
-              Shaping Tomorrow&apos;s <span className="text-gold italic font-normal">Statespeople</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold uppercase text-cream tracking-tight">
+              Shaping Tomorrow&apos;s <span className="text-gold">Statespeople</span>
             </h2>
-            <p className="text-cream/60 text-sm leading-relaxed font-sans font-light">
-              We envision a community of analytical, empathetic, and articulate leaders.
-              Whether deliberating global migration at UNHRC or regional accountability at BLA, delegates leave Athena equipped with profound global perspectives.
+            <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
+              We envision a community of analytical, empathetic, and articulate leaders. Whether deliberating global migration at UNHRC or regional accountability at BLA, delegates leave Athena equipped with profound global perspectives.
             </p>
           </motion.div>
         </div>
 
         {/* ─── Quote Card ───────────────────────────────────────────── */}
-        <div className="velvet-card rounded-2xl p-10 md:p-14 text-center mb-24 relative overflow-hidden">
-          <Quote size={36} className="mx-auto text-gold/40 mb-4" />
-          <blockquote className="font-heading text-2xl sm:text-3xl text-cream italic max-w-2xl mx-auto leading-relaxed">
+        <div className="bg-[#140b24] border-2 border-white/20 p-10 md:p-14 text-center mb-24 shadow-[6px_6px_0px_0px_#000000] relative">
+          <Quote size={36} className="mx-auto text-gold/80 mb-4" />
+          <blockquote className="font-heading text-2xl sm:text-3xl text-cream font-bold italic max-w-2xl mx-auto leading-relaxed">
             &ldquo;In an era of fragmenting consensus, the ability to listen, synthesize, and lead is the ultimate power.&rdquo;
           </blockquote>
-          <p className="mt-4 text-xs tracking-[0.25em] uppercase text-gold">Project Athena Executive Board</p>
+          <p className="mt-4 text-xs font-mono font-bold uppercase tracking-[0.25em] text-cream/60">
+            Project Athena Executive Board
+          </p>
         </div>
 
         {/* ─── Core Values ──────────────────────────────────────────── */}
         <div className="mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14 space-y-2"
-          >
-            <p className="text-gold text-xs tracking-[0.3em] uppercase font-medium">Core Pillars</p>
-            <h2 className="font-heading text-4xl text-cream">
-              The Athena <span className="text-gradient-gold italic font-normal">Pillars</span>
+          <div className="text-center mb-14 space-y-3">
+            <div className="inline-block transform -rotate-1">
+              <span className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
+                Guiding Principles
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight text-cream">
+              The Athena <span className="text-gold">Pillars</span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {values.map((v, i) => (
@@ -156,15 +161,15 @@ export default function AboutPage() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="glass-card rounded-xl p-7 text-center group"
+                className="bg-[#140b24] border-2 border-white/15 hover:border-gold/60 p-7 text-center shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-1 transition-all group"
               >
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gold/10 ring-1 ring-gold/30 mb-5 group-hover:ring-gold transition-all">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center bg-[#1f1238] border border-white/20 shadow-[2px_2px_0px_0px_#000000] mb-5 group-hover:border-gold transition-all">
                   <v.icon size={22} className="text-gold" />
                 </div>
-                <h3 className="font-heading text-xl text-cream mb-2 group-hover:text-gold transition-colors">
+                <h3 className="text-xl font-extrabold uppercase text-cream group-hover:text-gold transition-colors mb-2">
                   {v.title}
                 </h3>
-                <p className="text-xs text-cream/50 leading-relaxed font-sans font-light">
+                <p className="text-xs text-cream/70 leading-relaxed font-sans font-light">
                   {v.desc}
                 </p>
               </motion.div>
@@ -172,7 +177,16 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="filigree-divider" />
+        {/* Closing Register CTA */}
+        <div className="text-center pt-8">
+          <a href="/events/athena-summit#register">
+            <button className="px-9 py-4 bg-gold text-[#0b0714] border-2 border-black font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
+              <span>Register for the Summit</span>
+              <ArrowRight size={16} />
+            </button>
+          </a>
+        </div>
+
       </div>
     </div>
   );

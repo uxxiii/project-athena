@@ -4,107 +4,102 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { TeamSection } from "@/components/events/TeamSection";
 import { getLatestUpcomingEvent } from "@/data/events";
-import {
-  Compass,
-  ArrowRight,
-  Mail,
-  GraduationCap,
-  Calendar,
-} from "lucide-react";
+import { Compass, ArrowRight, Mail, GraduationCap, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function TeamsPage() {
   const event = getLatestUpcomingEvent();
 
   return (
-    <div className="pt-32 pb-24 relative overflow-hidden">
-      {/* Subtle Warm Ambient Background Aura */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-purple-light/10 via-gold/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+    <div className="pt-32 sm:pt-40 pb-24 relative overflow-hidden neo-grid-bg">
+      {/* Corner Architectural Brackets */}
+      <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
 
       <div className="mx-auto max-w-7xl px-6 relative z-10">
-        {/* Editorial Header Section */}
+        
+        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-14 space-y-4 max-w-3xl mx-auto"
         >
-          {/* Subtle Editorial Kicker */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/5 px-4 py-1.5 shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-            <span className="text-gold text-[11px] tracking-[0.25em] uppercase font-mono">
+          <div className="inline-block transform -rotate-1">
+            <div className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
               Leadership & Secretariat • 2026
-            </span>
+            </div>
           </div>
 
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-cream tracking-tight font-normal">
-            The People Behind <span className="text-gradient-gold">Project Athena</span>
+          <h1 className="text-4xl sm:text-6xl font-extrabold uppercase tracking-tight text-cream">
+            The Team Behind <span className="text-gold">Project Athena</span>
           </h1>
 
-          <p className="text-cream/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed font-sans pt-1">
-            A collective of collegiate organizers, debaters, and advisors dedicated to procedural excellence, substantive debate, and creating a transformative diplomatic forum in Patna.
+          <p className="text-cream/75 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed font-normal pt-1">
+            A collective of collegiate organizers, debaters, and advisors dedicated to procedural excellence, substantive debate, and a transformative summit experience.
           </p>
 
-          {/* Clean Metric Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-3 text-xs font-mono text-cream/60">
-            <span className="inline-flex items-center gap-1.5 bg-purple-deep/70 px-3.5 py-1.5 rounded-full border border-white/10">
-              <GraduationCap size={13} className="text-gold" />
+          {/* Metric Indicators with Solid Borders */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-3 text-xs font-mono font-bold">
+            <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
+              <GraduationCap size={14} className="text-gold" />
               <span>Collegiate Leadership</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 bg-purple-deep/70 px-3.5 py-1.5 rounded-full border border-white/10">
-              <Compass size={13} className="text-emerald-400" />
+            <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
+              <Compass size={14} className="text-gold" />
               <span>13 Committees</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 bg-purple-deep/70 px-3.5 py-1.5 rounded-full border border-white/10">
-              <Calendar size={13} className="text-purple-300" />
+            <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
+              <Calendar size={14} className="text-gold" />
               <span>November 2026</span>
             </span>
           </div>
         </motion.div>
 
-        {/* Editorial Team Showcase with Department Tabs */}
+        {/* Team Showcase */}
         {event ? <TeamSection team={event.team} /> : null}
 
-        {/* Closing Editorial Callout */}
+        {/* Closing Callout Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 max-w-4xl mx-auto rounded-3xl p-8 sm:p-10 border border-gold/20 bg-gradient-to-br from-purple-dark/80 via-purple-deep/90 to-background/90 text-center relative overflow-hidden shadow-2xl backdrop-blur-xl"
+          transition={{ duration: 0.5 }}
+          className="mt-20 max-w-4xl mx-auto bg-[#140b24] border-2 border-white/20 p-8 sm:p-12 text-center shadow-[6px_6px_0px_0px_#000000] relative"
         >
-          {/* Subtle Ambient Glow */}
-          <div className="absolute top-0 right-1/4 w-60 h-60 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="inline-block transform -rotate-1">
+              <span className="px-4 py-1.5 bg-gold border border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
+                Direct Secretariat Communication
+              </span>
+            </div>
 
-          <div className="max-w-2xl mx-auto space-y-4 relative z-10">
-            <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold font-semibold block">
-              Get In Touch
-            </span>
-            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl text-cream font-medium">
+            <h2 className="text-3xl sm:text-4xl font-extrabold uppercase text-cream tracking-tight">
               Connect With the Secretariat
             </h2>
-            <p className="text-xs sm:text-sm text-cream/70 leading-relaxed">
-              Have questions about delegation registrations, institutional partnerships, or conference agendas? Our Secretariat is always accessible to delegates and faculty advisors.
+
+            <p className="text-xs sm:text-sm text-cream/70 leading-relaxed font-sans max-w-lg mx-auto">
+              Have questions about delegation registrations, institutional partnerships, or committee study guides? Our Secretariat is always accessible.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-3">
-              <a
-                href="mailto:official@projectathena.site"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-gold to-amber-400 text-purple-deep font-semibold text-xs font-mono uppercase tracking-wider shadow-md hover:brightness-110 transition-all duration-300"
-              >
-                <Mail size={14} />
-                <span>Write to Secretariat</span>
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+              <a href="mailto:project.athena03@gmail.com">
+                <button className="px-7 py-3.5 bg-gold text-[#0b0714] font-extrabold text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
+                  <Mail size={14} />
+                  <span>Write to Secretariat</span>
+                </button>
               </a>
 
-              <Link
-                href="/events/athena-summit#committees"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-gold/30 bg-purple-deep/60 hover:bg-gold/10 text-cream text-xs font-mono uppercase tracking-wider transition-all duration-300"
-              >
-                <span>View All 13 Committees</span>
-                <ArrowRight size={14} className="text-gold" />
+              <Link href="/events/athena-summit#committees">
+                <button className="px-7 py-3.5 bg-[#0b0714] text-cream font-bold text-xs uppercase tracking-wider border-2 border-white/25 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:border-white hover:text-white hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
+                  <span>View All Committees</span>
+                  <ArrowRight size={14} />
+                </button>
               </Link>
             </div>
           </div>
         </motion.div>
+
       </div>
     </div>
   );

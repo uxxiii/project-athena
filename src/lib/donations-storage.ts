@@ -20,9 +20,11 @@ export interface DonationInput {
   donorEmail: string;
   donorPhone?: string;
   amount?: number;
-  transactionRef: string;
+  transactionRef?: string;
   screenshot?: string | null;
   message?: string;
+  status?: string;
+  isWaitlist?: boolean;
 }
 
 type DonationRow = {
@@ -42,6 +44,11 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DONATIONS_FILE = path.join(DATA_DIR, "donations.json");
 
 function toDonation(row: DonationRow): Donation {
+  const isWaitlist =
+    row.transaction_ref?.startsWith("WAITLIST") ||
+    row.status === "waitlist" ||
+    row.id?.startsWith("WST-");
+
   return {
     id: row.id,
     donorName: row.donor_name,
@@ -52,7 +59,7 @@ function toDonation(row: DonationRow): Donation {
     screenshot: row.screenshot,
     message: row.message,
     createdAt: row.created_at,
-    status: row.status,
+    status: isWaitlist ? "waitlist" : row.status,
   };
 }
 
@@ -167,18 +174,25 @@ export async function readDonations(): Promise<Donation[]> {
 }
 
 export async function addDonation(input: DonationInput): Promise<Donation> {
-  const donationId = `DON-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+  const isWaitlist = Boolean(
+    input.isWaitlist ||
+    input.status === "waitlist" ||
+    !input.transactionRef ||
+    input.transactionRef.startsWith("WAITLIST")
+  );
+  const prefix = isWaitlist ? "WST" : "DON";
+  const donationId = `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   const donation: Donation = {
     id: donationId,
     donorName: input.donorName.trim(),
     donorEmail: input.donorEmail.trim().toLowerCase(),
     donorPhone: input.donorPhone ? input.donorPhone.trim() : "",
     amount: input.amount ? Number(input.amount) : 0,
-    transactionRef: input.transactionRef.trim(),
+    transactionRef: input.transactionRef ? input.transactionRef.trim() : (isWaitlist ? "WAITLIST" : ""),
     screenshot: input.screenshot || null,
     message: input.message ? input.message.trim() : "",
     createdAt: new Date().toISOString(),
-    status: "pending",
+    status: isWaitlist ? "waitlist" : (input.status || "pending"),
   };
 
   // 1. Always append to local JSON store
@@ -197,6 +211,8 @@ export async function addDonation(input: DonationInput): Promise<Donation> {
           insert: (rows: DonationRow[]) => Promise<{ error: unknown }>;
         };
       };
+      // For Supabase schema check constraint (status in 'pending', 'approved', 'rejected')
+      const supabaseStatus = isWaitlist ? "pending" : (donation.status === "approved" || donation.status === "rejected" ? donation.status : "pending");
       const row: DonationRow = {
         id: donation.id,
         donor_name: donation.donorName,
@@ -207,7 +223,7 @@ export async function addDonation(input: DonationInput): Promise<Donation> {
         screenshot: donation.screenshot,
         message: donation.message,
         created_at: donation.createdAt,
-        status: donation.status,
+        status: supabaseStatus,
       };
       const { error } = await client.from("donations").insert([row]);
       if (!error) {

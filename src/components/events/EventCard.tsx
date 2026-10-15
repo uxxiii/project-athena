@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react";
 import type { SummitEvent } from "@/lib/types";
-import { Badge } from "@/components/ui/Badge";
 
 interface EventCardProps {
   event: SummitEvent;
@@ -15,95 +14,79 @@ interface EventCardProps {
 export function EventCard({ event, index = 0 }: EventCardProps) {
   return (
     <motion.article
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 25 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative overflow-hidden rounded-2xl h-full flex flex-col"
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="group relative bg-[#140b24] border-2 border-white/15 hover:border-gold/60 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-1 transition-all flex flex-col justify-between"
     >
-      <Link href={`/events/${event.slug}`} className="block h-full flex-1 flex flex-col">
-        {/* Background with logo image */}
-        <div className="relative h-full flex-1 flex flex-col justify-between">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-dark/90 to-purple-deep/95 z-10" />
-          <div className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity duration-700">
-            <Image
-              src="/logo.jpeg"
-              alt=""
-              fill
-              className="object-cover"
-            />
+      <Link href={`/events/${event.slug}`} className="block h-full flex-1 flex flex-col p-7 sm:p-8 justify-between">
+        <div className="space-y-5">
+          {/* Top Status & Index */}
+          <div className="flex items-start justify-between">
+            <span
+              className={`px-3 py-1 font-mono font-bold text-xs uppercase tracking-wider border shadow-[2px_2px_0px_0px_#000000] ${
+                event.registrationOpen
+                  ? "bg-emerald-400 text-[#0b0714] border-black"
+                  : event.slug === "mun-picnic"
+                  ? "bg-rose-500 text-white border-black"
+                  : "bg-gold text-[#0b0714] border-black"
+              }`}
+            >
+              {event.registrationOpen
+                ? "Registration Open"
+                : event.slug === "mun-picnic"
+                ? "Registration Closed"
+                : "Opening Soon"}
+            </span>
+
+            <span className="font-heading text-4xl sm:text-5xl font-black text-white/20 group-hover:text-gold transition-colors">
+              {String(index + 1).padStart(2, "0")}
+            </span>
           </div>
 
-          {/* Border effects */}
-          <div className="absolute inset-0 z-20 rounded-2xl ring-1 ring-inset ring-white/8 group-hover:ring-gold/30 transition-all duration-500" />
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent z-20 opacity-60" />
+          {/* Title & Subtitle */}
+          <div>
+            <h3 className="font-heading text-3xl font-extrabold uppercase tracking-tight text-cream group-hover:text-gold transition-colors">
+              {event.title}
+            </h3>
+            <p className="mt-1 text-xs sm:text-sm text-cream/70 font-mono font-bold tracking-wide uppercase">
+              {event.subtitle}
+            </p>
+          </div>
 
-          <div className="relative z-20 p-7 sm:p-8 flex-1 flex flex-col justify-between space-y-6">
-            {/* Top section: Badge, Index, Title, Subtitle, Description */}
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <Badge variant={event.registrationOpen ? "success" : "warning"}>
-                  {event.registrationOpen
-                    ? "Registration Open"
-                    : event.slug === "mun-picnic"
-                      ? "Registration Closed"
-                      : "Opening Soon"}
-                </Badge>
-                <span className="font-heading text-4xl sm:text-5xl text-gold/10 group-hover:text-gold/20 transition-colors duration-500">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-              </div>
+          <p className="text-cream/75 text-xs sm:text-sm leading-relaxed font-sans line-clamp-3">
+            {event.description}
+          </p>
+        </div>
 
-              <div>
-                <h3 className="font-heading text-2xl sm:text-3xl text-cream group-hover:text-gold transition-colors duration-300">
-                  {event.title}
-                </h3>
-                <p className="mt-1 text-xs sm:text-sm text-gold/70 tracking-wide font-heading">
-                  {event.subtitle}
-                </p>
-              </div>
+        {/* Meta details & Action */}
+        <div className="space-y-4 pt-6 border-t border-white/10 mt-6">
+          <div className="flex flex-wrap gap-2.5 text-xs text-cream/70 font-mono">
+            <span className="flex items-center gap-1.5 bg-[#0b0714] px-2.5 py-1 border border-white/15">
+              <Calendar size={13} className="text-cream/50 shrink-0" />
+              {event.date}
+            </span>
+            {event.time && (
+              <span className="flex items-center gap-1.5 bg-[#0b0714] px-2.5 py-1 border border-white/15">
+                <Clock size={13} className="text-cream/50 shrink-0" />
+                {event.time}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5 bg-[#0b0714] px-2.5 py-1 border border-white/15">
+              <MapPin size={13} className="text-cream/50 shrink-0" />
+              {event.location}
+            </span>
+            {event.price !== undefined && (
+              <span className="flex items-center gap-1 bg-[#0b0714] px-2.5 py-1 border border-white/15 text-gold font-bold">
+                Fee: ₹{event.price}
+              </span>
+            )}
+          </div>
 
-              <p className="text-cream/55 text-xs sm:text-sm leading-relaxed line-clamp-3">
-                {event.description}
-              </p>
-            </div>
-
-            {/* Bottom section: Meta details & CTA action */}
-            <div className="space-y-4 pt-4 border-t border-gold/15 mt-auto">
-              <div className="flex flex-wrap gap-3 text-xs text-cream/50">
-                <span className="flex items-center gap-1.5">
-                  <Calendar size={13} className="text-gold shrink-0" />
-                  {event.date}
-                </span>
-                {event.time && (
-                  <span className="flex items-center gap-1.5">
-                    <Clock size={13} className="text-gold shrink-0" />
-                    {event.time}
-                  </span>
-                )}
-                <span className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-gold shrink-0" />
-                  {event.location}
-                </span>
-                {event.price !== undefined && (
-                  <span className="flex items-center gap-1 font-mono text-gold font-semibold">
-                    <span>Fee:</span>
-                    <span className="text-cream font-bold">₹{event.price}</span>
-                  </span>
-                )}
-                {event.capacity && (
-                  <span className="flex items-center gap-1 font-mono text-cream/70">
-                    <span className="text-gold">•</span>
-                    <span>Cap: {event.capacity}</span>
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between text-xs sm:text-sm text-gold font-medium group-hover:text-gold-light transition-colors pt-1">
-                <span>{event.slug === "mun-picnic" ? "View Event Details" : "View Details & Register"}</span>
-                <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-              </div>
-            </div>
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gold group-hover:text-cream transition-colors pt-1">
+            <span>{event.slug === "mun-picnic" ? "View Archive" : "View Details & Register"}</span>
+            <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform" />
           </div>
         </div>
       </Link>

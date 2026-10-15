@@ -21,17 +21,19 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+    "inline-flex items-center justify-center gap-2 font-bold tracking-wider uppercase transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none",
     {
-      "bg-gold text-navy hover:bg-gold-light shadow-lg shadow-gold/20":
+      "bg-gold text-[#0b0714] border-2 border-black hover:bg-[#e5c158] shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_#000000]":
         variant === "primary",
-      "bg-navy-light text-cream border border-gold/30 hover:border-gold/60":
+      "bg-purple-dark text-cream border-2 border-white/20 hover:border-gold hover:text-gold shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_#000000]":
         variant === "secondary",
-      "border border-gold/40 text-gold hover:bg-gold/10": variant === "outline",
-      "text-cream/80 hover:text-gold hover:bg-white/5": variant === "ghost",
-      "px-4 py-2 text-sm": size === "sm",
-      "px-6 py-2.5 text-sm": size === "md",
-      "px-8 py-3 text-base": size === "lg",
+      "bg-transparent text-cream border-2 border-white/30 hover:border-white hover:bg-white/5 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5":
+        variant === "outline",
+      "text-cream/80 hover:text-cream hover:bg-white/10 border-2 border-transparent hover:border-white/20":
+        variant === "ghost",
+      "px-4 py-2 text-xs": size === "sm",
+      "px-6 py-2.5 text-xs sm:text-sm": size === "md",
+      "px-8 py-3.5 text-sm sm:text-base": size === "lg",
     },
     className
   );

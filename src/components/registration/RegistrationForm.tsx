@@ -369,15 +369,15 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
               viewport={{ once: true }}
               className="text-center mb-12 space-y-3"
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-deep/80 px-4 py-1.5 backdrop-blur-md">
-                <span className="text-gold text-xs font-heading tracking-[0.25em] uppercase">
+              <div className="inline-block transform -rotate-1">
+                <span className="px-4 py-1.5 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
                   Athena Summit 2026 Registration Dossier
                 </span>
               </div>
-              <h2 className="font-heading text-4xl sm:text-5xl text-cream">
-                Delegate <span className="text-gradient-gold italic font-normal">Registration</span>
+              <h2 className="font-heading text-4xl sm:text-5xl font-extrabold uppercase tracking-tight text-cream">
+                Delegate <span className="text-gold">Registration</span>
               </h2>
-              <p className="text-cream/50 text-sm max-w-md mx-auto font-sans font-light">
+              <p className="text-cream/70 text-sm max-w-md mx-auto font-sans font-normal">
                 Complete the 5 registration steps to submit your portfolio preferences and obtain immediate allocation.
               </p>
             </motion.div>
@@ -385,7 +385,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
         {/* Step indicator */}
         <div className="mb-12 relative px-2">
           <div className="flex items-center justify-between relative">
-            <div className="absolute top-4 left-6 right-6 h-0.5 bg-gold/15 -z-10" />
+            <div className="absolute top-4 left-6 right-6 h-0.5 bg-white/10 -z-10" />
             {STEPS.map((label, i) => {
               const stepNum = i + 1;
               const isActive = step === stepNum;
@@ -393,18 +393,18 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
               return (
                 <div key={label} className="flex flex-col items-center flex-1">
                   <div
-                    className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition-all duration-500 font-mono ${
+                    className={`flex h-9 w-9 items-center justify-center text-xs font-mono font-bold transition-all border-2 ${
                       isComplete
-                        ? "bg-gold text-purple-deep shadow-lg shadow-gold/25"
+                        ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
                         : isActive
-                          ? "bg-purple-light text-cream ring-2 ring-gold shadow-lg shadow-gold/15"
-                          : "bg-purple-deep border border-white/10 text-cream/30"
+                          ? "bg-purple-light text-cream border-gold shadow-[2px_2px_0px_0px_#000000]"
+                          : "bg-[#0b0714] border-white/20 text-cream/40"
                     }`}
                   >
                     {isComplete ? <Check size={14} /> : stepNum}
                   </div>
-                  <span className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-sans transition-colors ${
-                    isActive ? "text-gold font-semibold" : "text-cream/35"
+                  <span className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-mono font-bold transition-colors ${
+                    isActive ? "text-gold" : "text-cream/40"
                   }`}>
                     {label}
                   </span>
@@ -417,7 +417,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
         {/* Form Container */}
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="velvet-card rounded-2xl p-6 sm:p-10 shadow-2xl relative border border-gold/30"
+          className="bg-[#140b24] border-2 border-white/20 p-6 sm:p-10 shadow-[6px_6px_0px_0px_#000000] relative"
         >
           <AnimatePresence mode="wait">
             {/* STEP 1: PERSONAL INFO */}
@@ -429,10 +429,10 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-5"
               >
-                <div className="border-b border-gold/15 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">Step 01 / 05</span>
-                  <h3 className="font-heading text-2xl text-cream">Personal Credentials</h3>
-                  <p className="text-xs text-cream/40 mt-0.5">Enter your verified contact and institutional information</p>
+                <div className="border-b border-white/10 pb-4 mb-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-gold/90 font-mono font-bold block">Step 01 / 05</span>
+                  <h3 className="font-heading text-2xl font-extrabold uppercase text-cream tracking-tight">Personal Credentials</h3>
+                  <p className="text-xs text-cream/50 mt-0.5">Enter your verified contact and institutional information</p>
                 </div>
 
                 <Input label="Full Name" {...register("name")} error={errors.name?.message} placeholder="e.g. Rahul Sharma" />
@@ -731,8 +731,8 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                 {/* E-Commerce Early Bird Pricing Banner with Strikethrough & Countdown Timer */}
                 <PaymentPricingBanner isUnscRegistration={isUnscRegistration} />
 
-                <div className="rounded-2xl border border-gold/30 bg-linear-to-b from-purple-dark to-purple-deep p-6 text-center space-y-4 shadow-xl">
-                  <div className="mx-auto w-48 h-48 rounded-xl bg-white p-3 shadow-2xl flex items-center justify-center">
+                <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
+                  <div className="mx-auto w-48 h-48 border-2 border-white/20 bg-white p-3 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
                     <img
                       src="/upi-qr.png"
                       alt="Athena Summit UPI payment QR code"
@@ -752,8 +752,8 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-gold/20 bg-gold/5 p-4">
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-gold font-mono">
+                <div className="border border-white/15 bg-[#0b0714] p-4 shadow-[2px_2px_0px_0px_#000000]">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-gold/90 font-mono font-bold">
                     {isUnscRegistration ? "UNSC payment requirement" : "Payment note"}
                   </p>
                   <p className="mt-2 text-sm text-cream/70">
@@ -764,32 +764,32 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-cream/70 uppercase tracking-wider mb-2">
+                  <label className="block text-xs text-cream/70 uppercase tracking-wider mb-2 font-mono">
                     {isUnscRegistration ? "Upload Both Payment Screenshots (Max 5MB each)" : "Upload Payment Screenshot (Max 5MB)"}
                   </label>
-                  <label className="flex flex-col items-center justify-center w-full h-36 rounded-xl border-2 border-dashed border-gold/30 hover:border-gold transition-all cursor-pointer bg-purple-deep/40 hover:bg-purple-deep/70 group">
+                  <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-white/20 hover:border-gold/60 transition-all cursor-pointer bg-[#0b0714] group shadow-[2px_2px_0px_0px_#000000]">
                     {screenshotValue ? (
                       <div className="flex items-center gap-4 p-2">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={screenshotValue}
                           alt="Payment Receipt Preview"
-                          className="h-24 w-24 object-cover rounded-lg border border-gold"
+                          className="h-24 w-24 object-cover border border-white/30"
                         />
                         <div className="text-left">
                           <p className="text-xs text-emerald-400 font-medium flex items-center gap-1 font-mono">
                             <Check size={14} /> SCREENSHOT UPLOADED
                           </p>
-                          <p className="text-[10px] text-cream/40 mt-1">Click box to re-select image</p>
+                          <p className="text-[10px] text-cream/40 mt-1 font-mono">Click box to re-select image</p>
                         </div>
                       </div>
                     ) : (
                       <>
-                        <Upload size={28} className="text-gold/50 group-hover:text-gold transition-colors mb-2" />
-                        <span className="text-xs text-cream/60 group-hover:text-cream transition-colors">
+                        <Upload size={28} className="text-cream/40 group-hover:text-gold transition-colors mb-2" />
+                        <span className="text-xs text-cream/70 group-hover:text-cream transition-colors font-mono">
                           Click to select payment receipt screenshot
                         </span>
-                        <span className="text-[10px] text-cream/30 mt-1">PNG, JPG, JPEG accepted</span>
+                        <span className="text-[10px] text-cream/40 mt-1 font-mono">PNG, JPG, JPEG accepted</span>
                       </>
                     )}
                     <input
@@ -801,12 +801,12 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                     />
                   </label>
                   {errors.paymentScreenshot && (
-                    <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 font-mono">
                       <AlertCircle size={12} /> {errors.paymentScreenshot.message}
                     </p>
                   )}
                   {uploadMessage && !errors.paymentScreenshot && (
-                    <p className="mt-1.5 text-xs text-emerald-400 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-emerald-400 flex items-center gap-1 font-mono">
                       <Check size={12} /> {uploadMessage}
                     </p>
                   )}

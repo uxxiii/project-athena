@@ -374,13 +374,34 @@ export default function AdminPage() {
                         <span className="block">{donation.donorEmail}</span>
                         {donation.donorPhone && <span className="text-cream/40">{donation.donorPhone}</span>}
                       </td>
-                      <td className="py-4 pr-4 font-mono text-gold">₹{Number(donation.amount).toLocaleString("en-IN")}</td>
-                      <td className="py-4 pr-4 font-mono text-cream/80">{donation.transactionRef}</td>
+                      <td className="py-4 pr-4 font-mono text-gold">
+                        {Number(donation.amount) > 0 ? (
+                          <>
+                            ₹{Number(donation.amount).toLocaleString("en-IN")}
+                            {(donation.status === "waitlist" || donation.transactionRef === "WAITLIST") && (
+                              <span className="block text-[10px] text-cream/40 font-sans">Pledged</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-cream/40 font-sans">—</span>
+                        )}
+                      </td>
+                      <td className="py-4 pr-4 font-mono text-cream/80">
+                        {donation.status === "waitlist" || donation.transactionRef === "WAITLIST" ? (
+                          <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 text-amber-300 px-2.5 py-0.5 text-[10px] font-mono border border-amber-500/30">
+                            WAITLIST
+                          </span>
+                        ) : (
+                          donation.transactionRef
+                        )}
+                      </td>
                       <td className="max-w-52 py-4 pr-4 text-cream/50">{donation.message || "—"}</td>
                       <td className="py-4 pr-4">
                         {donation.screenshot ? (
                           <a href={donation.screenshot} target="_blank" rel="noreferrer" className="text-gold hover:text-gold-light">View</a>
-                        ) : "—"}
+                        ) : (
+                          <span className="text-cream/30">{donation.status === "waitlist" ? "N/A" : "—"}</span>
+                        )}
                       </td>
                       <td className="py-4 whitespace-nowrap text-cream/50">{new Date(donation.createdAt).toLocaleDateString()}</td>
                     </tr>

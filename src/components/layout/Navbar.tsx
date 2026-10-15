@@ -4,18 +4,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About Athena" },
-  { href: "/donate", label: "Societal Mission", badge: "Fundraiser" },
+  { href: "/about", label: "About" },
+  { href: "/donate", label: "Societal Mission", badge: "Waitlist" },
   { href: "/teams", label: "Teams" },
-  { href: "/events", label: "Committees & Events" },
-  { href: "/contact", label: "Contact Us" },
+  { href: "/events", label: "Events" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -23,9 +23,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { scrollY } = useScroll();
 
-  const bgOpacity = useTransform(scrollY, [0, 80], [0.4, 0.95]);
-  const backdropBlur = useTransform(scrollY, [0, 80], [8, 20]);
-  const borderAlpha = useTransform(scrollY, [0, 80], [0.08, 0.2]);
+  const bgOpacity = useTransform(scrollY, [0, 80], [0.85, 0.98]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -35,43 +33,36 @@ export function Navbar() {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 transition-all duration-300 pointer-events-none"
+      transition={{ duration: 0.5 }}
+      className="fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 transition-all duration-300 pointer-events-none"
     >
       <div
-        className="mx-auto max-w-7xl rounded-3xl lg:rounded-full border transition-all duration-300 pointer-events-auto overflow-hidden"
-        style={{
-          backgroundColor: `rgba(20, 11, 36, ${bgOpacity.get()})`,
-          backdropFilter: `blur(${backdropBlur.get()}px)`,
-          borderColor: `rgba(212, 175, 55, ${borderAlpha.get()})`,
-          boxShadow: scrollY.get() > 30 ? "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.1)" : "none",
-        }}
+        className="mx-auto max-w-7xl border-2 border-white/20 bg-[#120a1f]/95 backdrop-blur-xl shadow-[4px_4px_0px_0px_#000000] transition-all duration-200 pointer-events-auto"
       >
-        <nav className="flex items-center justify-between px-6 py-3">
+        <nav className="flex items-center justify-between h-16 sm:h-20 px-4 sm:px-6">
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative flex items-center justify-center">
-              <div className="absolute inset-0 bg-gold/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Image
                 src="/logo.jpeg"
                 alt="Project Athena"
-                width={38}
-                height={38}
-                className="relative rounded-full ring-1 ring-gold/40 group-hover:ring-gold transition-all duration-500"
+                width={40}
+                height={40}
+                className="rounded-none border-2 border-white/30 shadow-[2px_2px_0px_0px_#000000] group-hover:scale-105 transition-transform duration-200"
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-heading text-xl tracking-wide text-cream group-hover:text-gold transition-colors">
-                Project <span className="text-gold font-normal">Athena</span>
+              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-cream group-hover:text-gold transition-colors font-sans uppercase">
+                Project <span className="text-gold">Athena</span>
               </span>
-              <span className="text-[9px] tracking-[0.2em] text-cream/40 uppercase font-sans font-medium -mt-1">
-                Collegiate Diplomacy
+              <span className="text-[9px] tracking-[0.2em] text-cream/50 uppercase font-mono font-bold -mt-0.5">
+                Diplomacy For All
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-7">
+          {/* Desktop Nav Links (Clean Behes Style) */}
+          <div className="hidden lg:flex items-center space-x-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -80,22 +71,24 @@ export function Navbar() {
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "relative text-xs tracking-wider uppercase font-medium transition-all duration-300 py-1 px-1 flex items-center gap-1.5",
-                    isActive ? "text-gold font-semibold" : "text-cream/70 hover:text-gold"
+                    "px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 border-2",
+                    isActive
+                      ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
+                      : "text-cream/80 border-transparent hover:border-white/25 hover:bg-white/5 hover:text-white"
                   )}
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="text-[9px] font-mono uppercase bg-gold/15 text-gold border border-gold/30 px-1.5 py-0.5 rounded-full font-bold shadow-xs">
+                    <span
+                      className={cn(
+                        "text-[9px] font-mono uppercase px-1.5 py-0.2 rounded-none font-black border",
+                        isActive
+                          ? "bg-purple-deep text-gold border-black"
+                          : "bg-gold text-[#0b0714] border-black shadow-[1px_1px_0px_0px_#000]"
+                      )}
+                    >
                       {link.badge}
                     </span>
-                  )}
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-glow-bar"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
                   )}
                 </Link>
               );
@@ -103,21 +96,23 @@ export function Navbar() {
           </div>
 
           {/* CTA & Mobile Trigger */}
-          <div className="flex items-center gap-4">
-            <Link href="/events/athena-summit#register" className="hidden sm:block">
-              <Button size="sm" className="rounded-full px-5 text-xs font-semibold uppercase tracking-wider shadow-md shadow-gold/15">
-                <span>Register Now</span>
+          <div className="flex items-center space-x-3">
+            <Link href="/events/athena-summit#register" className="hidden sm:inline-flex">
+              <Button size="sm" className="font-extrabold text-xs uppercase px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000]">
+                <span>Register</span>
+                <ArrowRight size={14} className="ml-1" />
               </Button>
             </Link>
 
             <button
-              className="lg:hidden p-2 rounded-full text-cream/80 hover:text-gold hover:bg-gold/10 transition-colors"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 text-cream hover:text-white bg-purple-dark border-2 border-white/20 shadow-[2px_2px_0px_0px_#000000] transition-all"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
               aria-controls="mobile-navigation"
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+              <span className="font-bold text-xs uppercase font-mono">Menu</span>
             </button>
           </div>
         </nav>
@@ -129,35 +124,39 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-t border-gold/15 bg-purple-deep/95 backdrop-blur-2xl px-6 py-6"
+            className="lg:hidden border-t-2 border-white/10 bg-[#140b24] px-6 py-5"
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "text-sm tracking-wider uppercase font-medium transition-colors py-2 flex items-center justify-between border-b border-white/5",
-                    pathname === link.href ? "text-gold" : "text-cream/70"
+                    "px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all border-2 flex items-center justify-between",
+                    pathname === link.href
+                      ? "bg-gold text-[#0b0714] border-black shadow-[3px_3px_0px_0px_#000000]"
+                      : "text-cream/80 border-white/15 hover:border-white/40 hover:text-white hover:bg-white/5"
                   )}
                 >
                   <span className="flex items-center gap-2">
                     {link.label}
                     {link.badge && (
-                      <span className="text-[9px] font-mono uppercase bg-gold/20 text-gold border border-gold/30 px-1.5 py-0.5 rounded-full font-bold">
+                      <span className="text-[9px] font-mono uppercase bg-gold text-[#0b0714] px-1.5 py-0.5 border border-black font-black shadow-[1px_1px_0px_0px_#000]">
                         {link.badge}
                       </span>
                     )}
                   </span>
-                  <ArrowUpRight size={14} className="text-gold/40" />
+                  <ArrowRight size={14} />
                 </Link>
               ))}
-              <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)} className="mt-2">
-                <Button size="sm" className="w-full rounded-full uppercase tracking-wider text-xs">
-                  Register for Summit
-                </Button>
-              </Link>
+              <div className="pt-3 border-t border-white/10">
+                <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)}>
+                  <Button size="sm" className="w-full text-xs font-extrabold uppercase py-3 shadow-[4px_4px_0px_0px_#000000]">
+                    Register for Summit
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}

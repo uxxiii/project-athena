@@ -20,69 +20,66 @@ export function CommitteeCard({ committee, availability, index = 0 }: CommitteeC
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.04 }}
-      className={`glass-card rounded-xl p-6 group transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
-        isFull ? "opacity-70 border-red-500/20" : ""
+      transition={{ duration: 0.4, delay: index * 0.03 }}
+      className={`bg-[#140b24] border-2 border-white/15 hover:border-gold/60 p-6 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-1 transition-all flex flex-col justify-between group ${
+        isFull ? "opacity-75" : ""
       }`}
     >
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full blur-xl group-hover:bg-gold/15 transition-colors" />
-
       <div>
         {/* Card Header */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start justify-between gap-3 mb-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-heading text-2xl text-gold group-hover:text-gold-light transition-colors font-normal">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-cream group-hover:text-gold transition-colors uppercase tracking-tight">
                 {committee.name}
               </h3>
               {isFull ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/30 px-2 py-0.5 text-[9px] text-red-400 font-mono tracking-wider font-semibold uppercase">
+                <span className="inline-flex items-center gap-1 bg-rose-500 text-white border border-rose-700 px-2 py-0.5 text-[9px] font-mono font-bold tracking-wider uppercase shadow-[2px_2px_0px_0px_#000000]">
                   <Lock size={10} /> FULL
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[9px] text-emerald-400 font-mono tracking-wider uppercase">
+                <span className="inline-flex items-center gap-1 bg-[#1f1238] text-gold border border-gold/40 px-2 py-0.5 text-[9px] font-mono font-bold tracking-wider uppercase shadow-[2px_2px_0px_0px_#000000]">
                   ACTIVE
                 </span>
               )}
             </div>
-            <p className="text-xs text-cream/45 font-sans leading-snug">{committee.fullName}</p>
+            <p className="text-xs text-cream/70 font-sans leading-snug">{committee.fullName}</p>
           </div>
 
-          <div className="flex items-center gap-1.5 text-cream/40 bg-purple-deep/60 px-2.5 py-1 rounded-lg border border-white/5 shrink-0">
-            <Users size={13} className="text-gold/70" />
-            <span className="text-xs font-mono font-medium">{isUnlimited ? "Unlimited" : `${available}/${total}`}</span>
+          <div className="flex items-center gap-1.5 text-cream/80 bg-[#0b0714] px-2.5 py-1 border border-white/15 shadow-[2px_2px_0px_0px_#000000] shrink-0">
+            <Users size={12} className="text-gold" />
+            <span className="text-[11px] font-mono font-bold">{isUnlimited ? "Unlimited" : `${available}/${total}`}</span>
           </div>
         </div>
 
-        {/* Agenda */}
-        <p className="text-xs text-cream/65 leading-relaxed font-sans font-light mb-6 bg-purple-deep/40 p-3 rounded-lg border border-white/5">
+        {/* Agenda Box */}
+        <div className="text-xs text-cream/75 leading-relaxed font-sans mb-5 bg-[#0b0714] p-3.5 border border-white/10 shadow-[2px_2px_0px_0px_#000000]">
+          <span className="text-gold/90 font-bold block mb-1 text-[10px] font-mono uppercase tracking-wider">
+            AGENDA STUDY TOPIC:
+          </span>
           {committee.agenda}
-        </p>
+        </div>
       </div>
 
-      {/* Availability Meter */}
-      <div className="space-y-2 pt-2 border-t border-white/5">
+      {/* Neo Availability Meter */}
+      <div className="space-y-2 pt-3 border-t border-white/10">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-cream/40 font-mono uppercase tracking-wider">Seat Allocation</span>
-          <span className={isFull ? "text-red-400 font-mono" : "text-gold font-mono"}>
+          <span className="text-cream/50 font-mono font-bold uppercase tracking-wider">Matrix Fill</span>
+          <span className={isFull ? "text-rose-400 font-mono font-bold" : "text-gold font-mono font-bold"}>
             {taken} of {isUnlimited ? "Unlimited" : total} Claimed ({Math.round(fillPercent)}%)
           </span>
         </div>
-        <div className="h-2 rounded-full bg-purple-deep/90 overflow-hidden p-0.5 border border-white/5">
+        <div className="h-2.5 bg-[#0b0714] border border-white/15 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             whileInView={{ width: `${fillPercent}%` }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: index * 0.04 + 0.2 }}
-            className={`h-full rounded-full transition-all ${
-              isFull
-                ? "bg-red-500"
-                : fillPercent > 75
-                  ? "bg-gradient-to-r from-amber-500 to-red-400"
-                  : "bg-gradient-to-r from-gold-dark via-gold to-gold-light shadow-sm shadow-gold/30"
+            transition={{ duration: 0.6, delay: index * 0.03 + 0.1 }}
+            className={`h-full transition-all ${
+              isFull ? "bg-rose-500" : "bg-gold"
             }`}
           />
         </div>
