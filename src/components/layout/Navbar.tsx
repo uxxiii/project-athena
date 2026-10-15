@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -21,9 +21,6 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { scrollY } = useScroll();
-
-  const bgOpacity = useTransform(scrollY, [0, 80], [0.85, 0.98]);
 
   useEffect(() => {
     setMobileOpen(false);

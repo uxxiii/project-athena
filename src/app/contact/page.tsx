@@ -2,10 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageSquare, Send, Clock, Camera, ArrowRight } from "lucide-react";
+import { Mail, MessageSquare, Send, Clock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { Button } from "@/components/ui/Button";
 
 const InstagramIcon = ({ size = 22, className = "" }: { size?: number; className?: string }) => (
   <svg

@@ -733,6 +733,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
                 <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
                   <div className="mx-auto w-48 h-48 border-2 border-white/20 bg-white p-3 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/upi-qr.png"
                       alt="Athena Summit UPI payment QR code"

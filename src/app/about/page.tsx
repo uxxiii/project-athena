@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Target, Eye, Heart, Quote, Shield, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 const values = [
   {
@@ -179,12 +178,12 @@ export default function AboutPage() {
 
         {/* Closing Register CTA */}
         <div className="text-center pt-8">
-          <a href="/events/athena-summit#register">
+          <Link href="/events/athena-summit#register">
             <button className="px-9 py-4 bg-gold text-[#0b0714] border-2 border-black font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
               <span>Register for the Summit</span>
               <ArrowRight size={16} />
             </button>
-          </a>
+          </Link>
         </div>
 
       </div>

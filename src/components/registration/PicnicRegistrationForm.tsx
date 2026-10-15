@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users,
   CalendarClock,
   Copy,
   Check,
@@ -21,7 +20,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import type { Registration } from "@/lib/types";
 
 interface PicnicStats {

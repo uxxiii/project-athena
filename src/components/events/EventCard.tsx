@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react";
 import type { SummitEvent } from "@/lib/types";

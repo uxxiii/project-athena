@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readRegistrations, updateRegistrationStatus } from "@/lib/storage";
+import { updateRegistrationStatus } from "@/lib/storage";
 import { sendApprovalEmail, sendRejectionEmail } from "@/lib/email";
 
 interface RouteProps {

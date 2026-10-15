@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Globe, Heart, ArrowRight } from "lucide-react";
+import { Mail, MapPin, Heart, ArrowRight } from "lucide-react";
 
 function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (

@@ -14,7 +14,6 @@ import {
   ChevronRight,
   X,
   Calendar,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { committees as committeeData } from "@/data/committees";
@@ -285,12 +284,12 @@ export default function HomePage() {
 
               {/* Tactile Buttons with Clean Black Shadows */}
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-5 pt-2">
-                <a href="/events/athena-summit#register" className="w-full sm:w-auto">
+                <Link href="/events/athena-summit#register" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto px-9 py-4 text-sm sm:text-base font-extrabold uppercase tracking-wider bg-gold text-[#0b0714] border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
                     <span>Register Now</span>
                     <ArrowRight size={18} />
                   </button>
-                </a>
+                </Link>
 
                 <a href="#events" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto px-9 py-4 text-sm sm:text-base font-bold uppercase tracking-wider bg-[#140b24] text-cream border-2 border-white/25 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:border-white hover:text-white hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
@@ -748,12 +747,12 @@ export default function HomePage() {
               </p>
 
               <div className="pt-2">
-                <a href="/events/athena-summit#register">
+                <Link href="/events/athena-summit#register">
                   <button className="px-9 py-4 bg-gold text-[#0b0714] border-2 border-black font-extrabold text-sm uppercase tracking-wider shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
                     <span>Enter Summit Registry</span>
                     <ArrowRight size={16} />
                   </button>
-                </a>
+                </Link>
               </div>
             </div>
           </div>

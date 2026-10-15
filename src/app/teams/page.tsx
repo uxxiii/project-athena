@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { TeamSection } from "@/components/events/TeamSection";
 import { getLatestUpcomingEvent } from "@/data/events";
 import { Compass, ArrowRight, Mail, GraduationCap, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 
 export default function TeamsPage() {
   const event = getLatestUpcomingEvent();
