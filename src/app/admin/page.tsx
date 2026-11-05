@@ -2,11 +2,26 @@
 
 export const dynamic = "force-dynamic";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { Shield, CreditCard, Mail, Users, CheckCircle, Clock, XCircle, ArrowRight, RefreshCw, Heart } from "lucide-react";
+import {
+  Shield,
+  CreditCard,
+  Users,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  ArrowRight,
+  RefreshCw,
+  TrendingUp,
+  Download,
+  ExternalLink,
+  ChevronRight,
+  Eye,
+  Search,
+} from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
-import { committees } from "@/data/committees";
+import { committees, getCommitteeById } from "@/data/committees";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -31,6 +46,8 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [recentFilter, setRecentFilter] = useState<"all" | "athena-summit" | "mun-picnic">("all");
+  const [recentSearch, setRecentSearch] = useState("");
 
   const fetchData = useCallback(async () => {
     if (!authenticated) return;
@@ -75,44 +92,135 @@ export default function AdminPage() {
       setAuthenticated(true);
       setLoginError("");
     } else {
-      setLoginError("Incorrect password. Try again.");
+      setLoginError("Incorrect password. Please try again.");
     }
   };
+
+  // Stats Calculations
+  const summitRegs = useMemo(
+    () => registrations.filter((r) => r.eventSlug !== "mun-picnic"),
+    [registrations]
+  );
+  const picnicRegs = useMemo(
+    () => registrations.filter((r) => r.eventSlug === "mun-picnic"),
+    [registrations]
+  );
 
   const pendingCount = registrations.filter((r) => r.status === "pending").length;
   const approvedCount = registrations.filter((r) => r.status === "approved").length;
   const rejectedCount = registrations.filter((r) => r.status === "rejected").length;
 
+  const summitApproved = summitRegs.filter((r) => r.status === "approved").length;
+  const picnicApproved = picnicRegs.filter((r) => r.status === "approved").length;
+
+  // Revenue: Approved Summit (₹1,300) + Approved Picnic (₹100)
+  const confirmedRevenue = summitApproved * 1300 + picnicApproved * 100;
+  const totalSummitCapacity = 420;
+
+  // Filtered recent registrations
+  const filteredRecent = useMemo(() => {
+    return registrations.filter((r) => {
+      if (recentFilter === "athena-summit" && r.eventSlug === "mun-picnic") return false;
+      if (recentFilter === "mun-picnic" && r.eventSlug !== "mun-picnic") return false;
+      if (!recentSearch.trim()) return true;
+      const q = recentSearch.toLowerCase();
+      return (
+        r.name.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q) ||
+        (r.assignedCommittee && r.assignedCommittee.toLowerCase().includes(q))
+      );
+    });
+  }, [registrations, recentFilter, recentSearch]);
+
+  // Export to CSV Function
+  const exportToCSV = () => {
+    if (registrations.length === 0) return;
+    const headers = [
+      "ID",
+      "Event",
+      "Name",
+      "Email",
+      "Phone",
+      "Institution",
+      "Class/Year",
+      "Status",
+      "Assigned Committee",
+      "Assigned Portfolio",
+      "Created At",
+    ];
+
+    const rows = registrations.map((r) => [
+      `"${r.id}"`,
+      `"${r.eventSlug}"`,
+      `"${r.name.replace(/"/g, '""')}"`,
+      `"${r.email}"`,
+      `"${r.phone}"`,
+      `"${r.institution.replace(/"/g, '""')}"`,
+      `"${r.classYear}"`,
+      `"${r.status}"`,
+      `"${r.assignedCommittee ?? ""}"`,
+      `"${r.assignedPortfolio ?? ""}"`,
+      `"${new Date(r.createdAt).toISOString()}"`,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `athena_delegates_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!authenticated) {
     return (
-      <div className="pt-32 pb-20">
-        <div className="mx-auto max-w-md px-6">
-          <div className="glass-card rounded-3xl border border-white/10 bg-purple-deep/80 p-10 text-center">
-            <div className="mb-6">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gold/10 text-gold">
-                <Shield size={28} className="text-gold" />
+      <div className="pt-36 pb-24 min-h-[90vh] flex items-center justify-center neo-grid-bg">
+        <div className="mx-auto max-w-md w-full px-6">
+          <div className="bg-[#140b24] border-2 border-gold/40 p-8 sm:p-10 shadow-[8px_8px_0px_0px_#000000] relative">
+            <div className="mb-6 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/15 border border-gold/40 text-gold mb-3">
+                <Shield size={30} className="text-gold" />
               </div>
+              <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono font-bold">
+                Project Athena Secretariat
+              </span>
+              <h1 className="font-heading text-3xl text-cream font-bold mt-1">
+                Executive Portal
+              </h1>
+              <p className="text-xs text-cream/60 mt-1">
+                Enter your administrative key to unlock delegate matrix and verification controls.
+              </p>
             </div>
-            <h1 className="font-heading text-3xl text-cream mb-2">Admin Login</h1>
-            <p className="text-sm text-cream/55 mb-6">
-              Enter the admin password to access the Athena Secretariat Dashboard.
-            </p>
+
             <form onSubmit={handleLogin} className="space-y-4">
-              <label className="block text-left text-sm text-cream/60">
-                Password
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-cream/70 font-mono mb-2">
+                  Password
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-navy-light/50 px-4 py-3 text-cream outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/20"
+                  placeholder="Enter admin password..."
+                  className="w-full rounded-none border-2 border-white/20 bg-[#0b0714] px-4 py-3 text-cream outline-none focus:border-gold focus:ring-1 focus:ring-gold text-sm font-mono shadow-[2px_2px_0px_0px_#000]"
                 />
-              </label>
-              {loginError && <p className="text-xs text-red-400">{loginError}</p>}
+              </div>
+
+              {loginError && (
+                <div className="text-xs text-red-400 font-mono bg-red-500/10 p-2.5 border border-red-500/30">
+                  {loginError}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-gold px-4 py-3 text-sm font-semibold text-navy hover:bg-gold-light transition-colors"
+                className="w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-[#0b0714] hover:bg-gold-light transition-all shadow-[3px_3px_0px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5"
               >
-                Unlock Dashboard
+                Access Secretariat Terminal
               </button>
             </form>
           </div>
@@ -122,301 +230,175 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="pt-32 pb-20">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold/10 ring-1 ring-gold/30">
-              <Shield size={24} className="text-gold" />
-            </div>
-            <div>
-              <h1 className="font-heading text-4xl text-cream">
-                Admin <span className="text-gradient-gold">Dashboard</span>
-              </h1>
-              <p className="text-xs text-cream/40 mt-0.5">Project Athena Secretariat Management Portal</p>
-            </div>
-          </div>
+    <div className="pt-28 pb-20 neo-grid-bg min-h-screen">
+      <div className="mx-auto max-w-7xl px-6 space-y-8">
+        {/* Top Executive Command Bar */}
+        <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 
-          <button
-            onClick={fetchData}
-            disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg border border-gold/30 bg-purple-deep/60 px-4 py-2 text-xs font-medium text-gold hover:bg-gold/10 transition-colors"
-          >
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            Refresh Data
-          </button>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-cream/40 uppercase tracking-wider">Total Registrations</span>
-              <Users size={18} className="text-gold" />
-            </div>
-            <p className="font-heading text-4xl text-cream font-bold">{registrations.length}</p>
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-amber-400/80 uppercase tracking-wider">Pending Payment</span>
-              <Clock size={18} className="text-amber-400" />
-            </div>
-            <p className="font-heading text-4xl text-amber-400 font-bold">{pendingCount}</p>
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-emerald-400/80 uppercase tracking-wider">Approved</span>
-              <CheckCircle size={18} className="text-emerald-400" />
-            </div>
-            <p className="font-heading text-4xl text-emerald-400 font-bold">{approvedCount}</p>
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-red-400/80 uppercase tracking-wider">Rejected</span>
-              <XCircle size={18} className="text-red-400" />
-            </div>
-            <p className="font-heading text-4xl text-red-400 font-bold">{rejectedCount}</p>
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-gold/80 uppercase tracking-wider">Donations Logged</span>
-              <Heart size={18} className="text-gold" />
-            </div>
-            <p className="font-heading text-4xl text-gold font-bold">{donations.length}</p>
-          </div>
-        </div>
-
-        {/* Action Quick Links */}
-        <div className="grid gap-6 md:grid-cols-2 mb-10">
-          <Link
-            href="/admin/payments"
-            className="glass-card rounded-xl p-8 hover:border-gold/40 transition-all duration-300 group relative overflow-hidden"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gold/10 ring-1 ring-gold/20 mb-4 group-hover:ring-gold/40">
-                <CreditCard size={24} className="text-gold" />
-              </div>
-              {pendingCount > 0 && (
-                <span className="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs text-amber-400 font-medium">
-                  {pendingCount} Pending Action
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="px-3 py-1 bg-gold text-[#0b0714] text-[10px] font-mono font-black uppercase tracking-wider border border-black shadow-[2px_2px_0px_0px_#000]">
+                  Secretariat Command Hub
                 </span>
-              )}
-            </div>
-            <h3 className="font-heading text-2xl text-cream group-hover:text-gold transition-colors">
-              Payment Verification
-            </h3>
-            <p className="text-sm text-cream/50 mt-2 leading-relaxed">
-              Review delegate payment screenshots, verify UPI transactions, and approve or reject submissions with instant email dispatch.
-            </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-gold group-hover:translate-x-1 transition-transform">
-              Review All Payments <ArrowRight size={14} />
-            </div>
-          </Link>
+                <span className="px-3 py-1 bg-[#0b0714] text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/30 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Live Sync
+                </span>
+                <span className="px-3 py-1 bg-[#0b0714] text-gold text-[10px] font-mono font-bold uppercase tracking-wider border border-gold/30">
+                  Athena Summit Fee: ₹1,300 • Cap: 420
+                </span>
+              </div>
 
-          <div className="glass-card rounded-xl p-8 relative overflow-hidden">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-light/20 ring-1 ring-purple-light/40 mb-4">
-              <Mail size={24} className="text-purple-glow" />
+              <h1 className="font-heading text-3xl sm:text-4xl text-cream font-extrabold uppercase tracking-tight">
+                Athena <span className="text-gold">Secretariat</span> Dashboard
+              </h1>
+              <p className="text-xs sm:text-sm text-cream/60 max-w-2xl font-sans">
+                Real-time oversight for Athena Summit (420 seats across 6 committees) and event operations.
+              </p>
             </div>
-            <h3 className="font-heading text-2xl text-cream">
-              Email Automation Engine
-            </h3>
-            <p className="text-sm text-cream/50 mt-2 leading-relaxed">
-              Automated dispatch of verified entry passes, Energy Park directions, RoPs, and allocations upon payment verification.
-            </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-emerald-400">
-              <CheckCircle size={14} /> Active & Automated on Approval
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin/payments"
+                className="inline-flex items-center gap-2 bg-gold px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0b0714] hover:bg-gold-light transition-all shadow-[3px_3px_0px_0px_#000000]"
+              >
+                <CreditCard size={15} />
+                <span>Verify Payments ({pendingCount})</span>
+              </Link>
+
+              <button
+                onClick={exportToCSV}
+                className="inline-flex items-center gap-2 border-2 border-white/20 bg-[#0b0714] px-4 py-2.5 text-xs font-mono font-bold text-cream hover:border-gold hover:text-gold transition-colors shadow-[2px_2px_0px_0px_#000000]"
+              >
+                <Download size={14} />
+                <span>Export CSV</span>
+              </button>
+
+              <button
+                onClick={fetchData}
+                disabled={loading}
+                className="inline-flex items-center gap-2 border-2 border-white/20 bg-[#0b0714] p-2.5 text-cream hover:border-gold hover:text-gold transition-colors shadow-[2px_2px_0px_0px_#000000]"
+                title="Refresh Matrix Data"
+              >
+                <RefreshCw size={14} className={loading ? "animate-spin text-gold" : ""} />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Dedicated MUN Picnic 100-Seat Cap Hub */}
-        {(() => {
-          const allPicnicRegs = registrations.filter((r) => r.eventSlug === "mun-picnic");
-          const picnicRegs = allPicnicRegs.filter((r) => r.status !== "rejected");
-          const picnicPending = picnicRegs.filter((r) => r.status === "pending").length;
-          const picnicApproved = picnicRegs.filter((r) => r.status === "approved").length;
-          const seatsRemaining = Math.max(0, 100 - picnicRegs.length);
-          const percent = Math.min(100, Math.round((picnicRegs.length / 100) * 100));
-
-          return (
-            <div className="glass-card rounded-2xl p-6 sm:p-8 mb-12 border border-gold/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-[11px] font-mono text-gold uppercase tracking-wider mb-2">
-                    <span>Event Spotlight • 11th October</span>
-                  </div>
-                  <h3 className="font-heading text-2xl text-cream">
-                    Athena MUN Picnic: <span className="text-gradient-gold">Energy Park</span>
-                  </h3>
-                  <p className="text-xs text-cream/55 mt-1">
-                    Training Workshop + Community Potluck + Diplomacy Games • ₹100 Flat Fee
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Link
-                    href="/admin/payments?event=mun-picnic"
-                    className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2 text-xs font-semibold text-purple-deep hover:bg-gold-light transition-colors shadow-md"
-                  >
-                    <CreditCard size={14} />
-                    <span>Verify Picnic Payments ({picnicPending})</span>
-                  </Link>
-
-                  <Link
-                    href="/events/mun-picnic"
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-gold/30 bg-purple-deep/60 px-3.5 py-2 text-xs font-medium text-cream hover:text-gold transition-colors"
-                  >
-                    <span>View Public Page</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Progress & Stats Bar */}
-              <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
-                  <span className="text-[11px] uppercase tracking-wider text-cream/40 font-mono block">
-                    Seats Claimed
-                  </span>
-                  <p className="font-heading text-3xl text-cream font-bold mt-1">
-                    {picnicRegs.length} <span className="text-base text-cream/40 font-normal">/ 100</span>
-                  </p>
-                  <span className="text-[11px] text-gold/80 font-mono mt-0.5 block">
-                    {seatsRemaining} Seats Remaining
-                  </span>
-                </div>
-
-                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
-                  <span className="text-[11px] uppercase tracking-wider text-amber-400/70 font-mono block">
-                    Pending Payments
-                  </span>
-                  <p className="font-heading text-3xl text-amber-400 font-bold mt-1">
-                    {picnicPending}
-                  </p>
-                  <span className="text-[11px] text-cream/40 font-mono mt-0.5 block">
-                    Awaiting receipt verification
-                  </span>
-                </div>
-
-                <div className="bg-purple-deep/50 rounded-xl p-4 border border-gold/15">
-                  <span className="text-[11px] uppercase tracking-wider text-emerald-400/70 font-mono block">
-                    Verified Passes Issued
-                  </span>
-                  <p className="font-heading text-3xl text-emerald-400 font-bold mt-1">
-                    {picnicApproved}
-                  </p>
-                  <span className="text-[11px] text-cream/40 font-mono mt-0.5 block">
-                    Pass & map dispatched
-                  </span>
-                </div>
-              </div>
-
-              {/* Capacity Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-mono text-cream/60">
-                  <span>100-Seat Cap Progress ({percent}%)</span>
-                  <span>{picnicRegs.length >= 100 ? "Cap Reached" : `${seatsRemaining} available`}</span>
-                </div>
-                <div className="h-3 w-full bg-purple-dark rounded-full overflow-hidden border border-gold/20 p-0.5">
-                  <div
-                    style={{ width: `${percent}%` }}
-                    className="h-full rounded-full bg-gradient-to-r from-gold/80 via-gold to-amber-300 transition-all duration-500"
-                  />
-                </div>
-              </div>
+        {/* Executive KPI Stats Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Card 1: Total Registrations */}
+          <div className="bg-[#140b24] border-2 border-white/15 p-5 shadow-[4px_4px_0px_0px_#000000] relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-cream/50 uppercase tracking-widest font-mono font-bold">
+                Total Dossiers
+              </span>
+              <Users size={16} className="text-gold" />
             </div>
-          );
-        })()}
-
-        {/* Donation Records */}
-        <div className="glass-card rounded-xl p-6 sm:p-8 mb-12">
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <div>
-              <h3 className="font-heading text-2xl text-gold">Donation Records</h3>
-              <p className="text-xs text-cream/40 mt-1">Live contribution details submitted through the donation page</p>
-            </div>
-            <span className="shrink-0 rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-mono text-gold">
-              {donations.length} total
+            <p className="font-heading text-3xl sm:text-4xl text-cream font-black">
+              {registrations.length}
+            </p>
+            <span className="text-[10px] text-cream/40 font-mono mt-1 block">
+              Summit: {summitRegs.length} • Picnic: {picnicRegs.length}
             </span>
           </div>
 
-          {loading ? (
-            <p className="text-sm text-cream/40">Loading donation records...</p>
-          ) : donations.length === 0 ? (
-            <p className="text-sm text-cream/40">No donations have been submitted yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-xs">
-                <thead className="border-b border-white/10 text-[10px] uppercase tracking-wider text-cream/40">
-                  <tr>
-                    <th className="pb-3 pr-4 font-medium">Donor</th>
-                    <th className="pb-3 pr-4 font-medium">Contact</th>
-                    <th className="pb-3 pr-4 font-medium">Amount</th>
-                    <th className="pb-3 pr-4 font-medium">Transaction Ref</th>
-                    <th className="pb-3 pr-4 font-medium">Message</th>
-                    <th className="pb-3 pr-4 font-medium">Receipt</th>
-                    <th className="pb-3 font-medium">Submitted</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 text-cream/70">
-                  {donations.map((donation) => (
-                    <tr key={donation.id}>
-                      <td className="py-4 pr-4 font-medium text-cream">{donation.donorName}</td>
-                      <td className="py-4 pr-4 leading-relaxed">
-                        <span className="block">{donation.donorEmail}</span>
-                        {donation.donorPhone && <span className="text-cream/40">{donation.donorPhone}</span>}
-                      </td>
-                      <td className="py-4 pr-4 font-mono text-gold">
-                        {Number(donation.amount) > 0 ? (
-                          <>
-                            ₹{Number(donation.amount).toLocaleString("en-IN")}
-                            {(donation.status === "waitlist" || donation.transactionRef === "WAITLIST") && (
-                              <span className="block text-[10px] text-cream/40 font-sans">Pledged</span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-cream/40 font-sans">—</span>
-                        )}
-                      </td>
-                      <td className="py-4 pr-4 font-mono text-cream/80">
-                        {donation.status === "waitlist" || donation.transactionRef === "WAITLIST" ? (
-                          <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 text-amber-300 px-2.5 py-0.5 text-[10px] font-mono border border-amber-500/30">
-                            WAITLIST
-                          </span>
-                        ) : (
-                          donation.transactionRef
-                        )}
-                      </td>
-                      <td className="max-w-52 py-4 pr-4 text-cream/50">{donation.message || "—"}</td>
-                      <td className="py-4 pr-4">
-                        {donation.screenshot ? (
-                          <a href={donation.screenshot} target="_blank" rel="noreferrer" className="text-gold hover:text-gold-light">View</a>
-                        ) : (
-                          <span className="text-cream/30">{donation.status === "waitlist" ? "N/A" : "—"}</span>
-                        )}
-                      </td>
-                      <td className="py-4 whitespace-nowrap text-cream/50">{new Date(donation.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Card 2: Pending Verification */}
+          <Link
+            href="/admin/payments?filter=pending"
+            className="bg-[#140b24] border-2 border-amber-500/40 hover:border-amber-400 p-5 shadow-[4px_4px_0px_0px_#000000] transition-all group block"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-amber-400 uppercase tracking-widest font-mono font-bold">
+                Awaiting Review
+              </span>
+              <Clock size={16} className="text-amber-400 group-hover:animate-pulse" />
             </div>
-          )}
+            <p className="font-heading text-3xl sm:text-4xl text-amber-400 font-black">
+              {pendingCount}
+            </p>
+            <span className="text-[10px] text-amber-300/60 font-mono mt-1 flex items-center gap-1">
+              Verify Receipts <ArrowRight size={10} />
+            </span>
+          </Link>
+
+          {/* Card 3: Approved & Allocated */}
+          <div className="bg-[#140b24] border-2 border-white/15 p-5 shadow-[4px_4px_0px_0px_#000000]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-mono font-bold">
+                Passes Issued
+              </span>
+              <CheckCircle2 size={16} className="text-emerald-400" />
+            </div>
+            <p className="font-heading text-3xl sm:text-4xl text-emerald-400 font-black">
+              {approvedCount}
+            </p>
+            <span className="text-[10px] text-cream/40 font-mono mt-1 block">
+              Summit: {summitApproved} • Picnic: {picnicApproved}
+            </span>
+          </div>
+
+          {/* Card 4: Verified Revenue */}
+          <div className="bg-[#140b24] border-2 border-white/15 p-5 shadow-[4px_4px_0px_0px_#000000]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-gold uppercase tracking-widest font-mono font-bold">
+                Revenue In
+              </span>
+              <TrendingUp size={16} className="text-gold" />
+            </div>
+            <p className="font-heading text-3xl sm:text-4xl text-gold font-black">
+              ₹{confirmedRevenue.toLocaleString("en-IN")}
+            </p>
+            <span className="text-[10px] text-cream/40 font-mono mt-1 block">
+              From approved delegate fees
+            </span>
+          </div>
+
+          {/* Card 5: Flagged / Rejected */}
+          <div className="bg-[#140b24] border-2 border-white/15 p-5 shadow-[4px_4px_0px_0px_#000000] col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-rose-400 uppercase tracking-widest font-mono font-bold">
+                Rejected
+              </span>
+              <XCircle size={16} className="text-rose-400" />
+            </div>
+            <p className="font-heading text-3xl sm:text-4xl text-rose-400 font-black">
+              {rejectedCount}
+            </p>
+            <span className="text-[10px] text-cream/40 font-mono mt-1 block">
+              Invalid or flagged receipts
+            </span>
+          </div>
         </div>
 
-        {/* Committee Fill Rates */}
-        <div className="glass-card rounded-xl p-8 space-y-6">
-          <div>
-            <h3 className="font-heading text-2xl text-gold">Committee Fill Rates</h3>
-            <p className="text-xs text-cream/40 mt-1">Live seat allocation statistics across all {committees.length} committees</p>
+        {/* 6-Committee Allocation Matrix Hub */}
+        <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 bg-gold/15 text-gold border border-gold/30 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  Athena Summit 2026
+                </span>
+                <span className="text-xs text-cream/50 font-mono">
+                  Total Capacity: {totalSummitCapacity} Seats
+                </span>
+              </div>
+              <h2 className="font-heading text-2xl text-cream font-bold mt-1">
+                Committee Allocation Matrix (6 Active Assemblies)
+              </h2>
+            </div>
+
+            <Link
+              href="/events/athena-summit"
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-xs text-gold hover:text-gold-light font-mono"
+            >
+              <span>View Public Summit Page</span>
+              <ExternalLink size={12} />
+            </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -424,29 +406,296 @@ export default function AdminPage() {
               const commAvail = availability?.committees[c.id];
               const taken = commAvail?.taken ?? 0;
               const total = commAvail?.total ?? c.maxDelegates;
-              const isUnlimited = c.maxDelegates === Number.MAX_SAFE_INTEGER;
+              const available = commAvail?.available ?? (total - taken);
               const fillPct = total > 0 ? Math.round((taken / total) * 100) : 0;
+              const isFull = taken >= total;
 
               return (
-                <div key={c.id} className="rounded-lg border border-white/5 bg-purple-deep/40 p-4 space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-heading text-gold text-base">{c.name}</span>
-                    <span className="text-xs text-cream/50">{isUnlimited ? `${taken} filled` : `${taken}/${total} filled`}</span>
+                <div
+                  key={c.id}
+                  className="bg-[#0b0714] border-2 border-white/10 p-5 space-y-3 shadow-[3px_3px_0px_0px_#000000] hover:border-gold/50 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="font-heading text-xl text-gold font-bold block">
+                        {c.name}
+                      </span>
+                      <span className="text-xs text-cream/70 font-sans line-clamp-1">
+                        {c.fullName}
+                      </span>
+                    </div>
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 border font-bold ${
+                        isFull
+                          ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                          : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                      }`}
+                    >
+                      {isFull ? "CAP REACHED" : `${available} LEFT`}
+                    </span>
                   </div>
-                  <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                    <div
-                      className="h-full bg-linear-to-r from-gold to-gold-light rounded-full transition-all duration-500"
-                      style={{ width: `${fillPct}%` }}
-                    />
+
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-cream/50">Seats Claimed:</span>
+                      <span className="text-cream font-bold">
+                        {taken} / {total} ({fillPct}%)
+                      </span>
+                    </div>
+
+                    <div className="h-2 bg-purple-deep border border-white/10 overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-500 ${
+                          isFull ? "bg-rose-500" : "bg-gold"
+                        }`}
+                        style={{ width: `${Math.min(100, fillPct)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-cream/30">
-                    <span>{c.fullName}</span>
-                    <span>{fillPct}%</span>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+                    <span className="text-cream/40">Fee: ₹1,300</span>
+                    <Link
+                      href={`/admin/payments?committee=${c.id}`}
+                      className="text-gold hover:text-gold-light inline-flex items-center gap-1 font-bold"
+                    >
+                      View Allocations <ChevronRight size={12} />
+                    </Link>
                   </div>
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* Recent Registrations Table with Search & Fast Filtering */}
+        <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <h2 className="font-heading text-2xl text-cream font-bold">
+                Delegate Master Register
+              </h2>
+              <p className="text-xs text-cream/50 mt-0.5">
+                Quick inspection and status overview of delegate submissions
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Event Filter */}
+              <div className="flex items-center bg-[#0b0714] border border-white/15 p-1 text-xs font-mono">
+                {(["all", "athena-summit", "mun-picnic"] as const).map((filterOpt) => (
+                  <button
+                    key={filterOpt}
+                    onClick={() => setRecentFilter(filterOpt)}
+                    className={`px-3 py-1 font-bold uppercase transition-colors ${
+                      recentFilter === filterOpt
+                        ? "bg-gold text-[#0b0714]"
+                        : "text-cream/60 hover:text-cream"
+                    }`}
+                  >
+                    {filterOpt === "all" ? "All" : filterOpt === "athena-summit" ? "Summit (₹1300)" : "Picnic (₹100)"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Box */}
+              <div className="relative w-full sm:w-64">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-cream/40" />
+                <input
+                  type="text"
+                  placeholder="Search delegate, email..."
+                  value={recentSearch}
+                  onChange={(e) => setRecentSearch(e.target.value)}
+                  className="w-full bg-[#0b0714] border border-white/20 pl-9 pr-3 py-1.5 text-xs text-cream font-mono outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12 text-cream/40 font-mono text-xs">
+              Loading delegate registry...
+            </div>
+          ) : filteredRecent.length === 0 ? (
+            <div className="text-center py-12 text-cream/40 font-mono text-xs">
+              No delegates match the active filter criteria.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[850px] text-left text-xs font-sans">
+                <thead className="border-b border-white/10 text-[10px] uppercase font-mono font-bold tracking-wider text-cream/50">
+                  <tr>
+                    <th className="pb-3 pr-4">Delegate Pass ID</th>
+                    <th className="pb-3 pr-4">Delegate Name</th>
+                    <th className="pb-3 pr-4">Event</th>
+                    <th className="pb-3 pr-4">Allocation</th>
+                    <th className="pb-3 pr-4">Institution</th>
+                    <th className="pb-3 pr-4">Status</th>
+                    <th className="pb-3 pr-4">Receipt</th>
+                    <th className="pb-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-cream/80">
+                  {filteredRecent.slice(0, 15).map((reg) => {
+                    const isPicnic = reg.eventSlug === "mun-picnic";
+                    const comm = getCommitteeById(reg.assignedCommittee ?? "");
+                    const portfolioName =
+                      comm?.portfolios.find((p) => p.id === reg.assignedPortfolio)?.name ??
+                      reg.assignedPortfolio ??
+                      "—";
+
+                    return (
+                      <tr key={reg.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3.5 pr-4 font-mono text-[11px] text-gold font-bold">
+                          {reg.id}
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <span className="font-bold text-cream block">{reg.name}</span>
+                          <span className="text-[10px] text-cream/40 font-mono">{reg.email}</span>
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          {isPicnic ? (
+                            <span className="inline-block bg-purple-deep border border-gold/30 text-gold px-2 py-0.5 text-[10px] font-mono font-bold">
+                              Picnic (₹100)
+                            </span>
+                          ) : (
+                            <span className="inline-block bg-gold/15 border border-gold/30 text-gold px-2 py-0.5 text-[10px] font-mono font-bold">
+                              Summit (₹1,300)
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          {isPicnic ? (
+                            <span className="text-xs text-cream/80 font-mono">Energy Park</span>
+                          ) : (
+                            <div>
+                              <span className="font-bold text-gold text-xs block font-mono">
+                                {comm?.name ?? reg.assignedCommittee?.toUpperCase()}
+                              </span>
+                              <span className="text-[11px] text-cream/60 line-clamp-1">
+                                {portfolioName}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3.5 pr-4 text-cream/70 max-w-44 truncate">
+                          {reg.institution}
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <span
+                            className={`inline-block px-2 py-0.5 text-[10px] font-mono font-bold uppercase border ${
+                              reg.status === "approved"
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                : reg.status === "rejected"
+                                ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                                : "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                            }`}
+                          >
+                            {reg.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          {reg.paymentScreenshot ? (
+                            <a
+                              href={reg.paymentScreenshot}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-gold hover:text-gold-light inline-flex items-center gap-1 font-mono text-[11px]"
+                            >
+                              <Eye size={12} /> View
+                            </a>
+                          ) : (
+                            <span className="text-cream/30 font-mono text-[11px]">—</span>
+                          )}
+                        </td>
+                        <td className="py-3.5">
+                          <Link
+                            href={`/admin/payments?search=${encodeURIComponent(reg.id)}`}
+                            className="inline-flex items-center gap-1 text-[11px] font-mono text-gold hover:text-gold-light font-bold"
+                          >
+                            Manage <ArrowRight size={11} />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {filteredRecent.length > 15 && (
+            <div className="pt-3 border-t border-white/5 text-center">
+              <Link
+                href="/admin/payments"
+                className="text-xs font-mono text-gold hover:text-gold-light font-bold inline-flex items-center gap-1.5"
+              >
+                <span>View all {filteredRecent.length} delegate records in Payment Manager</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Donations Log */}
+        <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h2 className="font-heading text-2xl text-cream font-bold">
+                Donation & Sponsorship Log
+              </h2>
+              <p className="text-xs text-cream/50 mt-0.5">
+                Community contributions and solidarity pledges logged through the donation portal
+              </p>
+            </div>
+            <span className="font-mono text-xs text-gold border border-gold/30 bg-[#0b0714] px-3 py-1 font-bold">
+              {donations.length} Contributions
+            </span>
+          </div>
+
+          {donations.length === 0 ? (
+            <p className="text-xs text-cream/40 font-mono py-6 text-center">
+              No donation records logged yet.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[750px] text-left text-xs font-sans">
+                <thead className="border-b border-white/10 text-[10px] uppercase font-mono font-bold tracking-wider text-cream/50">
+                  <tr>
+                    <th className="pb-3 pr-4">Donor</th>
+                    <th className="pb-3 pr-4">Contact</th>
+                    <th className="pb-3 pr-4">Amount</th>
+                    <th className="pb-3 pr-4">Transaction Ref</th>
+                    <th className="pb-3 pr-4">Message</th>
+                    <th className="pb-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-cream/80">
+                  {donations.map((d) => (
+                    <tr key={d.id} className="hover:bg-white/[0.02]">
+                      <td className="py-3 pr-4 font-bold text-cream">{d.donorName}</td>
+                      <td className="py-3 pr-4 font-mono text-[11px]">
+                        <div>{d.donorEmail}</div>
+                        {d.donorPhone && <div className="text-cream/40">{d.donorPhone}</div>}
+                      </td>
+                      <td className="py-3 pr-4 font-mono text-gold font-bold">
+                        ₹{Number(d.amount).toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-3 pr-4 font-mono text-[11px] text-cream/70">
+                        {d.transactionRef}
+                      </td>
+                      <td className="py-3 pr-4 text-cream/60 max-w-56 truncate">
+                        {d.message || "—"}
+                      </td>
+                      <td className="py-3 font-mono text-[11px] text-cream/40 whitespace-nowrap">
+                        {new Date(d.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -7,12 +7,14 @@ export const events: SummitEvent[] = [
     slug: "athena-summit",
     title: "Athena Summit",
     subtitle: "Where Diplomacy Meets Excellence",
-    date: "November 2026",
-    location: "TBA",
+    date: "20–21 November 2026",
+    location: "Patna, Bihar",
+    price: 1300,
+    capacity: 500,
     description:
-      "Project Athena's flagship summit: a distinguished diplomatic experience bringing together delegates from across institutions.",
+      "Project Athena's flagship summit bringing together 500+ delegates across 6 specialized committees in Patna.",
     longDescription:
-      "The Athena Summit represents the pinnacle of collegiate diplomacy, offering a carefully curated summit experience designed for delegates who seek intellectual rigour, procedural excellence, and meaningful debate on pressing global issues. From crisis committees to specialized agencies, every session is crafted to challenge, inspire, and transform.",
+      "The Athena Summit offers an engaging conference designed for students and debaters who seek procedural clarity, informed discussion, and meaningful debate on pressing domestic and international issues. Across 6 committees spanning UN bodies, Indian parliamentary assemblies, state governance, and international press, every session is built to develop practical diplomatic and public speaking skills.",
     committees: committees.map((c) => c.id),
     brochureUrl: "/brochure/athena-summit.pdf",
     team: [

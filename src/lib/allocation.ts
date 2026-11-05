@@ -16,31 +16,15 @@ export function allocateDelegate(
   input: RegistrationInput,
   availability: AvailabilitySnapshot
 ): AllocationResult | null {
-  const unscLocked = Boolean(
-    input.isUnscRegistration ||
-      (input.unscDelegate &&
-        input.unscDelegate.name?.trim() &&
-        input.unscDelegate.phone?.trim() &&
-        input.unscDelegate.email?.trim() &&
-        input.unscDelegate.classYear?.trim() &&
-        input.unscDelegate.institution?.trim())
-  );
-
-  const preferences = unscLocked
-    ? ["unsc"]
-    : (input.committeePreferences?.filter(Boolean) ?? []);
+  const preferences = input.committeePreferences?.filter(Boolean) ?? [];
 
   for (const committeeId of preferences) {
     if (!isCommitteeAvailable(availability, committeeId)) continue;
 
-    const sharedPortfolioPrefs =
-      committeeId === "unsc"
-        ? (input.unscDelegatePortfolioPreferences?.filter(Boolean) ?? [])
-        : [];
     const portfolioPrefs =
-      sharedPortfolioPrefs.length > 0
-        ? sharedPortfolioPrefs
-        : (input.portfolioPreferences?.[committeeId]?.filter(Boolean) ?? []);
+      input.portfolioPreferences?.[committeeId]?.filter(Boolean) ??
+      (committeeId === "unsc" ? input.unscDelegatePortfolioPreferences?.filter(Boolean) ?? [] : []);
+
     const available = getAvailablePortfolios(availability, committeeId);
 
     for (const portfolioId of portfolioPrefs) {

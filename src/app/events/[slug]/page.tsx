@@ -136,7 +136,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   </span>
                 </div>
                 <p className="text-xs text-cream/60 leading-relaxed">
-                  Mingle, make friends, and connect with premier delegates, debaters, and mentors across institutions without the formal caucus pressure.
+                  Mingle, make friends, and connect with fellow delegates, debaters, and mentors across institutions without the formal caucus pressure.
                 </p>
               </div>
 

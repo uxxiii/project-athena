@@ -1,5 +1,6 @@
-export const REGISTRATION_OPEN_DATE_ISO = "2026-09-05T17:00:00+05:30";
-export const EARLY_BIRD_DEADLINE_ISO = "2026-09-10T23:59:59+05:30";
+export const REGISTRATION_OPEN_DATE_ISO = "2026-11-06T10:00:00+05:30";
+export const EARLY_BIRD_DEADLINE_ISO = "2026-11-12T23:59:59+05:30";
+export const REGISTRATION_FEE = 1300;
 
 export interface CommitteePricing {
   label: string;
@@ -11,30 +12,33 @@ export interface CommitteePricing {
 
 export const PRICING_CONFIG: { normal: CommitteePricing; unsc: CommitteePricing } = {
   normal: {
-    label: "Normal Committee",
-    earlyBirdPrice: 1600,
-    normalPrice: 1600,
+    label: "Delegate Registration",
+    earlyBirdPrice: 1300,
+    normalPrice: 1300,
     discountAmount: 0,
     discountPercent: 0,
   },
   unsc: {
-    label: "UNSC Double Delegation",
-    earlyBirdPrice: 3200,
-    normalPrice: 3200,
+    label: "UNSC Delegate Registration",
+    earlyBirdPrice: 1300,
+    normalPrice: 1300,
     discountAmount: 0,
     discountPercent: 0,
   },
 };
 
 export function isRegistrationLaunched(): boolean {
-  return false;
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_REGISTRATION_OPEN === "true") {
+    return true;
+  }
+  return new Date().getTime() >= new Date(REGISTRATION_OPEN_DATE_ISO).getTime();
 }
 
 export function isEarlyBirdActive(): boolean {
   return false;
 }
 
-export function getPricing(isUnsc: boolean) {
+export function getPricing(isUnsc: boolean = false) {
   const config = isUnsc ? PRICING_CONFIG.unsc : PRICING_CONFIG.normal;
   return {
     ...config,

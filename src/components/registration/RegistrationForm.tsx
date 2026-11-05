@@ -46,21 +46,16 @@ interface RegistrationFormProps {
 export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   const [step, setStep] = useState(1);
   const [isFormLaunched, setIsFormLaunched] = useState(false);
-  const [availability, setAvailability] = useState<AvailabilitySnapshot | null>(
-    null
-  );
-
-  useEffect(() => {
-    setIsFormLaunched(isRegistrationLaunched());
-  }, []);
-  const [availabilityError, setAvailabilityError] = useState<string | null>(
-    null
-  );
+  const [availability, setAvailability] = useState<AvailabilitySnapshot | null>(null);
+  const [, setAvailabilityError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<Registration | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
-  const [iplTeamSelections, setIplTeamSelections] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setIsFormLaunched(isRegistrationLaunched());
+  }, []);
 
   const form = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema) as never,
@@ -76,18 +71,22 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
       reference: "",
       paymentScreenshot: "",
       isUnscRegistration: false,
-      unscDelegate: undefined,
-      unscDelegatePortfolioPreferences: ["", "", ""] as [string, string, string],
     },
     mode: "onChange",
   });
 
-  const { register, watch, setValue, trigger, getValues, formState: { errors } } = form;
+  const {
+    register,
+    watch,
+    setValue,
+    trigger,
+    getValues,
+    formState: { errors },
+  } = form;
+
   const committeePrefs = watch("committeePreferences");
   const portfolioPrefs = watch("portfolioPreferences");
-  const unscDelegatePortfolioPrefs = watch("unscDelegatePortfolioPreferences");
   const screenshotValue = watch("paymentScreenshot");
-  const isUnscRegistration = Boolean(watch("isUnscRegistration"));
 
   const fetchAvailability = useCallback(async () => {
     try {
@@ -123,37 +122,31 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
     const fields = STEP_FIELDS[step];
 
     if (step === 1) {
-      const personalValid = await trigger([
+      return trigger([
         "name",
         "phone",
         "email",
         "classYear",
         "institution",
       ]);
-      if (!personalValid) return false;
-
-      if (!isUnscRegistration) return true;
-
-      return trigger([
-        "unscDelegate.name",
-        "unscDelegate.phone",
-        "unscDelegate.email",
-        "unscDelegate.classYear",
-        "unscDelegate.institution",
-      ]);
     }
 
-    if (step === 2 && isUnscRegistration) {
-      setValue(
-        "committeePreferences",
-        ["unsc", "unsc", "unsc"] as [string, string, string],
-        { shouldValidate: true }
-      );
+    if (step === 2) {
+      return trigger(["committeePreferences"]);
+    }
+
+    if (step === 3) {
+      // Validate that each chosen committee has 3 portfolios selected
+      const selected = committeePrefs.filter(Boolean);
+      for (const cid of selected) {
+        const prefs = portfolioPrefs[cid] ?? ["", "", ""];
+        if (!prefs[0] || !prefs[1] || !prefs[2]) {
+          setSubmitError(`Please select all 3 portfolio choices for ${cid.toUpperCase()}`);
+          return false;
+        }
+      }
+      setSubmitError(null);
       return true;
-    }
-
-    if (step === 3 && isUnscRegistration) {
-      return trigger(["unscDelegatePortfolioPreferences"]);
     }
 
     if (step === 5) {
@@ -161,6 +154,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
       if (screenshot?.trim()) {
         return true;
       }
+      return trigger(["paymentScreenshot"]);
     }
 
     if (!fields) return true;
@@ -185,14 +179,12 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
       return;
     }
 
-    setUploadMessage("Receipt uploaded successfully. We’ll review it shortly.");
-
     const reader = new FileReader();
     reader.onload = () => {
       setValue("paymentScreenshot", reader.result as string, {
         shouldValidate: true,
       });
-      setUploadMessage("Receipt uploaded successfully. We’ll review it shortly.");
+      setUploadMessage("Payment receipt uploaded successfully.");
     };
     reader.readAsDataURL(file);
   };
@@ -211,11 +203,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
       const normalizedData = {
         ...data,
         eventSlug,
-        isUnscRegistration: Boolean(isUnscRegistration),
-        unscDelegate: isUnscRegistration ? data.unscDelegate ?? null : null,
-        unscDelegatePortfolioPreferences: isUnscRegistration
-          ? data.unscDelegatePortfolioPreferences
-          : undefined,
+        isUnscRegistration: false,
       };
 
       const res = await fetch("/api/registrations", {
@@ -242,42 +230,31 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   };
 
   const getCommitteeOptions = (exclude: string[] = []) =>
-    committees
-      .filter((c) => (isUnscRegistration ? c.id === "unsc" : c.id !== "unsc"))
-      .map((c) => {
-        const avail = availability?.committees[c.id];
-        const isFull = avail?.isFull ?? false;
-        const isUnlimited = c.maxDelegates === Number.MAX_SAFE_INTEGER;
-        const availabilityText = isUnlimited
-          ? "Unlimited seats available"
-          : `${avail?.available ?? c.maxDelegates} seats available`;
-        return {
-          value: c.id,
-          label: `${c.name}${isFull ? " [FULL]" : ` (${availabilityText})`}`,
-          disabled: isFull || exclude.includes(c.id),
-        };
-      });
+    committees.map((c) => {
+      const avail = availability?.committees[c.id];
+      const isFull = avail?.isFull ?? false;
+      const availabilityText = `${avail?.available ?? c.maxDelegates} seats available`;
+      return {
+        value: c.id,
+        label: `${c.name} — ${c.fullName}${isFull ? " [FULL]" : ` (${availabilityText})`}`,
+        disabled: isFull || exclude.includes(c.id),
+      };
+    });
 
   const getPortfolioOptions = (
     committeeId: string,
-    exclude: string[] = [],
-    singleTeam?: string
+    exclude: string[] = []
   ) => {
     const committee = getCommitteeById(committeeId);
     if (!committee) return [];
 
-    const filtered =
-      committee.id === "ipl" && singleTeam
-        ? committee.portfolios.filter((p) => p.team === singleTeam)
-        : committee.portfolios;
-
-    return filtered.map((p) => {
-      const taken =
-        availability?.portfolios[committeeId]?.[p.id]?.taken ?? false;
+    return committee.portfolios.map((p) => {
+      const isTaken = availability?.portfolios[committeeId]?.[p.id]?.taken ?? false;
+      const groupLabel = p.team ? ` [${p.team}]` : p.group ? ` [${p.group}]` : "";
       return {
         value: p.id,
-        label: `${p.name}${taken ? " [TAKEN / ASSIGNED]" : ""}`,
-        disabled: taken || exclude.includes(p.id),
+        label: `${p.name}${groupLabel}${isTaken ? " [TAKEN]" : ""}`,
+        disabled: isTaken || exclude.includes(p.id),
       };
     });
   };
@@ -287,16 +264,16 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
     current[index] = value;
     setValue("committeePreferences", current, { shouldValidate: true });
 
-    const newPortfolioPrefs = { ...portfolioPrefs };
-    for (const key of Object.keys(newPortfolioPrefs)) {
-      if (!current.includes(key)) {
-        delete newPortfolioPrefs[key];
-      }
+    if (value && !portfolioPrefs[value]) {
+      setValue(
+        "portfolioPreferences",
+        {
+          ...portfolioPrefs,
+          [value]: ["", "", ""],
+        },
+        { shouldValidate: true }
+      );
     }
-    if (value && !newPortfolioPrefs[value]) {
-      newPortfolioPrefs[value] = ["", "", ""] as [string, string, string];
-    }
-    setValue("portfolioPreferences", newPortfolioPrefs);
   };
 
   const updatePortfolioPref = (
@@ -314,44 +291,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
     setValue("portfolioPreferences", current, { shouldValidate: true });
   };
 
-  const updateUnscDelegatePortfolioPref = (index: number, value: string) => {
-    const current = [
-      ...(unscDelegatePortfolioPrefs ?? ["", "", ""]),
-    ] as [string, string, string];
-    current[index] = value;
-    setValue("unscDelegatePortfolioPreferences", current, {
-      shouldValidate: true,
-    });
-  };
-
-  const selectedCommittees = isUnscRegistration
-    ? ["unsc"]
-    : committeePrefs.filter(Boolean);
-
-  const toggleUnscRegistration = (checked: boolean) => {
-    setValue("isUnscRegistration", checked, { shouldValidate: true });
-
-    if (checked) {
-      setValue(
-        "committeePreferences",
-        ["unsc", "unsc", "unsc"] as [string, string, string],
-        { shouldValidate: true }
-      );
-      setValue(
-        "unscDelegatePortfolioPreferences",
-        ["", "", ""] as [string, string, string],
-        { shouldValidate: true }
-      );
-    } else {
-      setValue("committeePreferences", ["", "", ""] as [string, string, string], {
-        shouldValidate: true,
-      });
-      setValue("unscDelegate", undefined, { shouldValidate: true });
-      setValue("unscDelegatePortfolioPreferences", undefined, {
-        shouldValidate: true,
-      });
-    }
-  };
+  const selectedCommittees = committeePrefs.filter(Boolean);
 
   return (
     <section id="register" className="py-20 scroll-mt-24 relative">
@@ -382,235 +322,166 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
               </p>
             </motion.div>
 
-        {/* Step indicator */}
-        <div className="mb-12 relative px-2">
-          <div className="flex items-center justify-between relative">
-            <div className="absolute top-4 left-6 right-6 h-0.5 bg-white/10 -z-10" />
-            {STEPS.map((label, i) => {
-              const stepNum = i + 1;
-              const isActive = step === stepNum;
-              const isComplete = step > stepNum;
-              return (
-                <div key={label} className="flex flex-col items-center flex-1">
-                  <div
-                    className={`flex h-9 w-9 items-center justify-center text-xs font-mono font-bold transition-all border-2 ${
-                      isComplete
-                        ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
-                        : isActive
-                          ? "bg-purple-light text-cream border-gold shadow-[2px_2px_0px_0px_#000000]"
-                          : "bg-[#0b0714] border-white/20 text-cream/40"
-                    }`}
-                  >
-                    {isComplete ? <Check size={14} /> : stepNum}
-                  </div>
-                  <span className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-mono font-bold transition-colors ${
-                    isActive ? "text-gold" : "text-cream/40"
-                  }`}>
-                    {label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Form Container */}
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="bg-[#140b24] border-2 border-white/20 p-6 sm:p-10 shadow-[6px_6px_0px_0px_#000000] relative"
-        >
-          <AnimatePresence mode="wait">
-            {/* STEP 1: PERSONAL INFO */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-5"
-              >
-                <div className="border-b border-white/10 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-gold/90 font-mono font-bold block">Step 01 / 05</span>
-                  <h3 className="font-heading text-2xl font-extrabold uppercase text-cream tracking-tight">Personal Credentials</h3>
-                  <p className="text-xs text-cream/50 mt-0.5">Enter your verified contact and institutional information</p>
-                </div>
-
-                <Input label="Full Name" {...register("name")} error={errors.name?.message} placeholder="e.g. Rahul Sharma" />
-                <Input
-                  label="WhatsApp Number (for Secretariat coordination)"
-                  {...register("phone")}
-                  error={errors.phone?.message}
-                  placeholder="+91 XXXXX XXXXX"
-                />
-                <Input
-                  label="Email Address (All updates & guidelines sent here)"
-                  type="email"
-                  {...register("email")}
-                  error={errors.email?.message}
-                  placeholder="rahul@example.com"
-                />
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Class / Year of Study"
-                    {...register("classYear")}
-                    error={errors.classYear?.message}
-                    placeholder="e.g. 12th Standard / 2nd Year B.A."
-                  />
-                  <Input
-                    label="Institution / School / College"
-                    {...register("institution")}
-                    error={errors.institution?.message}
-                    placeholder="e.g. St. Xavier's College"
-                  />
-                </div>
-
-                <div className="rounded-2xl border border-gold/25 bg-gold/5 p-5 mt-6">
-                  <label className="flex items-start justify-between gap-4 mb-4 cursor-pointer">
-                    <div>
-                      <span className="text-[10px] uppercase tracking-[0.24em] text-gold font-mono">UNSC Double Delegation</span>
-                      <h4 className="font-heading text-xl text-cream mt-1">This is a UNSC double-delegation registration</h4>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={Boolean(isUnscRegistration)}
-                      onChange={(e) => toggleUnscRegistration(e.target.checked)}
-                      className="mt-1 h-5 w-5 rounded border-gold/30 bg-transparent text-gold focus:ring-gold"
-                    />
-                  </label>
-                  <p className="text-[11px] text-cream/45 mb-4">
-                    UNSC requires both delegates to be registered together. When enabled, the form will lock to UNSC and require the second delegate’s profile and portfolios.
-                  </p>
-
-                  {isUnscRegistration && (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Input
-                        label="Partner Delegate Full Name"
-                        {...register("unscDelegate.name")}
-                        error={errors.unscDelegate?.name?.message}
-                        placeholder="e.g. Rhea Sen"
-                      />
-                      <Input
-                        label="Partner WhatsApp Number"
-                        {...register("unscDelegate.phone")}
-                        error={errors.unscDelegate?.phone?.message}
-                        placeholder="+91 XXXXX XXXXX"
-                      />
-                      <Input
-                        label="Partner Email Address"
-                        type="email"
-                        {...register("unscDelegate.email")}
-                        error={errors.unscDelegate?.email?.message}
-                        placeholder="partner@example.com"
-                      />
-                      <Input
-                        label="Partner Class / Year of Study"
-                        {...register("unscDelegate.classYear")}
-                        error={errors.unscDelegate?.classYear?.message}
-                        placeholder="e.g. 1st Year B.Com."
-                      />
-                      <div className="sm:col-span-2">
-                        <Input
-                          label="Partner Institution / School / College"
-                          {...register("unscDelegate.institution")}
-                          error={errors.unscDelegate?.institution?.message}
-                          placeholder="e.g. Delhi University"
-                        />
+            {/* Step indicator */}
+            <div className="mb-12 relative px-2">
+              <div className="flex items-center justify-between relative">
+                <div className="absolute top-4 left-6 right-6 h-0.5 bg-white/10 -z-10" />
+                {STEPS.map((label, i) => {
+                  const stepNum = i + 1;
+                  const isActive = step === stepNum;
+                  const isComplete = step > stepNum;
+                  return (
+                    <div key={label} className="flex flex-col items-center flex-1">
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center text-xs font-mono font-bold transition-all border-2 ${
+                          isComplete
+                            ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
+                            : isActive
+                              ? "bg-purple-light text-cream border-gold shadow-[2px_2px_0px_0px_#000000]"
+                              : "bg-[#0b0714] border-white/20 text-cream/40"
+                        }`}
+                      >
+                        {isComplete ? <Check size={14} /> : stepNum}
                       </div>
+                      <span
+                        className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-mono font-bold transition-colors ${
+                          isActive ? "text-gold" : "text-cream/40"
+                        }`}
+                      >
+                        {label}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
+                  );
+                })}
+              </div>
+            </div>
 
-            {/* STEP 2: COMMITTEE PREFERENCES */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-5"
-              >
-                <div className="border-b border-gold/15 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">Step 02 / 05</span>
-                  <h3 className="font-heading text-2xl text-cream">Committee Preferences</h3>
-                  <p className="text-xs text-cream/40 mt-0.5">Select your top 3 preferred committees in order of priority</p>
-                </div>
-
-                {isUnscRegistration ? (
-                  <div className="rounded-2xl border border-gold/30 bg-gold/10 p-6 space-y-3">
-                    <span className="text-[10px] uppercase tracking-[0.28em] text-gold font-mono">UNSC Allocation Lock</span>
-                    <h4 className="font-heading text-2xl text-cream">UNSC is selected automatically</h4>
-                    <p className="text-sm text-cream/55">
-                      Because the UNSC partner delegate profile is present, this registration will proceed through the UNSC double-delegation pathway and will not ask for a generic committee selection.
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-gold">
-                      <span>Committee preference override: UNSC</span>
+            {/* Form Container */}
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="bg-[#140b24] border-2 border-white/20 p-6 sm:p-10 shadow-[6px_6px_0px_0px_#000000] relative"
+            >
+              <AnimatePresence mode="wait">
+                {/* STEP 1: PERSONAL INFO */}
+                {step === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    <div className="border-b border-white/10 pb-4 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-gold/90 font-mono font-bold block">
+                        Step 01 / 05
+                      </span>
+                      <h3 className="font-heading text-2xl font-extrabold uppercase text-cream tracking-tight">
+                        Personal Credentials
+                      </h3>
+                      <p className="text-xs text-cream/50 mt-0.5">
+                        Enter your verified contact and institutional information
+                      </p>
                     </div>
-                  </div>
-                ) : (
-                  [0, 1, 2].map((i) => (
-                    <Select
-                      key={i}
-                      label={`${i === 0 ? "1st" : i === 1 ? "2nd" : "3rd"} Committee Preference`}
-                      value={committeePrefs[i] ?? ""}
-                      onChange={(e) => updateCommitteePref(i, e.target.value)}
-                      options={getCommitteeOptions(
-                        committeePrefs.filter((_, idx) => idx !== i)
-                      )}
-                      error={
-                        errors.committeePreferences?.message ??
-                        (errors.committeePreferences as unknown as { [key: number]: { message: string } })?.[i]?.message
-                      }
+
+                    <Input
+                      label="Full Name"
+                      {...register("name")}
+                      error={errors.name?.message}
+                      placeholder="e.g. Rahul Sharma"
                     />
-                  ))
+                    <Input
+                      label="WhatsApp Number (for Secretariat coordination)"
+                      {...register("phone")}
+                      error={errors.phone?.message}
+                      placeholder="+91 XXXXX XXXXX"
+                    />
+                    <Input
+                      label="Email Address (All updates & guidelines sent here)"
+                      type="email"
+                      {...register("email")}
+                      error={errors.email?.message}
+                      placeholder="rahul@example.com"
+                    />
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <Input
+                        label="Class / Year of Study"
+                        {...register("classYear")}
+                        error={errors.classYear?.message}
+                        placeholder="e.g. 12th Standard / 2nd Year B.A."
+                      />
+                      <Input
+                        label="Institution / School / College"
+                        {...register("institution")}
+                        error={errors.institution?.message}
+                        placeholder="e.g. St. Xavier's College"
+                      />
+                    </div>
+                  </motion.div>
                 )}
-              </motion.div>
-            )}
 
-            {/* STEP 3: PORTFOLIO PREFERENCES */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-8"
-              >
-                <div className="border-b border-gold/15 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">Step 03 / 05</span>
-                  <h3 className="font-heading text-2xl text-cream">Portfolio Preferences</h3>
-                  <p className="text-xs text-cream/40 mt-0.5">Select 3 portfolio choices for each of your selected committees</p>
-                </div>
+                {/* STEP 2: COMMITTEE PREFERENCES */}
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    <div className="border-b border-gold/15 pb-4 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">
+                        Step 02 / 05
+                      </span>
+                      <h3 className="font-heading text-2xl text-cream">
+                        Committee Preferences
+                      </h3>
+                      <p className="text-xs text-cream/40 mt-0.5">
+                        Select your top 3 preferred committees in order of priority (6 committees available)
+                      </p>
+                    </div>
 
-                {selectedCommittees.length === 0 ? (
-                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-center text-sm text-amber-300">
-                    Please go back to Step 2 and select committee preferences first.
-                  </div>
-                ) : (
-                  <>
-                    {isUnscRegistration ? (
-                      <div className="glass-card rounded-xl p-5 space-y-4">
-                        <div className="border-b border-gold/15 pb-3">
-                          <h4 className="font-heading text-xl text-gold">
-                            UNSC : <span className="text-cream/70 text-sm font-sans font-light">United Nations Security Council</span>
-                          </h4>
-                          <p className="text-xs text-cream/40 mt-1">
-                            Both delegates will share the same UNSC portfolio preference set.
-                          </p>
-                        </div>
+                    {[0, 1, 2].map((i) => (
+                      <Select
+                        key={i}
+                        label={`${i === 0 ? "1st" : i === 1 ? "2nd" : "3rd"} Committee Preference`}
+                        value={committeePrefs[i] ?? ""}
+                        onChange={(e) => updateCommitteePref(i, e.target.value)}
+                        options={getCommitteeOptions(
+                          committeePrefs.filter((_, idx) => idx !== i)
+                        )}
+                        error={
+                          errors.committeePreferences?.message ??
+                          (errors.committeePreferences as unknown as { [key: number]: { message: string } })?.[i]?.message
+                        }
+                      />
+                    ))}
+                  </motion.div>
+                )}
 
-                        {[0, 1, 2].map((i) => (
-                          <Select
-                            key={i}
-                            label={`${i === 0 ? "1st" : i === 1 ? "2nd" : "3rd"} Shared Portfolio`}
-                            value={unscDelegatePortfolioPrefs?.[i] ?? ""}
-                            onChange={(e) =>
-                              updateUnscDelegatePortfolioPref(i, e.target.value)
-                            }
-                            options={getPortfolioOptions("unsc")}
-                          />
-                        ))}
+                {/* STEP 3: PORTFOLIO PREFERENCES */}
+                {step === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-8"
+                  >
+                    <div className="border-b border-gold/15 pb-4 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">
+                        Step 03 / 05
+                      </span>
+                      <h3 className="font-heading text-2xl text-cream">
+                        Portfolio Preferences
+                      </h3>
+                      <p className="text-xs text-cream/40 mt-0.5">
+                        Select 3 portfolio choices for each of your selected committees
+                      </p>
+                    </div>
+
+                    {selectedCommittees.length === 0 ? (
+                      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-center text-sm text-amber-300">
+                        Please go back to Step 2 and select committee preferences first.
                       </div>
                     ) : (
                       selectedCommittees.map((committeeId) => {
@@ -618,41 +489,16 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         if (!committee) return null;
                         const prefs = portfolioPrefs[committeeId] ?? ["", "", ""];
 
-                        const teamOptions =
-                          committee.id === "ipl"
-                            ? Array.from(
-                                new Set(
-                                  committee.portfolios
-                                    .map((p) => p.team)
-                                    .filter((team): team is string => Boolean(team))
-                                )
-                              ).map((team) => ({ value: team, label: team }))
-                            : [];
-
-                        const selectedIplTeam = iplTeamSelections[committeeId] ?? teamOptions[0]?.value ?? "";
-
                         return (
                           <div key={committeeId} className="glass-card rounded-xl p-5 space-y-4">
                             <div className="border-b border-gold/15 pb-3">
                               <h4 className="font-heading text-xl text-gold">
-                                {committee.name} : <span className="text-cream/70 text-sm font-sans font-light">{committee.fullName}</span>
+                                {committee.name} :{" "}
+                                <span className="text-cream/70 text-sm font-sans font-light">
+                                  {committee.fullName} ({committee.maxDelegates} Seats)
+                                </span>
                               </h4>
                             </div>
-
-                            {committee.id === "ipl" && (
-                              <Select
-                                label="Team"
-                                value={selectedIplTeam}
-                                onChange={(e) => {
-                                  const nextTeam = e.target.value;
-                                  setIplTeamSelections((prev) => ({
-                                    ...prev,
-                                    [committeeId]: nextTeam,
-                                  }));
-                                }}
-                                options={teamOptions}
-                              />
-                            )}
 
                             {[0, 1, 2].map((i) => (
                               <Select
@@ -664,8 +510,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                                 }
                                 options={getPortfolioOptions(
                                   committeeId,
-                                  prefs.filter((_, idx) => idx !== i),
-                                  committee.id === "ipl" ? selectedIplTeam : undefined
+                                  prefs.filter((_, idx) => idx !== i)
                                 )}
                               />
                             ))}
@@ -673,265 +518,292 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         );
                       })
                     )}
-                  </>
+                  </motion.div>
                 )}
-              </motion.div>
-            )}
 
-            {/* STEP 4: EXPERIENCE & REFERENCE */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-5"
-              >
-                <div className="border-b border-gold/15 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">Step 04 / 05</span>
-                  <h3 className="font-heading text-2xl text-cream">Summit Experience & Reference</h3>
-                  <p className="text-xs text-cream/40 mt-0.5">Help the Secretariat understand your background and achievements</p>
-                </div>
-
-                <Textarea
-                  label="Prior Summit Experience & Awards"
-                  {...register("munExperience")}
-                  error={errors.munExperience?.message}
-                  placeholder="Detail your previous delegation experience, awards (Best Delegate, High Commendation, etc.), executive board roles, or state if first-timer..."
-                  className="min-h-32.5"
-                />
-                <Input
-                  label="Reference Contact / Vouching Senior"
-                  {...register("reference")}
-                  error={errors.reference?.message}
-                  placeholder="Name and contact of teacher, senior delegate, or institution coordinator"
-                />
-              </motion.div>
-            )}
-
-            {/* STEP 5: PAYMENT */}
-            {step === 5 && (
-              <motion.div
-                key="step5"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
-              >
-                <div className="border-b border-gold/15 pb-4 mb-2">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">Step 05 / 05</span>
-                  <h3 className="font-heading text-2xl text-cream">Payment & Screenshot Upload</h3>
-                  <p className="text-xs text-cream/40 mt-0.5">
-                    {isUnscRegistration
-                      ? "Please upload two payment receipts for the double-delegation UNSC registration and complete the combined payment transfer."
-                      : "Scan the official QR code to complete registration fee payment"}
-                  </p>
-                </div>
-
-                {/* E-Commerce Early Bird Pricing Banner with Strikethrough & Countdown Timer */}
-                <PaymentPricingBanner isUnscRegistration={isUnscRegistration} />
-
-                <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
-                  <div className="mx-auto w-48 h-48 border-2 border-white/20 bg-white p-3 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/upi-qr.png"
-                      alt="Athena Summit UPI payment QR code"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-cream">
-                      Official UPI ID: <span className="text-gold font-mono font-bold">6202910742@fam</span>
-                    </p>
-                    <p className="text-xs text-cream/50">
-                      {isUnscRegistration
-                        ? "Please pay once for the combined UNSC double-delegation registration and upload both receipts for verification."
-                        : "Accepted via Google Pay, PhonePe, Paytm, BHIM"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border border-white/15 bg-[#0b0714] p-4 shadow-[2px_2px_0px_0px_#000000]">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-gold/90 font-mono font-bold">
-                    {isUnscRegistration ? "UNSC payment requirement" : "Payment note"}
-                  </p>
-                  <p className="mt-2 text-sm text-cream/70">
-                    {isUnscRegistration
-                      ? "Upload two separate receipt screenshots, one for each delegate’s portion of the joint payment, and ensure the payment is made for the combined registration amount."
-                      : "Upload a single payment screenshot for the registration fee."}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-cream/70 uppercase tracking-wider mb-2 font-mono">
-                    {isUnscRegistration ? "Upload Both Payment Screenshots (Max 5MB each)" : "Upload Payment Screenshot (Max 5MB)"}
-                  </label>
-                  <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-white/20 hover:border-gold/60 transition-all cursor-pointer bg-[#0b0714] group shadow-[2px_2px_0px_0px_#000000]">
-                    {screenshotValue ? (
-                      <div className="flex items-center gap-4 p-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={screenshotValue}
-                          alt="Payment Receipt Preview"
-                          className="h-24 w-24 object-cover border border-white/30"
-                        />
-                        <div className="text-left">
-                          <p className="text-xs text-emerald-400 font-medium flex items-center gap-1 font-mono">
-                            <Check size={14} /> SCREENSHOT UPLOADED
-                          </p>
-                          <p className="text-[10px] text-cream/40 mt-1 font-mono">Click box to re-select image</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload size={28} className="text-cream/40 group-hover:text-gold transition-colors mb-2" />
-                        <span className="text-xs text-cream/70 group-hover:text-cream transition-colors font-mono">
-                          Click to select payment receipt screenshot
-                        </span>
-                        <span className="text-[10px] text-cream/40 mt-1 font-mono">PNG, JPG, JPEG accepted</span>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      suppressHydrationWarning
-                      onChange={handleFileUpload}
-                    />
-                  </label>
-                  {errors.paymentScreenshot && (
-                    <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 font-mono">
-                      <AlertCircle size={12} /> {errors.paymentScreenshot.message}
-                    </p>
-                  )}
-                  {uploadMessage && !errors.paymentScreenshot && (
-                    <p className="mt-1.5 text-xs text-emerald-400 flex items-center gap-1 font-mono">
-                      <Check size={12} /> {uploadMessage}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* STEP 6: CONFIRMATION CERTIFICATE */}
-            {step === 6 && result && (
-              <motion.div
-                key="step6"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="space-y-6 text-center py-4"
-              >
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold/15 ring-2 ring-gold shadow-xl shadow-gold/20">
-                  <Award size={40} className="text-gold" />
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-[10px] tracking-[0.3em] uppercase text-gold font-mono">Registration Confirmed</span>
-                  <h3 className="font-heading text-4xl text-cream">
-                    Delegate <span className="text-gradient-gold italic font-normal">Allocation Issued</span>
-                  </h3>
-                  <p className="text-xs text-cream/50 max-w-md mx-auto font-sans font-light">
-                    Your allocation has been locked. An official email with study guidelines will follow payment verification.
-                  </p>
-                </div>
-
-                {/* Handcrafted Credential Card */}
-                <div className="rounded-xl border border-gold/40 bg-linear-to-b from-purple-dark via-purple-deep to-[#0b0714] p-6 text-left space-y-4 shadow-2xl relative overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-gold/20 pb-3">
-                    <div>
-                      <span className="font-heading text-xl text-gold block">ATHENA SUMMIT CREDENTIAL</span>
-                      <span className="text-[9px] uppercase tracking-widest text-cream/40">Official Delegate Dossier</span>
-                    </div>
-                    <Badge variant="warning">Pending Payment Review</Badge>
-                  </div>
-
-                  <div className="grid gap-3 text-xs">
-                    <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                      <span className="text-cream/40">Delegate Name:</span>
-                      <span className="text-cream font-medium font-heading text-base">{result.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                      <span className="text-cream/40">Assigned Committee:</span>
-                      <span className="text-gold font-medium font-heading text-lg">
-                        {getCommitteeById(result.assignedCommittee ?? "")?.name ?? result.assignedCommittee}
+                {/* STEP 4: EXPERIENCE & REFERENCE */}
+                {step === 4 && (
+                  <motion.div
+                    key="step4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    <div className="border-b border-gold/15 pb-4 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">
+                        Step 04 / 05
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                      <span className="text-cream/40">Assigned Portfolio:</span>
-                      <span className="text-cream font-medium">
-                        {getCommitteeById(result.assignedCommittee ?? "")
-                          ?.portfolios.find((p) => p.id === result.assignedPortfolio)?.name ?? result.assignedPortfolio}
-                      </span>
-                    </div>
-                    <div className="pt-2">
-                      <span className="text-cream/40 text-xs block mb-1">Committee Agenda:</span>
-                      <p className="text-cream/80 text-xs leading-relaxed bg-purple-deep/80 p-3 rounded.lg border border-gold/15">
-                        {result.assignedAgenda}
+                      <h3 className="font-heading text-2xl text-cream">
+                        Summit Experience & Reference
+                      </h3>
+                      <p className="text-xs text-cream/40 mt-0.5">
+                        Help the Secretariat understand your background and achievements
                       </p>
                     </div>
-                  </div>
-                </div>
 
-                <p className="text-[11px] text-cream/40 font-mono tracking-wider">
-                  Dossier ID: {result.id}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    <Textarea
+                      label="Prior Summit Experience & Awards"
+                      {...register("munExperience")}
+                      error={errors.munExperience?.message}
+                      placeholder="Detail your previous delegation experience, awards (Best Delegate, High Commendation, etc.), executive board roles, or state if first-timer..."
+                      className="min-h-32.5"
+                    />
+                    <Input
+                      label="Reference Contact / Vouching Senior"
+                      {...register("reference")}
+                      error={errors.reference?.message}
+                      placeholder="Name and contact of teacher, senior delegate, or institution coordinator"
+                    />
+                  </motion.div>
+                )}
 
-          {availabilityError && (
-            <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 text-center flex items-center justify-center gap-2 font-sans">
-              <AlertCircle size={14} />
-              {availabilityError}
-            </div>
-          )}
+                {/* STEP 5: PAYMENT */}
+                {step === 5 && (
+                  <motion.div
+                    key="step5"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="border-b border-gold/15 pb-4 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-gold font-mono block">
+                        Step 05 / 05
+                      </span>
+                      <h3 className="font-heading text-2xl text-cream">
+                        Payment & Screenshot Upload
+                      </h3>
+                      <p className="text-xs text-cream/40 mt-0.5">
+                        Scan the official QR code to complete registration fee payment (₹1,300)
+                      </p>
+                    </div>
 
-          {submitError && (
-            <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400 text-center flex items-center justify-center gap-2 font-sans">
-              <AlertCircle size={14} />
-              {submitError}
-            </div>
-          )}
+                    <PaymentPricingBanner />
 
-          {/* Buttons */}
-          {step < 6 && (
-            <div className="mt-10 flex justify-between items-center pt-4 border-t border-gold/15">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={prevStep}
-                disabled={step === 1}
-                className="text-xs uppercase tracking-wider text-cream/70 hover:text-gold"
-              >
-                <ChevronLeft size={16} />
-                Previous Step
-              </Button>
+                    <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
+                      <div className="mx-auto w-48 h-48 border-2 border-white/20 bg-white p-3 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/upi-qr.png"
+                          alt="Athena Summit UPI payment QR code"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
 
-              {step < 5 ? (
-                <Button type="button" onClick={nextStep} className="rounded-full px-6 text-xs uppercase tracking-wider font-semibold">
-                  <span>Continue Step</span>
-                  <ChevronRight size={16} />
-                </Button>
-              ) : (
-                <Button type="submit" disabled={loading} className="rounded-full px-8 text-xs uppercase tracking-wider font-bold shadow-xl shadow-gold/20">
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Allocating Delegate...
-                    </>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-cream">
+                          Official UPI ID:{" "}
+                          <span className="text-gold font-mono font-bold">
+                            6202910742@fam
+                          </span>
+                        </p>
+                        <p className="text-xs text-cream/50">
+                          Accepted via Google Pay, PhonePe, Paytm, BHIM, and all UPI apps
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-cream/70 uppercase tracking-wider mb-2 font-mono">
+                        Upload Payment Screenshot (Max 5MB)
+                      </label>
+                      <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-white/20 hover:border-gold/60 transition-all cursor-pointer bg-[#0b0714] group shadow-[2px_2px_0px_0px_#000000]">
+                        {screenshotValue ? (
+                          <div className="flex items-center gap-4 p-2">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={screenshotValue}
+                              alt="Payment Receipt Preview"
+                              className="h-24 w-24 object-cover border border-white/30"
+                            />
+                            <div className="text-left">
+                              <p className="text-xs text-emerald-400 font-medium flex items-center gap-1 font-mono">
+                                <Check size={14} /> SCREENSHOT UPLOADED
+                              </p>
+                              <p className="text-[10px] text-cream/40 mt-1 font-mono">
+                                Click box to re-select image
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload
+                              size={28}
+                              className="text-cream/40 group-hover:text-gold transition-colors mb-2"
+                            />
+                            <span className="text-xs text-cream/70 group-hover:text-cream transition-colors font-mono">
+                              Click to select payment receipt screenshot
+                            </span>
+                            <span className="text-[10px] text-cream/40 mt-1 font-mono">
+                              PNG, JPG, JPEG accepted
+                            </span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          suppressHydrationWarning
+                          onChange={handleFileUpload}
+                        />
+                      </label>
+                      {errors.paymentScreenshot && (
+                        <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 font-mono">
+                          <AlertCircle size={12} /> {errors.paymentScreenshot.message}
+                        </p>
+                      )}
+                      {uploadMessage && !errors.paymentScreenshot && (
+                        <p className="mt-1.5 text-xs text-emerald-400 flex items-center gap-1 font-mono">
+                          <Check size={12} /> {uploadMessage}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 6: CONFIRMATION CERTIFICATE */}
+                {step === 6 && result && (
+                  <motion.div
+                    key="step6"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="space-y-6 text-center py-4"
+                  >
+                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold/15 ring-2 ring-gold shadow-xl shadow-gold/20">
+                      <Award size={40} className="text-gold" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="text-[10px] tracking-[0.3em] uppercase text-gold font-mono">
+                        Registration Confirmed
+                      </span>
+                      <h3 className="font-heading text-4xl text-cream">
+                        Delegate <span className="text-gradient-gold italic font-normal">Allocation Issued</span>
+                      </h3>
+                      <p className="text-xs text-cream/50 max-w-md mx-auto font-sans font-light">
+                        Your allocation has been locked. An official email with study guidelines will follow payment verification.
+                      </p>
+                    </div>
+
+                    {/* Handcrafted Credential Card */}
+                    <div className="rounded-xl border border-gold/40 bg-linear-to-b from-purple-dark via-purple-deep to-[#0b0714] p-6 text-left space-y-4 shadow-2xl relative overflow-hidden">
+                      <div className="flex items-center justify-between border-b border-gold/20 pb-3">
+                        <div>
+                          <span className="font-heading text-xl text-gold block">
+                            ATHENA SUMMIT CREDENTIAL
+                          </span>
+                          <span className="text-[9px] uppercase tracking-widest text-cream/40">
+                            Official Delegate Dossier
+                          </span>
+                        </div>
+                        <Badge variant="warning">Pending Payment Review</Badge>
+                      </div>
+
+                      <div className="grid gap-3 text-xs">
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50 font-mono">DELEGATE ID:</span>
+                          <span className="font-mono text-gold font-bold">{result.id}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50 font-mono">NAME:</span>
+                          <span className="text-cream font-medium">{result.name}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50 font-mono">ASSIGNED COMMITTEE:</span>
+                          <span className="font-heading text-gold text-sm font-semibold">
+                            {result.assignedCommittee?.toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50 font-mono">ASSIGNED PORTFOLIO:</span>
+                          <span className="text-cream font-semibold">
+                            {(() => {
+                              const comm = getCommitteeById(result.assignedCommittee ?? "");
+                              return (
+                                comm?.portfolios.find((p) => p.id === result.assignedPortfolio)
+                                  ?.name ?? result.assignedPortfolio
+                              );
+                            })()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50 font-mono">INSTITUTION:</span>
+                          <span className="text-cream/80">{result.institution}</span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-cream/50 font-mono">REGISTRATION FEE:</span>
+                          <span className="font-mono text-emerald-400 font-bold">₹1,300 (Paid via UPI)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        href="/"
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        Return to Athena Homepage
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Navigation Controls */}
+              {step < 6 && (
+                <div className="flex items-center justify-between pt-8 border-t border-white/10 mt-8">
+                  {step > 1 ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={prevStep}
+                      disabled={loading}
+                      className="text-xs"
+                    >
+                      <ChevronLeft size={16} /> Back
+                    </Button>
                   ) : (
-                    <>
-                      <span>Submit Registration Dossier</span>
-                    </>
+                    <div />
                   )}
-                </Button>
+
+                  {submitError && (
+                    <span className="text-xs text-rose-400 font-mono">
+                      {submitError}
+                    </span>
+                  )}
+
+                  {step < 5 ? (
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="text-xs bg-gold text-purple-deep hover:bg-gold-light font-bold"
+                    >
+                      Next Step <ChevronRight size={16} />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="text-xs bg-gold text-purple-deep hover:bg-gold-light font-bold"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          Submit Registration <Check size={14} />
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        </form>
-        </>
+            </form>
+          </>
         )}
       </div>
     </section>

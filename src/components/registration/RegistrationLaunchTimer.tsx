@@ -69,9 +69,9 @@ export function RegistrationLaunchTimer({
         className={`inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-linear-to-r from-amber-500/15 via-gold/15 to-amber-500/15 px-4 py-1.5 text-xs text-amber-300 font-mono shadow-md shadow-amber-500/10 backdrop-blur-md ${className}`}
       >
         <Calendar className="w-4 h-4 text-amber-400 animate-bounce" />
-        <span>Registration Opens Sep 5, 5 PM IST: </span>
+        <span>Registration Opens Soon: </span>
         <span className="font-bold text-cream">
-          {timeLeft.days}d {String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
+          {timeLeft.days > 0 ? `${timeLeft.days}d ` : ""}{String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
         </span>
       </div>
     );
@@ -82,7 +82,7 @@ export function RegistrationLaunchTimer({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-amber-400 font-mono text-xs uppercase tracking-widest">
           <Calendar className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Registration Opens Sep 5th @ 5:00 PM IST</span>
+          <span>Registration Opening Soon</span>
         </div>
         <span className="text-[10px] text-amber-400/80 font-mono bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
           Official Launch
@@ -98,13 +98,12 @@ export function RegistrationLaunchTimer({
         ].map((item, idx) => (
           <div
             key={idx}
-            className="rounded-xl border border-amber-500/40 bg-linear-to-b from-[#1c1230] to-purple-deep p-3 shadow-xl relative overflow-hidden backdrop-blur-md group hover:border-amber-400 transition-all"
+            className="rounded-lg border border-amber-400/20 bg-purple-deep/70 p-2 sm:p-3 shadow-md"
           >
-            <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="font-mono text-2xl md:text-3xl font-extrabold text-cream block tracking-tight">
+            <span className="block font-mono text-xl sm:text-2xl font-black text-cream">
               {String(item.val).padStart(2, "0")}
             </span>
-            <span className="text-[9px] uppercase tracking-widest text-amber-300 font-mono block mt-1">
+            <span className="text-[9px] uppercase tracking-wider text-amber-300/80 font-mono">
               {item.label}
             </span>
           </div>

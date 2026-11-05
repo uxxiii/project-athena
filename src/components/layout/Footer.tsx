@@ -54,13 +54,13 @@ export function Footer() {
             </div>
 
             <p className="max-w-xl text-sm text-cream/70 leading-relaxed font-sans font-normal">
-              For leaders, debaters, and delegates across the nation. Project Athena brings together premier institutions for rigorous diplomatic discourse, authentic crisis simulations, and 100% direct societal aid.
+              For students, debaters, and young leaders. Project Athena brings together schools and colleges for substantive debate, realistic crisis simulations, and 100% direct societal aid.
             </p>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
                 <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Summit Convening</p>
-                <p className="text-sm text-cream font-medium mt-0.5">Athena Summit • Nov 2026</p>
+                <p className="text-sm text-cream font-medium mt-0.5">Athena Summit • 20–21 Nov 2026</p>
               </div>
               <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
                 <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Societal Mission</p>
@@ -94,6 +94,11 @@ export function Footer() {
                 <li>
                   <Link href="/events" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
                     <ArrowRight size={12} className="text-cream/40" /> Events
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/sponsors" className="hover:text-gold hover:underline flex items-center gap-1 transition-colors">
+                    <ArrowRight size={12} className="text-cream/40" /> Sponsors & Partners
                   </Link>
                 </li>
                 <li>

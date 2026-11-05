@@ -19,12 +19,7 @@ export async function GET() {
     const pendingCount = summitRegistrations.filter((r) => r.status === "pending").length;
     const registeredCount = approvedCount + pendingCount;
 
-    const totalCapacity = committees.reduce((sum, c) => {
-      // Exclude unlimited/IP capacity from numeric sum
-      if (c.id === "ip") return sum;
-      return sum + c.maxDelegates;
-    }, 0);
-
+    const totalCapacity = committees.reduce((sum, c) => sum + c.maxDelegates, 0);
     const seatsRemaining = Math.max(0, totalCapacity - registeredCount);
     const availability = await getAvailability();
 
@@ -41,6 +36,7 @@ export async function GET() {
         registrationOpen: Boolean(event?.registrationOpen),
         date: event?.date ?? "November 2026",
         location: event?.location ?? "TBA",
+        fee: 1300,
         availability: availability.committees,
       },
       {

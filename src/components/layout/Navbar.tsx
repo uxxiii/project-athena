@@ -12,9 +12,10 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/donate", label: "Societal Mission", badge: "Waitlist" },
-  { href: "/teams", label: "Teams" },
   { href: "/events", label: "Events" },
+  { href: "/sponsors", label: "Sponsors" },
+  { href: "/teams", label: "Teams" },
+  { href: "/donate", label: "Societal Mission", badge: "Waitlist" },
   { href: "/contact", label: "Contact" },
 ];
 

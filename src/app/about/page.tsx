@@ -8,8 +8,8 @@ import Link from "next/link";
 const values = [
   {
     icon: Target,
-    title: "Intellectual Rigour",
-    desc: "Every committee, agenda, and study guide is crafted to challenge delegates to engage in deep analytical debate.",
+    title: "Substantive Agendas",
+    desc: "Every committee agenda and study guide is designed to encourage delegates to engage in thoughtful, evidence-backed debate.",
   },
   {
     icon: Eye,
@@ -59,7 +59,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-cream/75 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto font-normal">
-            Named after the goddess of wisdom and strategic council, Athena represents intellectual fortitude, procedural clarity, and diplomatic grace across the collegiate circuit.
+            Named after the goddess of wisdom, Athena gives young debaters and students a structured space to develop confidence, understand global affairs, and practice reasoned argument.
           </p>
         </motion.div>
 
@@ -81,8 +81,8 @@ export default function AboutPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0b0714] via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-xs text-cream font-mono font-bold">
-                <span className="bg-[#0b0714] border border-white/20 px-2.5 py-1 text-cream/90 shadow-[2px_2px_0px_0px_#000]">PROJECT ATHENA CONCLAVE</span>
-                <span className="bg-gold text-[#0b0714] px-2.5 py-1 border border-black shadow-[1px_1px_0px_0px_#000]">NOV 2026</span>
+                <span className="bg-[#0b0714] border border-white/20 px-2.5 py-1 text-cream/90 shadow-[2px_2px_0px_0px_#000]">ATHENA SUMMIT</span>
+                <span className="bg-gold text-[#0b0714] px-2.5 py-1 border border-black shadow-[1px_1px_0px_0px_#000]">20–21 NOV 2026</span>
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function AboutPage() {
               Fostering Diplomatic <span className="text-gold">Excellence</span>
             </h2>
             <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
-              Project Athena was founded to elevate the standards of collegiate diplomacy conferences. We construct agendas that mirror complex real-world dynamics, encouraging delegates to negotiate beyond rhetoric and arrive at actionable resolutions.
+              Project Athena was created to bring high-quality debate and MUN culture to students in Bihar and beyond. We build agendas that mirror real-world dynamics, encouraging delegates to negotiate constructively and arrive at actionable solutions.
             </p>
           </motion.div>
 
@@ -119,10 +119,10 @@ export default function AboutPage() {
               <span>Our Vision</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold uppercase text-cream tracking-tight">
-              Shaping Tomorrow&apos;s <span className="text-gold">Statespeople</span>
+              Shaping Tomorrow&apos;s <span className="text-gold">Leaders</span>
             </h2>
             <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
-              We envision a community of analytical, empathetic, and articulate leaders. Whether deliberating global migration at UNHRC or regional accountability at BLA, delegates leave Athena equipped with profound global perspectives.
+              We envision a thriving community of young thinkers and speakers. Whether discussing international human rights at UNHRC or regional governance at BLA, delegates leave Athena with a clearer worldview and stronger public speaking skills.
             </p>
           </motion.div>
         </div>

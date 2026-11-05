@@ -79,7 +79,7 @@ export default function ContactPage() {
         >
           <div className="inline-block transform -rotate-1">
             <div className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
-              Secretariat Concierge
+              Secretariat & Helpdesk
             </div>
           </div>
 

@@ -35,22 +35,22 @@ export default function TeamsPage() {
           </h1>
 
           <p className="text-cream/75 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed font-normal pt-1">
-            A collective of collegiate organizers, debaters, and advisors dedicated to procedural excellence, substantive debate, and a transformative summit experience.
+            A collective of student organizers, debaters, and advisors dedicated to procedural excellence, substantive debate, and a well-run summit experience.
           </p>
 
           {/* Metric Indicators with Solid Borders */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-3 text-xs font-mono font-bold">
             <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
               <GraduationCap size={14} className="text-gold" />
-              <span>Collegiate Leadership</span>
+              <span>Youth Leadership</span>
             </span>
             <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
               <Compass size={14} className="text-gold" />
-              <span>13 Committees</span>
+              <span>{event?.committees.length || 6} Committees</span>
             </span>
             <span className="inline-flex items-center gap-1.5 bg-[#140b24] px-4 py-2 border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000] text-cream/90">
               <Calendar size={14} className="text-gold" />
-              <span>November 2026</span>
+              <span>20–21 November 2026</span>
             </span>
           </div>
         </motion.div>

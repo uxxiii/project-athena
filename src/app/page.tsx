@@ -16,7 +16,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { committees as committeeData } from "@/data/committees";
+import { HomeSponsorSection } from "@/components/sponsors/HomeSponsorSection";
 
 function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -48,7 +50,7 @@ const featuredCommittees = committeeData.map((committee) => ({
       : `${committee.maxDelegates} Seats`,
   category:
     committee.name === "UNSC"
-      ? "Double Delegation"
+      ? "Security Affairs"
       : committee.name === "IP"
       ? "Press Corps"
       : committee.name === "IPL"
@@ -78,26 +80,26 @@ const pillars = [
   {
     number: "01",
     icon: Globe,
-    title: `${committeeData.length} Specialized Assemblies`,
-    desc: "From sovereign UN organs to dynamic crisis rooms and domestic Indian parliaments, structured for high-octane diplomatic debate.",
+    title: `${committeeData.length} Specialized Committees`,
+    desc: "From the UN Security Council and human rights forums to Indian parliament and crisis rooms, built for serious debate and constructive diplomacy.",
   },
   {
     number: "02",
     icon: Users,
-    title: "Premier Delegation Cohort",
-    desc: "Gathering elite delegates, seasoned scholars, and articulate debaters from premier universities and institutions across India.",
+    title: "Diverse Student Delegations",
+    desc: "Welcoming school students from Class 5 to 12 alongside college debaters and youth leaders from across Bihar and India.",
   },
   {
     number: "03",
     icon: Award,
-    title: "Editorial & Procedural Rigour",
-    desc: "Bespoke Rules of Procedure (RoPs), exhaustive background study guides, and an algorithmic real-time allocation matrix.",
+    title: "Clear Procedures & Guides",
+    desc: "Thorough study guides, transparent rules of procedure, and an experienced executive board focused on actionable feedback.",
   },
   {
     number: "04",
     icon: Gavel,
-    title: "Direct Action Directives",
-    desc: "Resolution drafting, dynamic crisis communiqués, and realistic procedural voting replicating actual international diplomacy.",
+    title: "Action-Oriented Debate",
+    desc: "Draft real working papers, negotiate resolutions, and respond to breaking crisis developments just like active diplomats.",
   },
 ];
 
@@ -132,7 +134,8 @@ export default function HomePage() {
   const [selectedCommittee, setSelectedCommittee] = useState<
     (typeof committeeData)[number] | null
   >(null);
-  const [delegationCount, setDelegationCount] = useState(0);
+  const [delegationCount, setDelegationCount] = useState<number | null>(null);
+  const [isLoadingDelegations, setIsLoadingDelegations] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -154,15 +157,22 @@ export default function HomePage() {
     let ignore = false;
     async function loadRegistrationCount() {
       try {
+        setIsLoadingDelegations(true);
         const response = await fetch("/api/admin/registrations");
         if (!response.ok) throw new Error("Unable to fetch");
         const payload = await response.json();
         const count = Array.isArray(payload.registrations)
           ? payload.registrations.length
           : 0;
-        if (!ignore) setDelegationCount(count);
+        if (!ignore) {
+          setDelegationCount(count);
+          setIsLoadingDelegations(false);
+        }
       } catch {
-        if (!ignore) setDelegationCount(0);
+        if (!ignore) {
+          setDelegationCount(0);
+          setIsLoadingDelegations(false);
+        }
       }
     }
     loadRegistrationCount();
@@ -185,7 +195,6 @@ export default function HomePage() {
     if (activeCategory === "Security Affairs") {
       return (
         cat === "Security Affairs" ||
-        cat === "Double Delegation" ||
         c.name === "UNSC" ||
         c.name.includes("DISEC")
       );
@@ -274,7 +283,7 @@ export default function HomePage() {
 
               {/* Readable, Comfortable Body Sizing */}
               <p className="text-base sm:text-lg lg:text-xl text-cream/75 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-                Project Athena shapes the Indian collegiate diplomacy circuit by empowering students to master the art of persuasion, craft sovereign directives, and champion grassroots change. 13 specialized assemblies across the country — all roads leading to Athena Summit 2026!
+                Project Athena gives school and college students a real platform to practice diplomacy, debate, and leadership. 6 specialized committees and an active startup track — join us 20–21 November 2026 in Patna!
               </p>
 
               {/* Grounded Motto */}
@@ -389,10 +398,16 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-4 border-2 border-white/10 bg-[#180e29] shadow-[3px_3px_0px_0px_#000000]">
-              <p className="font-heading text-4xl sm:text-5xl font-black text-cream">
-                {delegationCount > 0 ? `${delegationCount}+` : "500+"}
-              </p>
+            <div className="p-4 border-2 border-white/10 bg-[#180e29] shadow-[3px_3px_0px_0px_#000000] flex flex-col justify-center items-center">
+              {isLoadingDelegations ? (
+                <Skeleton className="h-10 sm:h-12 w-28 my-1" />
+              ) : (
+                <p className="font-heading text-4xl sm:text-5xl font-black text-cream">
+                  {delegationCount !== null && delegationCount > 0
+                    ? `${delegationCount}+`
+                    : "500+"}
+                </p>
+              )}
               <p className="text-xs uppercase tracking-wider font-mono font-bold text-cream/70 mt-1">
                 Delegations
               </p>
@@ -408,11 +423,11 @@ export default function HomePage() {
             </div>
 
             <div className="p-4 border-2 border-white/10 bg-[#180e29] shadow-[3px_3px_0px_0px_#000000]">
-              <p className="font-heading text-4xl sm:text-5xl font-black text-cream">
-                Nov 2026
+              <p className="font-heading text-3xl sm:text-5xl font-black text-cream">
+                20–21 Nov
               </p>
               <p className="text-xs uppercase tracking-wider font-mono font-bold text-cream/70 mt-1">
-                Summit Date
+                Summit Date (Patna)
               </p>
             </div>
           </div>
@@ -500,7 +515,7 @@ export default function HomePage() {
 
                   {/* Action Link */}
                   <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gold/80 group-hover:text-gold transition-colors">
-                    <span>Inspect Agenda Matrix</span>
+                    <span>View Committee & Agenda</span>
                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -512,7 +527,7 @@ export default function HomePage() {
           <div className="mt-12 text-center">
             <Link href="/events/athena-summit#committees">
               <Button size="md" className="shadow-[4px_4px_0px_0px_#000000] text-xs font-extrabold uppercase px-8 py-3.5">
-                <span>View Full Seat Matrix & Details</span>
+                <span>Explore All Committees</span>
                 <ChevronRight size={16} />
               </Button>
             </Link>
@@ -670,11 +685,11 @@ export default function HomePage() {
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight text-cream">
-              Engineered for <span className="text-gold">Collegiate Rigour</span>
+              Built For <span className="text-gold">Real Debate & Leadership</span>
             </h2>
 
             <p className="text-sm sm:text-base text-cream/70 max-w-xl mx-auto font-normal">
-              Every assembly, background guide, and protocol is crafted to deliver the benchmark diplomatic convening experience.
+              Structured rules of procedure, vetted background guides, and experienced chairs ensure an engaging and balanced debate.
             </p>
           </div>
 
@@ -710,22 +725,27 @@ export default function HomePage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          SECTION 6 — EDITORIAL MOTTO
+          SECTION 6 — SPONSORSHIP & BRAND PARTNERSHIPS
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <HomeSponsorSection />
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          SECTION 7 — EDITORIAL MOTTO
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section className="py-16 bg-[#120a1f] border-b-2 border-white/10 relative">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-3">
           <Quote size={32} className="mx-auto text-gold/80" />
           <blockquote className="font-heading text-xl sm:text-2xl text-cream font-bold italic leading-relaxed">
-            &ldquo;Diplomacy is not merely the resolution of conflict; it is the art of giving shape to human destiny.&rdquo;
+            &ldquo;When young people learn to articulate, negotiate, and listen, diplomacy leaves the textbook and becomes action.&rdquo;
           </blockquote>
           <p className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-cream/50">
-            Project Athena Secretariat • Collegiate Diplomacy Circuit
+            Project Athena • Patna 2026
           </p>
         </div>
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          SECTION 7 — GRAND CTA FINALE
+          SECTION 8 — GRAND CTA FINALE
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section className="py-20 lg:py-24 bg-[#0b0714] relative neo-grid-bg">
         <div className="max-w-4xl mx-auto px-6">
@@ -739,11 +759,11 @@ export default function HomePage() {
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-cream leading-tight">
                 Athena Summit <br />
-                <span className="text-gold">November 2026</span>
+                <span className="text-gold">20–21 November 2026</span>
               </h2>
 
               <p className="text-cream/70 text-sm font-normal max-w-md mx-auto">
-                Registrations and committee allocations open on a first-come, first-served portfolio preference basis.
+                Delegate seats and committee allocations are processed on a first-come, first-served portfolio preference basis.
               </p>
 
               <div className="pt-2">

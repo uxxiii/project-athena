@@ -7,7 +7,7 @@ import { Calendar, MapPin, ArrowDown, Lock, BadgeCheck } from "lucide-react";
 import type { SummitEvent } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { isRegistrationLaunched, PRICING_CONFIG } from "@/lib/pricing";
+import { isRegistrationLaunched } from "@/lib/pricing";
 
 interface EventHeroProps {
   event: SummitEvent;
@@ -101,18 +101,10 @@ export function EventHero({ event }: EventHeroProps) {
                 <MapPin size={16} className="text-gold" />
                 {event.location}
               </span>
-              {event.price !== undefined ? (
-                <span className="flex items-center gap-2 text-gold font-mono font-bold">
-                  <span>Fee:</span>
-                  <span className="text-cream">₹{event.price} / person</span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-2 text-gold/80 font-mono">
-                  <span className="text-gold font-medium">Rates:</span> Normal:{" "}
-                  <strong className="text-cream font-semibold">₹{PRICING_CONFIG.normal.normalPrice}</strong> | UNSC:{" "}
-                  <strong className="text-cream font-semibold">₹{PRICING_CONFIG.unsc.normalPrice}</strong>
-                </span>
-              )}
+              <span className="flex items-center gap-2 text-gold font-mono font-bold">
+                <span>Fee:</span>
+                <span className="text-cream">₹{event.price ?? 1300} / delegate</span>
+              </span>
             </div>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -136,7 +128,7 @@ export function EventHero({ event }: EventHeroProps) {
                 </Button>
               ) : (
                 <Button href="#committees" size="lg" variant="outline">
-                  View Committees
+                  View Committees ({event.committees.length})
                 </Button>
               )}
             </div>
@@ -156,7 +148,7 @@ export function EventHero({ event }: EventHeroProps) {
                 <div className="flex items-center gap-2">
                   <BadgeCheck className="w-4.5 h-4.5 text-gold" />
                   <span className="font-heading text-lg text-cream">
-                    {event.slug === "mun-picnic" ? "Official Picnic Pass" : "Official Registration Portal"}
+                    {event.slug === "mun-picnic" ? "Official Picnic Pass" : "Official Registration Dossier"}
                   </span>
                 </div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-gold/70 bg-gold/5 px-2 py-0.5 rounded border border-gold/15">
@@ -172,35 +164,35 @@ export function EventHero({ event }: EventHeroProps) {
                 <p className="text-xs text-cream/70 font-sans">
                   {event.slug === "mun-picnic"
                     ? "Registration for the Athena MUN Picnic is closed. We are no longer accepting submissions for this event."
-                    : "Delegate registrations are opening soon! Portfolios will be allocated on a first-come basis upon launch."}
+                    : `Delegate registrations are opening soon! ${event.capacity ?? 500}+ seats across ${event.committees.length || 6} committees allocated on a first-come, first-served basis.`}
                 </p>
               </div>
 
               {/* Pricing Information */}
               <div className="rounded-xl border border-gold/15 bg-purple-deep/60 p-3.5 space-y-2">
                 <span className="text-[11px] uppercase tracking-wider font-mono text-gold/80 block font-semibold">
-                  {event.slug === "mun-picnic" ? "Delegate Registration Fee" : "Standard Registration Rates"}
+                  {event.slug === "mun-picnic" ? "Delegate Registration Fee" : "Official Delegate Fee"}
                 </span>
                 {event.slug === "mun-picnic" ? (
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                     <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
                       <span className="text-cream/50 text-[10px] block font-sans">Entry & Workshop</span>
-                      <span className="text-gold font-bold text-base">₹100</span>
+                      <span className="text-gold font-bold text-base">₹{event.price ? event.price.toLocaleString("en-IN") : "100"}</span>
                     </div>
                     <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
                       <span className="text-cream/50 text-[10px] block font-sans">Capacity Cap</span>
-                      <span className="text-cream font-bold text-base">100 Seats</span>
+                      <span className="text-cream font-bold text-base">{event.capacity ?? 100} Seats</span>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                    <div className="bg-purple-dark/60 p-2 rounded border border-gold/15">
-                      <span className="text-cream/50 text-[10px] block font-sans">Normal Committees</span>
-                      <span className="text-cream font-bold text-sm">₹{PRICING_CONFIG.normal.normalPrice}</span>
+                    <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
+                      <span className="text-cream/50 text-[10px] block font-sans">Delegate Fee</span>
+                      <span className="text-gold font-bold text-lg">₹{event.price ? event.price.toLocaleString("en-IN") : "1,300"}</span>
                     </div>
-                    <div className="bg-purple-dark/60 p-2 rounded border border-gold/15">
-                      <span className="text-cream/50 text-[10px] block font-sans">UNSC Double Del.</span>
-                      <span className="text-cream font-bold text-sm">₹{PRICING_CONFIG.unsc.normalPrice}</span>
+                    <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
+                      <span className="text-cream/50 text-[10px] block font-sans">Total Summit Cap</span>
+                      <span className="text-cream font-bold text-lg">{event.capacity ?? 500}+ Seats</span>
                     </div>
                   </div>
                 )}

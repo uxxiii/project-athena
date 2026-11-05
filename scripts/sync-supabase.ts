@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
 import { committees } from "../src/data/committees";
-import { events } from "../src/data/events";
 
 // Load .env.local
 const envContent = fs.readFileSync(path.resolve(".env.local"), "utf-8");

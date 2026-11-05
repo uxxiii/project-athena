@@ -13,9 +13,13 @@ export const personalInfoSchema = z.object({
 
 export const committeePreferencesSchema = z.object({
   committeePreferences: z
-    .tuple([z.string().min(1), z.string().min(1), z.string().min(1)])
+    .tuple([
+      z.string().min(1, "Select 1st preference"),
+      z.string().min(1, "Select 2nd preference"),
+      z.string().min(1, "Select 3rd preference"),
+    ])
     .refine(
-      (prefs) => new Set(prefs).size === 3 || prefs.every((p) => p === "unsc"),
+      (prefs) => new Set(prefs).size === 3,
       "Please select three different committees"
     ),
 });
@@ -40,14 +44,11 @@ export const unscDelegateSchema = z.object({
   isUnscRegistration: z.boolean().default(false),
   unscDelegate: z
     .object({
-      name: z.string().min(2, "Partner delegate name is required"),
-      phone: z
-        .string()
-        .min(10, "Enter a valid partner WhatsApp number")
-        .regex(/^[\d\s+\-()]+$/, "Enter a valid phone number"),
-      email: z.string().email("Enter a valid partner email address"),
-      classYear: z.string().min(1, "Partner class/year is required"),
-      institution: z.string().min(2, "Partner institution is required"),
+      name: z.string().optional(),
+      phone: z.string().optional(),
+      email: z.string().optional(),
+      classYear: z.string().optional(),
+      institution: z.string().optional(),
     })
     .nullable()
     .optional(),
@@ -61,60 +62,7 @@ export const registrationSchema = personalInfoSchema
   .merge(portfolioPreferencesSchema)
   .merge(experienceSchema)
   .merge(paymentSchema)
-  .merge(unscDelegateSchema)
-  .superRefine((data, ctx) => {
-    if (!data.isUnscRegistration) return;
-
-    const partnerDelegate = data.unscDelegate;
-    if (!partnerDelegate?.name?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegate", "name"],
-        message: "Partner delegate name is required for UNSC",
-      });
-    }
-
-    if (!partnerDelegate?.phone?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegate", "phone"],
-        message: "Partner delegate WhatsApp number is required for UNSC",
-      });
-    }
-
-    if (!partnerDelegate?.email?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegate", "email"],
-        message: "Partner delegate email is required for UNSC",
-      });
-    }
-
-    if (!partnerDelegate?.classYear?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegate", "classYear"],
-        message: "Partner delegate class/year is required for UNSC",
-      });
-    }
-
-    if (!partnerDelegate?.institution?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegate", "institution"],
-        message: "Partner delegate institution is required for UNSC",
-      });
-    }
-
-    const sharedPreferences = data.unscDelegatePortfolioPreferences ?? ["", "", ""];
-    if (sharedPreferences.some((pref) => !pref.trim())) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["unscDelegatePortfolioPreferences"],
-        message: "Please choose three shared UNSC portfolio preferences",
-      });
-    }
-  });
+  .merge(unscDelegateSchema);
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
 
