@@ -28,7 +28,7 @@ export function HomeSponsorSection() {
               Put Your Brand In Front of <span className="text-gold">500+</span> Future Leaders
             </h2>
             <p className="text-cream/70 text-sm sm:text-base leading-relaxed">
-              Connect directly with ambitious students from Class 5 to 12, educators, debaters, and young innovators across two high-impact days in Patna ({SUMMIT_SPONSOR_CONFIG.dates}).
+              Connect directly with ambitious students from Class 5 to 12, educators, debaters, and young innovators across two high-impact days at CNLU, Patna ({SUMMIT_SPONSOR_CONFIG.dates}).
             </p>
           </div>
 

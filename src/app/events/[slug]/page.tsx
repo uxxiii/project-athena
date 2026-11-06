@@ -6,6 +6,7 @@ import { EventHero } from "@/components/events/EventHero";
 import { BrochureDownload } from "@/components/events/BrochureDownload";
 import { CommitteeCard } from "@/components/events/CommitteeCard";
 import { PicnicMapSection } from "@/components/events/PicnicMapSection";
+import { SummitVenueSection } from "@/components/events/SummitVenueSection";
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
 import { PicnicRegistrationForm } from "@/components/registration/PicnicRegistrationForm";
 import { ScrollToRegister } from "@/components/registration/ScrollToRegister";
@@ -304,6 +305,16 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
         </div>
       </section>
+
+      {/* Official Venue & Location Map */}
+      <SummitVenueSection
+        venueName="Chanakya National Law University (CNLU)"
+        subName="Mithapur, Patna"
+        address="Nyaya Nagar, Mithapur, Patna, Bihar 800001"
+        mapEmbedUrl={event.mapEmbedUrl}
+        mapDirectionsUrl={event.mapDirectionsUrl}
+        date={event.date}
+      />
 
       <BrochureDownload
         brochureUrl={event.brochureUrl}

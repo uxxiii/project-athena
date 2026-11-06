@@ -695,7 +695,7 @@ function SponsorsPageContent() {
 
                 <div className="pt-4 border-t border-white/10 text-[11px] text-cream/60">
                   <p>
-                    📍 Summit Location: <strong>Patna, Bihar</strong> <br />
+                    📍 Official Venue: <strong>{SUMMIT_SPONSOR_CONFIG.venue}</strong> ({SUMMIT_SPONSOR_CONFIG.location}) <br />
                     📅 Dates: <strong>{SUMMIT_SPONSOR_CONFIG.dates}</strong>
                   </p>
                 </div>

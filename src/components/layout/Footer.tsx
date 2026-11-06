@@ -61,6 +61,7 @@ export function Footer() {
               <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
                 <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Summit Convening</p>
                 <p className="text-sm text-cream font-medium mt-0.5">Athena Summit • 20–21 Nov 2026</p>
+                <p className="text-[11px] text-cream/60 font-mono mt-0.5">Venue: CNLU, Patna</p>
               </div>
               <div className="p-4 bg-[#140b24] border-2 border-white/15 shadow-[3px_3px_0px_0px_#000000]">
                 <p className="font-bold text-xs uppercase text-gold/90 font-mono tracking-wider">Societal Mission</p>
@@ -136,7 +137,7 @@ export function Footer() {
                 </a>
                 <div className="flex items-center gap-2.5 p-2.5 bg-[#140b24] border border-white/15">
                   <MapPin size={15} className="text-gold shrink-0" />
-                  <span className="font-mono text-cream/90">India (Collegiate Circuit)</span>
+                  <span className="font-mono text-cream/90">CNLU, Patna (Summit Host)</span>
                 </div>
                 <a
                   href="https://www.instagram.com/athena.summit/"

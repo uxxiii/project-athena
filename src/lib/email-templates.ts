@@ -135,6 +135,19 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                         ${registration.assignedAgenda ?? "Your committee background guide and agenda dossier will be dispatched by the Executive Board shortly."}
                       </div>
                     </div>
+
+                    <!-- Venue Row -->
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+                      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #d4af37; margin-bottom: 4px;">
+                        🏛️ Official Summit Venue
+                      </div>
+                      <div style="font-size: 14px; font-weight: 600; color: #ffffff;">
+                        Chanakya National Law University (CNLU), Patna
+                      </div>
+                      <div style="font-size: 11px; color: #b7a9ce; margin-top: 2px;">
+                        Nyaya Nagar, Mithapur, Patna, Bihar 800001 (20–21 November 2026)
+                      </div>
+                    </div>
                   </td>
                 </tr>
               </table>

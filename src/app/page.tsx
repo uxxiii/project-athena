@@ -14,6 +14,7 @@ import {
   ChevronRight,
   X,
   Calendar,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -283,7 +284,7 @@ export default function HomePage() {
 
               {/* Readable, Comfortable Body Sizing */}
               <p className="text-base sm:text-lg lg:text-xl text-cream/75 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-                Project Athena gives school and college students a real platform to practice diplomacy, debate, and leadership. 6 specialized committees and an active startup track — join us 20–21 November 2026 in Patna!
+                Project Athena gives school and college students a real platform to practice diplomacy, debate, and leadership. 6 specialized committees and an active startup track — join us 20–21 November 2026 at CNLU, Patna!
               </p>
 
               {/* Grounded Motto */}
@@ -427,7 +428,7 @@ export default function HomePage() {
                 20–21 Nov
               </p>
               <p className="text-xs uppercase tracking-wider font-mono font-bold text-cream/70 mt-1">
-                Summit Date (Patna)
+                20–21 Nov • CNLU Patna
               </p>
             </div>
           </div>
@@ -762,7 +763,12 @@ export default function HomePage() {
                 <span className="text-gold">20–21 November 2026</span>
               </h2>
 
-              <p className="text-cream/70 text-sm font-normal max-w-md mx-auto">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#0b0714] border border-gold/40 text-xs font-mono text-cream/90 shadow-[2px_2px_0px_0px_#000]">
+                <MapPin size={13} className="text-gold shrink-0" />
+                <span>Venue: Chanakya National Law University (CNLU), Patna</span>
+              </div>
+
+              <p className="text-cream/70 text-sm font-normal max-w-md mx-auto pt-1">
                 Delegate seats and committee allocations are processed on a first-come, first-served portfolio preference basis.
               </p>
 

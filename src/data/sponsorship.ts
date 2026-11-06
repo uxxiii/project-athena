@@ -19,10 +19,16 @@ export interface MetricHighlight {
 export const SUMMIT_SPONSOR_CONFIG = {
   eventName: "Athena Summit 2026",
   dates: "20–21 November 2026",
-  location: "Patna, Bihar",
+  location: "CNLU, Patna",
+  venue: "Chanakya National Law University (CNLU)",
+  venueAddress: "Nyaya Nagar, Mithapur, Patna, Bihar 800001",
   delegatesTarget: "500+",
   committeesCount: 6,
   brochureUrl: "/brochure/athena-sponsorship-brochure.pdf",
+  mapDirectionsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Chanakya+National+Law+University+Patna",
+  mapEmbedUrl:
+    "https://maps.google.com/maps?q=Chanakya+National+Law+University+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
   coOrganizers: [
     {
       name: "Startly Innovations Pvt. Ltd.",

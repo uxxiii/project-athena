@@ -97,17 +97,17 @@ export function EventHero({ event }: EventHeroProps) {
                   {event.time}
                 </span>
               )}
-              <span className="flex items-center gap-2">
+              <a href="#venue" className="flex items-center gap-2 hover:text-gold transition-colors">
                 <MapPin size={16} className="text-gold" />
-                {event.location}
-              </span>
+                <span>{event.location}</span>
+              </a>
               <span className="flex items-center gap-2 text-gold font-mono font-bold">
                 <span>Fee:</span>
                 <span className="text-cream">₹{event.price ?? 1300} / delegate</span>
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex flex-wrap gap-3 sm:gap-4 pt-2">
               <Button
                 href="#register"
                 size="lg"
@@ -127,9 +127,15 @@ export function EventHero({ event }: EventHeroProps) {
                   View Venue & Map
                 </Button>
               ) : (
-                <Button href="#committees" size="lg" variant="outline">
-                  View Committees ({event.committees.length})
-                </Button>
+                <>
+                  <Button href="#committees" size="lg" variant="outline">
+                    View Committees ({event.committees.length})
+                  </Button>
+                  <Button href="#venue" size="lg" variant="outline" className="border-gold/30 hover:border-gold">
+                    <MapPin size={15} className="mr-1 text-gold" />
+                    <span>Venue: CNLU</span>
+                  </Button>
+                </>
               )}
             </div>
           </motion.div>
