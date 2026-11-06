@@ -1,5 +1,5 @@
-export const REGISTRATION_OPEN_DATE_ISO = "2026-11-06T10:00:00+05:30";
-export const EARLY_BIRD_DEADLINE_ISO = "2026-11-12T23:59:59+05:30";
+export const REGISTRATION_OPEN_DATE_ISO = "2026-11-12T10:00:00+05:30";
+export const EARLY_BIRD_DEADLINE_ISO = "2026-11-15T23:59:59+05:30";
 export const REGISTRATION_FEE = 1300;
 
 export interface CommitteePricing {
@@ -31,7 +31,8 @@ export function isRegistrationLaunched(): boolean {
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_REGISTRATION_OPEN === "true") {
     return true;
   }
-  return new Date().getTime() >= new Date(REGISTRATION_OPEN_DATE_ISO).getTime();
+  // Registrations are temporarily closed until official launch
+  return false;
 }
 
 export function isEarlyBirdActive(): boolean {
@@ -48,31 +49,41 @@ export function getPricing(isUnsc: boolean = false) {
 }
 
 export function calculateRegistrationLaunchTimeRemaining(targetIsoDate: string = REGISTRATION_OPEN_DATE_ISO) {
-  const target = new Date(targetIsoDate).getTime();
-  const now = new Date().getTime();
-  const difference = target - now;
+  if (!isRegistrationLaunched()) {
+    const target = new Date(targetIsoDate).getTime();
+    const now = new Date().getTime();
+    const difference = target - now;
 
-  if (difference <= 0) {
+    if (difference <= 0) {
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        isLaunched: false,
+      };
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((difference / 1000 / 60) % 60);
+    const seconds = Math.floor((difference / 1000) % 60);
+
     return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      isLaunched: true,
+      days,
+      hours,
+      minutes,
+      seconds,
+      isLaunched: false,
     };
   }
 
-  const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((difference / 1000 / 60) % 60);
-  const seconds = Math.floor((difference / 1000) % 60);
-
   return {
-    days,
-    hours,
-    minutes,
-    seconds,
-    isLaunched: false,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isLaunched: true,
   };
 }
 
