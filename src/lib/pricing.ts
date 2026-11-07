@@ -1,8 +1,8 @@
 import { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, DIWALI_SALE_DEADLINE_ISO } from "./diwali";
 export { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING } from "./diwali";
 
-// Registration Launch: Today at 6:00 PM IST
-export const REGISTRATION_OPEN_DATE_ISO = "2026-11-07T18:00:00+05:30";
+// Registration temporarily closed — reopens at 8:15 PM IST
+export const REGISTRATION_OPEN_DATE_ISO = "2026-11-07T20:15:00+05:30";
 
 // Diwali Special Sale Deadline: 9th Nov 12:00 PM (Noon) IST
 export const EARLY_BIRD_DEADLINE_ISO = DIWALI_SALE_DEADLINE_ISO;
