@@ -44,7 +44,7 @@ export default function AdminPaymentsPage() {
   // Lazy-fetch full screenshot when delegate is selected
   const handleSelectRegistration = useCallback(async (reg: Registration) => {
     setSelectedRegistration(reg);
-    if (!reg.paymentScreenshot && reg.hasScreenshot) {
+    if (!reg.paymentScreenshot) {
       setLoadingScreenshot(true);
       try {
         const res = await fetch(`/api/admin/registrations/${encodeURIComponent(reg.id)}`);
@@ -53,13 +53,13 @@ export default function AdminPaymentsPage() {
           if (data.registration?.paymentScreenshot) {
             setSelectedRegistration((prev) =>
               prev?.id === reg.id
-                ? { ...prev, paymentScreenshot: data.registration.paymentScreenshot }
+                ? { ...prev, paymentScreenshot: data.registration.paymentScreenshot, hasScreenshot: true }
                 : prev
             );
             setRegistrations((prev) =>
               prev.map((r) =>
                 r.id === reg.id
-                  ? { ...r, paymentScreenshot: data.registration.paymentScreenshot }
+                  ? { ...r, paymentScreenshot: data.registration.paymentScreenshot, hasScreenshot: true }
                   : r
               )
             );

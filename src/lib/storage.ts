@@ -226,10 +226,39 @@ export async function readRegistrations(
       }
 
       if (!error && Array.isArray(data)) {
+        // If screenshots were excluded, query IDs with non-null screenshots so UI knows which rows have receipts
+        let idsWithScreenshots = new Set<number>();
+        if (!includeScreenshots && data.length > 0) {
+          try {
+            const hasPicRes = await (client as unknown as {
+              from: (table: string) => {
+                select: (cols: string) => {
+                  not: (col: string, op: string, val: unknown) => Promise<{ data: Array<{ id: number }> | null }>;
+                };
+              };
+            })
+              .from("registrations")
+              .select("id")
+              .not("payment_screenshot", "is", null);
+
+            if (hasPicRes.data && Array.isArray(hasPicRes.data)) {
+              idsWithScreenshots = new Set(hasPicRes.data.map((r) => r.id));
+            }
+          } catch {
+            // Non-fatal optimization
+          }
+        }
+
         // Exclude fallback donation records
         const list = data
           .filter((row: unknown) => (row as Record<string, unknown>).event_slug !== "donation")
-          .map((row) => normalizeRegistrationRow(row as Record<string, unknown>));
+          .map((row) => {
+            const r = row as Record<string, unknown>;
+            if (!includeScreenshots && idsWithScreenshots.size > 0 && typeof r.id === "number") {
+              r.has_screenshot = idsWithScreenshots.has(r.id);
+            }
+            return normalizeRegistrationRow(r);
+          });
 
         // Sync to local JSON store only when full records (including screenshots) are fetched
         if (list.length > 0 && includeScreenshots) {
