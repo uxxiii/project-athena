@@ -6,7 +6,19 @@ export const personalInfoSchema = z.object({
     .string()
     .min(10, "Enter a valid WhatsApp number")
     .regex(/^[\d\s+\-()]+$/, "Enter a valid phone number"),
-  email: z.string().email("Enter a valid email address"),
+  email: z
+    .string()
+    .min(1, "Email address is required")
+    .email("Enter a valid email address (e.g. name@gmail.com)")
+    .regex(
+      /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
+      "Enter a valid email — check for typos"
+    )
+    .refine(
+      (val) => !val.includes("..") && !val.startsWith(".") && !val.endsWith("."),
+      "Email address has an invalid format"
+    )
+    .transform((val) => val.trim().toLowerCase()),
   classYear: z.string().min(1, "Class/Year is required"),
   institution: z.string().min(2, "Institution name is required"),
 });

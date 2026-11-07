@@ -436,9 +436,19 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                     <Input
                       label="Email Address (All updates & guidelines sent here)"
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       {...register("email")}
+                      onBlur={(e) => {
+                        // Trim & lowercase on blur before validation fires
+                        const cleaned = e.target.value.trim().toLowerCase();
+                        setValue("email", cleaned, { shouldValidate: true });
+                      }}
                       error={errors.email?.message}
-                      placeholder="rahul@example.com"
+                      placeholder="yourname@gmail.com"
                     />
                     <div className="grid sm:grid-cols-2 gap-4">
                       <Input
@@ -660,24 +670,24 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                     <PaymentPricingBanner />
 
                     <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
-                      <div className="mx-auto w-48 h-48 border-2 border-white/20 bg-white p-3 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
+                      <div className="mx-auto w-56 h-56 border-2 border-white/20 bg-white p-2 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/upi-qr.png"
-                          alt="Athena Summit UPI payment QR code"
+                          alt="Athena Summit UPI payment QR code — PhonePe"
                           className="w-full h-full object-contain"
                         />
                       </div>
 
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-cream">
-                          Official UPI ID:{" "}
+                          Pay via PhonePe to{" "}
                           <span className="text-gold font-mono font-bold">
-                            arnav86011-2@okaxis
+                            Startly Innovations
                           </span>
                         </p>
                         <p className="text-xs text-cream/50">
-                          Accepted via Google Pay, PhonePe, Paytm, BHIM, and all UPI apps
+                          Scan QR using PhonePe · also accepted via Google Pay, Paytm, BHIM &amp; all UPI apps
                         </p>
                       </div>
                     </div>
