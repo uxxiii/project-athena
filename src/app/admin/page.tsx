@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
+import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -113,8 +114,11 @@ export default function AdminPage() {
   const summitApproved = summitRegs.filter((r) => r.status === "approved").length;
   const picnicApproved = picnicRegs.filter((r) => r.status === "approved").length;
 
-  // Revenue: Approved Summit (₹1,300) + Approved Picnic (₹100)
-  const confirmedRevenue = summitApproved * 1300 + picnicApproved * 100;
+  const currentSummitFee = getCurrentRegistrationFee();
+  const isSale = isDiwaliSaleActive();
+
+  // Revenue: Approved Summit (dynamic based on sale: ₹1,000 during sale, ₹1,300 normal) + Approved Picnic (₹100)
+  const confirmedRevenue = summitApproved * currentSummitFee + picnicApproved * 100;
   const totalSummitCapacity = 420;
 
   // Filtered recent registrations
@@ -353,7 +357,7 @@ export default function AdminPage() {
               ₹{confirmedRevenue.toLocaleString("en-IN")}
             </p>
             <span className="text-[10px] text-cream/40 font-mono mt-1 block">
-              From approved delegate fees
+              {isSale ? `Diwali Sale (₹${currentSummitFee.toLocaleString("en-IN")}/pass) + Picnic (₹100)` : "From approved delegate fees (₹1,300)"}
             </span>
           </div>
 
@@ -493,7 +497,7 @@ export default function AdminPage() {
                         : "text-cream/60 hover:text-cream"
                     }`}
                   >
-                    {filterOpt === "all" ? "All" : filterOpt === "athena-summit" ? "Summit (₹1300)" : "Picnic (₹100)"}
+                    {filterOpt === "all" ? "All" : filterOpt === "athena-summit" ? `Summit (₹${currentSummitFee.toLocaleString("en-IN")})` : "Picnic (₹100)"}
                   </button>
                 ))}
               </div>

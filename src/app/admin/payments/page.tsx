@@ -24,6 +24,7 @@ import {
 import type { Registration } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
 import { Badge } from "@/components/ui/Badge";
+import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
 
 type SortOption = "date-desc" | "date-asc" | "name-asc" | "name-desc" | "pending-first";
 
@@ -40,6 +41,9 @@ export default function AdminPaymentsPage() {
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const [loadingScreenshot, setLoadingScreenshot] = useState(false);
+
+  const currentSummitFee = getCurrentRegistrationFee();
+  const isSale = isDiwaliSaleActive();
 
   // Lazy-fetch full screenshot when delegate is selected
   const handleSelectRegistration = useCallback(async (reg: Registration) => {
@@ -314,7 +318,7 @@ export default function AdminPaymentsPage() {
                 Delegate Payment & Allocation <span className="text-gold">Verification</span>
               </h1>
               <p className="text-xs sm:text-sm text-cream/60 mt-1 font-sans">
-                Inspect uploaded UPI screenshots, verify payments (₹1,300 Summit / ₹100 Picnic), and dispatch confirmation passes.
+                Inspect uploaded UPI screenshots, verify payments (₹{currentSummitFee.toLocaleString("en-IN")} Summit {isSale ? "· Diwali Offer" : ""} / ₹100 Picnic), and dispatch confirmation passes.
               </p>
             </div>
 
@@ -380,7 +384,7 @@ export default function AdminPaymentsPage() {
                     : "text-gold/80 hover:text-gold"
                 }`}
               >
-                Athena Summit (₹1,300) • {summitCount}
+                Athena Summit (₹{currentSummitFee.toLocaleString("en-IN")}) • {summitCount}
               </button>
               <button
                 onClick={() => setEventFilter("mun-picnic")}
@@ -494,7 +498,7 @@ export default function AdminPaymentsPage() {
                             </span>
                           ) : (
                             <span className="text-[10px] font-mono bg-gold/15 text-gold px-2 py-0.5 border border-gold/30 font-bold">
-                              Summit (₹1,300)
+                              Summit (₹{currentSummitFee.toLocaleString("en-IN")})
                             </span>
                           )}
                         </div>
