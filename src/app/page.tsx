@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { committees as committeeData } from "@/data/committees";
 import { HomeSponsorSection } from "@/components/sponsors/HomeSponsorSection";
+import { isDiwaliSeason, isDiwaliSaleActive } from "@/lib/diwali";
 
 function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -140,6 +141,7 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isDiwali, setIsDiwali] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const togglePlay = () => {
@@ -177,6 +179,7 @@ export default function HomePage() {
       }
     }
     loadRegistrationCount();
+    setIsDiwali(isDiwaliSeason());
     return () => {
       ignore = true;
     };
@@ -235,6 +238,14 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
         <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
 
+        {/* Festive Clay Diyas in Hero */}
+        {isDiwali && (
+          <div className="absolute bottom-6 right-6 hidden md:flex items-center gap-2 pointer-events-none opacity-80 z-20">
+            <span className="text-2xl animate-pulse" role="img" aria-label="Diya">🪔</span>
+            <span className="text-xl animate-bounce">✨</span>
+          </div>
+        )}
+
         {/* Ambient background curves (subtle, low contrast) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-10">
           <svg className="w-full h-full" viewBox="0 0 1200 600" fill="none">
@@ -267,6 +278,15 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="text-center lg:text-left space-y-8"
             >
+              {/* Diwali Festive Announcement Banner */}
+              {isDiwali && (
+                <div className="flex justify-center lg:justify-start">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 border-2 border-gold/60 text-cream font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] animate-pulse">
+                    <span>🪔 Shubh Deepavali! Early Bird ₹1,000 Flat Rate Active</span>
+                  </div>
+                </div>
+              )}
+
               {/* Intentional Punchy Sticker (Hero Focal Point) */}
               <div className="inline-block transform -rotate-1">
                 <div className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">

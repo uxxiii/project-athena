@@ -13,7 +13,7 @@ import {
   AlertCircle,
   Award,
 } from "lucide-react";
-import { committees, getCommitteeById } from "@/data/committees";
+import { committees, getCommitteeById, IPL_TEAMS } from "@/data/committees";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -29,6 +29,8 @@ import type { AvailabilitySnapshot, Registration } from "@/lib/types";
 import { PaymentPricingBanner } from "./PaymentPricingBanner";
 import { RegistrationLaunchBanner } from "./RegistrationLaunchBanner";
 import { isRegistrationLaunched } from "@/lib/pricing";
+import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
+import { KajuKatliModal } from "@/components/festive/KajuKatliModal";
 
 const STEPS = [
   "Personal Credentials",
@@ -52,6 +54,11 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<Registration | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [showKajuKatli, setShowKajuKatli] = useState(false);
+  const [selectedIplTeam, setSelectedIplTeam] = useState<string>("Chennai Super Kings");
+
+  const effectiveFee = getCurrentRegistrationFee();
+  const isDiwaliActive = isDiwaliSaleActive();
 
   useEffect(() => {
     setIsFormLaunched(isRegistrationLaunched());
@@ -221,6 +228,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
       setResult(json.registration);
       setStep(6);
+      setShowKajuKatli(true);
       fetchAvailability();
     } catch {
       setSubmitError("Network error. Please try again.");
@@ -233,10 +241,11 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
     committees.map((c) => {
       const avail = availability?.committees[c.id];
       const isFull = avail?.isFull ?? false;
-      const availabilityText = `${avail?.available ?? c.maxDelegates} seats available`;
+      const availabilityText = `${avail?.available ?? c.maxDelegates} seats left`;
+      const elig = c.eligibility === "school_only" ? " [School Only]" : " [School & College]";
       return {
         value: c.id,
-        label: `${c.name} — ${c.fullName}${isFull ? " [FULL]" : ` (${availabilityText})`}`,
+        label: `${c.name} — ${c.fullName}${elig}${isFull ? " [FULL]" : ` (${availabilityText})`}`,
         disabled: isFull || exclude.includes(c.id),
       };
     });
@@ -247,6 +256,19 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   ) => {
     const committee = getCommitteeById(committeeId);
     if (!committee) return [];
+
+    if (committeeId === "ipl") {
+      return committee.portfolios
+        .filter((p) => p.team === selectedIplTeam)
+        .map((p) => {
+          const isTaken = availability?.portfolios[committeeId]?.[p.id]?.taken ?? false;
+          return {
+            value: p.id,
+            label: `${p.role ?? p.name}${isTaken ? " [TAKEN]" : ""}`,
+            disabled: isTaken || exclude.includes(p.id),
+          };
+        });
+    }
 
     return committee.portfolios.map((p) => {
       const isTaken = availability?.portfolios[committeeId]?.[p.id]?.taken ?? false;
@@ -265,14 +287,30 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
     setValue("committeePreferences", current, { shouldValidate: true });
 
     if (value && !portfolioPrefs[value]) {
-      setValue(
-        "portfolioPreferences",
-        {
-          ...portfolioPrefs,
-          [value]: ["", "", ""],
-        },
-        { shouldValidate: true }
-      );
+      if (value === "ipl") {
+        const teamSlug = selectedIplTeam.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        setValue(
+          "portfolioPreferences",
+          {
+            ...portfolioPrefs,
+            ipl: [
+              `${teamSlug}-owner`,
+              `${teamSlug}-co-owner`,
+              `${teamSlug}-head-coach`,
+            ],
+          },
+          { shouldValidate: true }
+        );
+      } else {
+        setValue(
+          "portfolioPreferences",
+          {
+            ...portfolioPrefs,
+            [value]: ["", "", ""],
+          },
+          { shouldValidate: true }
+        );
+      }
     }
   };
 
@@ -440,6 +478,19 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                       </p>
                     </div>
 
+                    {/* Eligibility Advisory Notice */}
+                    <div className="bg-[#0b0714] border border-gold/30 p-4 shadow-[2px_2px_0px_0px_#000] space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-400 font-mono font-bold text-xs uppercase tracking-wider">
+                          ⚠️ Committee Eligibility Guidelines
+                        </span>
+                      </div>
+                      <p className="text-xs text-cream/70 font-sans leading-relaxed">
+                        • <strong className="text-cream">UNSC & JPC (Joint Parliamentary Committee):</strong> Restricted exclusively to <strong>School Students Only</strong>.<br />
+                        • <strong className="text-cream">Lok Sabha, IPL, International Press (IP), & UN Women:</strong> Open to both <strong>School & College Students</strong>.
+                      </p>
+                    </div>
+
                     {[0, 1, 2].map((i) => (
                       <Select
                         key={i}
@@ -500,10 +551,37 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                               </h4>
                             </div>
 
+                            {/* Specialized Team Selector for IPL */}
+                            {committeeId === "ipl" && (
+                              <div className="bg-[#0b0714] border border-gold/30 p-4 space-y-2 mb-4 shadow-[2px_2px_0px_0px_#000]">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-xs font-mono font-bold text-gold uppercase tracking-wider">
+                                    🏏 Select IPL Franchise (12 Teams)
+                                  </label>
+                                  <span className="text-[10px] font-mono text-cream/50">5 Roles / Team</span>
+                                </div>
+                                <Select
+                                  value={selectedIplTeam}
+                                  onChange={(e) => {
+                                    const team = e.target.value;
+                                    setSelectedIplTeam(team);
+                                    const teamSlug = team.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                                    updatePortfolioPref(committeeId, 0, `${teamSlug}-owner`);
+                                    updatePortfolioPref(committeeId, 1, `${teamSlug}-co-owner`);
+                                    updatePortfolioPref(committeeId, 2, `${teamSlug}-head-coach`);
+                                  }}
+                                  options={IPL_TEAMS.map((t) => ({ value: t, label: t }))}
+                                />
+                                <p className="text-[11px] text-cream/60 font-sans">
+                                  Selected: <strong className="text-cream">{selectedIplTeam}</strong>. Please choose your top 3 preferred roles for this franchise:
+                                </p>
+                              </div>
+                            )}
+
                             {[0, 1, 2].map((i) => (
                               <Select
                                 key={i}
-                                label={`${i === 0 ? "1st Choice" : i === 1 ? "2nd Choice" : "3rd Choice"} Portfolio`}
+                                label={`${i === 0 ? "1st Choice" : i === 1 ? "2nd Choice" : "3rd Choice"} ${committeeId === "ipl" ? "Role" : "Portfolio"}`}
                                 value={prefs[i] ?? ""}
                                 onChange={(e) =>
                                   updatePortfolioPref(committeeId, i, e.target.value)
@@ -575,7 +653,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         Payment & Screenshot Upload
                       </h3>
                       <p className="text-xs text-cream/40 mt-0.5">
-                        Scan the official QR code to complete registration fee payment (₹1,300)
+                        Scan the official QR code to complete registration fee payment (₹{effectiveFee.toLocaleString("en-IN")})
                       </p>
                     </div>
 
@@ -678,71 +756,85 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                       <span className="text-[10px] tracking-[0.3em] uppercase text-gold font-mono">
                         Registration Confirmed
                       </span>
-                      <h3 className="font-heading text-4xl text-cream">
-                        Delegate <span className="text-gradient-gold italic font-normal">Allocation Issued</span>
+                      <h3 className="font-heading text-3xl sm:text-4xl text-cream uppercase">
+                        Application <span className="text-gold italic font-normal">Under Verification</span>
                       </h3>
-                      <p className="text-xs text-cream/50 max-w-md mx-auto font-sans font-light">
-                        Your allocation has been locked. An official email with study guidelines will follow payment verification.
+                      <p className="text-xs text-cream/70 max-w-md mx-auto font-sans font-light">
+                        Your registration has been logged under ID <strong className="font-mono text-gold">{result.id}</strong>. In accordance with conference policy, your committee and portfolio will be dispatched to your email once payment is confirmed.
                       </p>
                     </div>
 
                     {/* Handcrafted Credential Card */}
-                    <div className="rounded-xl border border-gold/40 bg-linear-to-b from-purple-dark via-purple-deep to-[#0b0714] p-6 text-left space-y-4 shadow-2xl relative overflow-hidden">
+                    <div className="rounded-none border-2 border-gold/40 bg-[#0b0714] p-6 text-left space-y-4 shadow-[6px_6px_0px_0px_#000000] relative overflow-hidden">
                       <div className="flex items-center justify-between border-b border-gold/20 pb-3">
                         <div>
-                          <span className="font-heading text-xl text-gold block">
-                            ATHENA SUMMIT CREDENTIAL
+                          <span className="font-heading text-lg sm:text-xl text-gold block uppercase font-bold tracking-tight">
+                            ATHENA SUMMIT CREDENTIAL PASS
                           </span>
-                          <span className="text-[9px] uppercase tracking-widest text-cream/40">
-                            Official Delegate Dossier
+                          <span className="text-[9px] uppercase tracking-widest text-cream/40 font-mono">
+                            Chanakya National Law University (CNLU), Patna
                           </span>
                         </div>
-                        <Badge variant="warning">Pending Payment Review</Badge>
+                        <Badge variant="warning">Payment Verification in Progress</Badge>
                       </div>
 
-                      <div className="grid gap-3 text-xs">
+                      <div className="grid gap-3 text-xs font-mono">
                         <div className="flex justify-between py-1 border-b border-white/5">
-                          <span className="text-cream/50 font-mono">DELEGATE ID:</span>
-                          <span className="font-mono text-gold font-bold">{result.id}</span>
+                          <span className="text-cream/50">DELEGATE ID:</span>
+                          <span className="text-gold font-bold">{result.id}</span>
                         </div>
                         <div className="flex justify-between py-1 border-b border-white/5">
-                          <span className="text-cream/50 font-mono">NAME:</span>
+                          <span className="text-cream/50">CANDIDATE:</span>
                           <span className="text-cream font-medium">{result.name}</span>
                         </div>
                         <div className="flex justify-between py-1 border-b border-white/5">
-                          <span className="text-cream/50 font-mono">ASSIGNED COMMITTEE:</span>
-                          <span className="font-heading text-gold text-sm font-semibold">
-                            {result.assignedCommittee?.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between py-1 border-b border-white/5">
-                          <span className="text-cream/50 font-mono">ASSIGNED PORTFOLIO:</span>
-                          <span className="text-cream font-semibold">
-                            {(() => {
-                              const comm = getCommitteeById(result.assignedCommittee ?? "");
-                              return (
-                                comm?.portfolios.find((p) => p.id === result.assignedPortfolio)
-                                  ?.name ?? result.assignedPortfolio
-                              );
-                            })()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between py-1 border-b border-white/5">
-                          <span className="text-cream/50 font-mono">INSTITUTION:</span>
+                          <span className="text-cream/50">INSTITUTION:</span>
                           <span className="text-cream/80">{result.institution}</span>
                         </div>
-                        <div className="flex justify-between py-1">
-                          <span className="text-cream/50 font-mono">REGISTRATION FEE:</span>
-                          <span className="font-mono text-emerald-400 font-bold">₹1,300 (Paid via UPI)</span>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50">CLASS / YEAR:</span>
+                          <span className="text-cream/80">{result.classYear}</span>
                         </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-cream/50">PREFERENCES SUBMITTED:</span>
+                          <span className="text-gold font-bold">
+                            {result.committeePreferences
+                              ?.map((cId) => getCommitteeById(cId)?.name ?? cId.toUpperCase())
+                              .join(" • ")}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-cream/50">REGISTRATION FEE:</span>
+                          <span className="text-emerald-400 font-bold">
+                            ₹{effectiveFee.toLocaleString("en-IN")} {isDiwaliActive ? "(Diwali Dhamaka Offer)" : ""}{" "}
+                            (UPI Receipt Uploaded)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Explicit notice about portfolio secrecy until payment is verified */}
+                      <div className="bg-[#140b24] border border-gold/30 p-3.5 mt-2 space-y-1">
+                        <div className="flex items-center gap-1.5 text-gold text-xs font-mono font-bold uppercase">
+                          <span>✉️ Allocation Delivery via Email</span>
+                        </div>
+                        <p className="text-[11px] text-cream/75 font-sans leading-relaxed">
+                          To guarantee fair and uncompromised delegate allotment, your assigned committee and portfolio are <strong>not disclosed on this preliminary screen</strong>. The Executive Secretariat is currently reviewing your payment receipt. Once approved, your official Committee & Portfolio Allocation along with the study background guides will be emailed directly to <strong className="text-cream">{result.email}</strong>.
+                        </p>
                       </div>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="pt-2 flex flex-wrap justify-center gap-3">
+                      <Button
+                        type="button"
+                        onClick={() => setShowKajuKatli(true)}
+                        className="text-xs bg-gold text-[#0b0714] font-bold shadow-[2px_2px_0px_0px_#000]"
+                      >
+                        🪔 View Diwali Mithai (Kaju Katli)
+                      </Button>
                       <Button
                         href="/"
                         variant="outline"
-                        className="text-xs"
+                        className="text-xs border-white/20 text-cream/80"
                       >
                         Return to Athena Homepage
                       </Button>
@@ -806,6 +898,13 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
           </>
         )}
       </div>
+
+      <KajuKatliModal
+        isOpen={showKajuKatli}
+        onClose={() => setShowKajuKatli(false)}
+        delegateName={result?.name}
+        registrationId={result?.id}
+      />
     </section>
   );
 }

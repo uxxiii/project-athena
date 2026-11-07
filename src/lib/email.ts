@@ -5,6 +5,7 @@ import {
   generateRejectionEmailHtml,
   generatePicnicApprovalEmailHtml,
   generatePicnicSubmissionEmailHtml,
+  generateSummitSubmissionEmailHtml,
 } from "./email-templates";
 
 export interface EmailResult {
@@ -129,6 +130,46 @@ export async function sendPicnicSubmissionEmail(registration: Registration): Pro
 
   if (!apiKey) {
     console.log(`[EMAIL SIMULATION] Sending Picnic Submission Receipt to ${registration.email}`);
+    return {
+      success: true,
+      messageId: `simulated-${Date.now()}`,
+    };
+  }
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: getSenderAddress(),
+        to: [registration.email],
+        subject,
+        html,
+      }),
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      return { success: false, error: json.message ?? "Failed to send email" };
+    }
+
+    return { success: true, messageId: json.id };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Network error";
+    return { success: false, error: message };
+  }
+}
+
+export async function sendSummitSubmissionEmail(registration: Registration): Promise<EmailResult> {
+  const html = generateSummitSubmissionEmailHtml(registration);
+  const subject = `Athena Summit: Registration Received [${registration.id}] (Payment Verification In Progress)`;
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    console.log(`[EMAIL SIMULATION] Sending Summit Submission Receipt to ${registration.email} (Allocation pending payment verification)`);
     return {
       success: true,
       messageId: `simulated-${Date.now()}`,

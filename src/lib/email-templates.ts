@@ -1,5 +1,6 @@
 import type { Registration } from "@/lib/types";
 import { getCommitteeById } from "@/data/committees";
+import { isDiwaliSeason } from "@/lib/diwali";
 
 function getPortfolioName(registration: Registration): string {
   const committee = getCommitteeById(registration.assignedCommittee ?? "");
@@ -84,6 +85,15 @@ export function generateApprovalEmailHtml(registration: Registration): string {
               <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.5; color: #f7f2fc;">
                 Distinguished Delegate, <strong style="color: #ffffff;">${registration.name}</strong>,
               </p>
+              ${
+                isDiwaliSeason()
+                  ? `
+              <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
+                🪔 <strong>Shubh Deepavali from Project Athena!</strong> May this festive season illuminate your preparation and bring triumph at Athena Summit 2026.
+              </div>
+              `
+                  : ""
+              }
               <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.7; color: #d6cced;">
                 We are proud to inform you that your registration and delegate credentials for <strong>Athena Summit</strong> have been officially verified and confirmed by the Executive Secretariat.
               </p>
@@ -670,6 +680,173 @@ export function generateRejectionEmailHtml(registration: Registration, reason?: 
               </p>
               <p style="margin: 0; font-size: 11px; color: #7f709a;">
                 Secretariat Desk: project.athena03@gmail.com
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Generates an executive receipt email confirming registration submission for Athena Summit,
+ * explicitly clarifying that payment is being verified and committee/portfolio allocation
+ * will be released upon Secretariat verification.
+ */
+export function generateSummitSubmissionEmailHtml(registration: Registration): string {
+  const currentYear = new Date().getFullYear();
+  const isDiwali = isDiwaliSeason();
+  const committee1 = registration.committeePreferences?.[0]
+    ? getCommitteeById(registration.committeePreferences[0])?.name ?? registration.committeePreferences[0]
+    : "—";
+  const committee2 = registration.committeePreferences?.[1]
+    ? getCommitteeById(registration.committeePreferences[1])?.name ?? registration.committeePreferences[1]
+    : "—";
+  const committee3 = registration.committeePreferences?.[2]
+    ? getCommitteeById(registration.committeePreferences[2])?.name ?? registration.committeePreferences[2]
+    : "—";
+
+  return `
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena Summit: Registration Dossier Received</title>
+  <style type="text/css">
+    ${emailStyles}
+  </style>
+</head>
+<body style="background-color: #080410; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #080410; min-height: 100%;">
+    <tr>
+      <td align="center" style="padding: 32px 12px;" class="email-wrapper">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background: #130a21 linear-gradient(180deg, #1b0e33 0%, #10061e 100%); border: 1px solid #4a3469; border-top: 4px solid #d4af37; border-radius: 18px; box-shadow: 0 16px 44px rgba(0,0,0,0.5); overflow: hidden;">
+          
+          <!-- Top Brand Header -->
+          <tr>
+            <td align="center" style="padding: 36px 28px 24px; text-align: center; border-bottom: 1px solid rgba(212,175,55,0.18);">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="background-color: #271442; border: 1px solid #c8a24a; border-radius: 999px; padding: 5px 16px; margin-bottom: 12px; display: inline-block;">
+                    <span style="font-size: 11px; font-weight: 700; color: #f0d48c; letter-spacing: 2px; text-transform: uppercase; font-family: monospace;">
+                      🏛️ ATHENA SUMMIT • REGISTRATION DOSSIER
+                    </span>
+                  </td>
+                </tr>
+              </table>
+              <h1 class="header-logo" style="margin: 14px 0 6px; font-size: 28px; font-weight: 800; letter-spacing: 3px; color: #fdf5e2; text-transform: uppercase;">
+                PROJECT ATHENA
+              </h1>
+              <p style="margin: 0; font-size: 13px; color: #b7a9ce; letter-spacing: 0.5px;">
+                Registration Received • Payment Verification in Progress
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 32px 30px;" class="content-box">
+              ${
+                isDiwali
+                  ? `
+              <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
+                🪔 <strong>Shubh Deepavali & Mithai Khao!</strong> We are delighted to welcome you during the auspicious festival of lights. Your registration has been safely received.
+              </div>
+              `
+                  : ""
+              }
+
+              <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.5; color: #f7f2fc;">
+                Distinguished Candidate, <strong style="color: #ffffff;">${registration.name}</strong>,
+              </p>
+              <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.7; color: #d6cced;">
+                Thank you for registering for <strong>Athena Summit 2026</strong> at <strong>Chanakya National Law University (CNLU), Patna</strong>. Your delegate credential form and payment screenshot have been safely received by our admissions desk.
+              </p>
+
+              <!-- Verification Notice Box (allocation not revealed until payment verified) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1a0f2e; border: 1px solid #d4af37; border-left: 4px solid #d4af37; border-radius: 10px; margin-bottom: 24px; padding: 16px 18px;">
+                <tr>
+                  <td>
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #f0d48c; margin-bottom: 6px;">
+                      ⏳ Payment Verification Protocol
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.6; color: #ede3fd;">
+                      Our Secretariat Finance Team is currently reviewing your uploaded payment screenshot. To ensure complete fairness and impartial seat allocation, <strong>your assigned committee and portfolio are not revealed in this initial receipt</strong>. Once your payment is verified, your official <strong>Committee & Portfolio Allocation Dossier</strong> will be emailed to this address.
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Registration Summary -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1c0e33; border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; margin-bottom: 24px; padding: 18px 20px;">
+                <tr>
+                  <td>
+                    <div style="margin-bottom: 10px; font-size: 13px;">
+                      <span style="color: #b7a9ce;">Delegate Pass ID:</span>
+                      <strong style="color: #10b981; font-family: monospace; float: right;">${registration.id}</strong>
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 13px;">
+                      <span style="color: #b7a9ce;">Institution / School:</span>
+                      <strong style="color: #ffffff; float: right;">${registration.institution}</strong>
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 13px;">
+                      <span style="color: #b7a9ce;">Class / Year:</span>
+                      <strong style="color: #ffffff; float: right;">${registration.classYear}</strong>
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 13px;">
+                      <span style="color: #b7a9ce;">Status:</span>
+                      <strong style="color: #f59e0b; font-family: monospace; float: right;">PENDING PAYMENT REVIEW</strong>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; clear: both;">
+                      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #d4af37; margin-bottom: 6px;">
+                        Submitted Committee Preferences:
+                      </div>
+                      <div style="font-size: 12px; color: #d6cced; line-height: 1.6;">
+                        1st: <strong>${committee1}</strong><br/>
+                        2nd: <strong>${committee2}</strong><br/>
+                        3rd: <strong>${committee3}</strong>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Summit Venue Reminder -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #10061e; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-bottom: 24px; padding: 14px 16px;">
+                <tr>
+                  <td>
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #d4af37; margin-bottom: 4px;">
+                      🏛️ Summit Venue & Dates
+                    </div>
+                    <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
+                      Chanakya National Law University (CNLU), Patna
+                    </div>
+                    <div style="font-size: 12px; color: #b7a9ce; margin-top: 2px;">
+                      Nyaya Nagar, Mithapur, Patna, Bihar 800001 • 20th & 21st November 2026
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #a497bd;">
+                Need assistance? Contact our Secretariat Helpdesk at <a href="mailto:project.athena03@gmail.com" style="color: #f0d48c; text-decoration: underline;">project.athena03@gmail.com</a> quoting your Pass ID.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="background-color: #0b0416; padding: 22px 24px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+              <p style="margin: 0 0 4px; font-size: 12px; color: #a497bd;">
+                © ${currentYear} Project Athena. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 11px; font-family: monospace; color: #7f709a;">
+                Assigned Registration ID: ${registration.id}
               </p>
             </td>
           </tr>

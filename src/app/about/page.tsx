@@ -122,7 +122,7 @@ export default function AboutPage() {
               Shaping Tomorrow&apos;s <span className="text-gold">Leaders</span>
             </h2>
             <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
-              We envision a thriving community of young thinkers and speakers. Whether discussing international human rights at UNHRC or regional governance at BLA, delegates leave Athena with a clearer worldview and stronger public speaking skills.
+              We envision a thriving community of young thinkers and speakers. Whether debating high-stakes franchise strategy at the IPL Crisis Committee or legislative policy in the Joint Parliamentary Committee (JPC), delegates leave Athena with a clearer worldview and stronger public speaking skills.
             </p>
           </motion.div>
         </div>

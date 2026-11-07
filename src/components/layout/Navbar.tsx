@@ -8,23 +8,32 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { isDiwaliSeason, isDiwaliSaleActive } from "@/lib/diwali";
 
-const navLinks = [
-  { href: "/", label: "Home" },
+const desktopNavLinks = [
   { href: "/about", label: "About" },
   { href: "/events", label: "Events" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/teams", label: "Teams" },
-  { href: "/donate", label: "Societal Mission", badge: "Waitlist" },
+  { href: "/donate", label: "Mission", badge: "Waitlist" },
   { href: "/contact", label: "Contact" },
+];
+
+const mobileNavLinks = [
+  { href: "/", label: "Home" },
+  ...desktopNavLinks,
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDiwali, setIsDiwali] = useState(false);
+  const [isDiwaliOffer, setIsDiwaliOffer] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
+    setIsDiwali(isDiwaliSeason());
+    setIsDiwaliOffer(isDiwaliSaleActive());
   }, [pathname]);
 
   return (
@@ -32,7 +41,7 @@ export function Navbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 transition-all duration-300 pointer-events-none"
+      className="fixed top-2 sm:top-3 left-0 right-0 z-50 px-3 sm:px-6 transition-all duration-300 pointer-events-none"
     >
       <div
         className="mx-auto max-w-7xl border-2 border-white/20 bg-[#120a1f]/95 backdrop-blur-xl shadow-[4px_4px_0px_0px_#000000] transition-all duration-200 pointer-events-auto"
@@ -59,9 +68,9 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Nav Links (Clean Behes Style) */}
+          {/* Desktop Nav Links (Clean, Uncluttered) */}
           <div className="hidden lg:flex items-center space-x-1">
-            {navLinks.map((link) => {
+            {desktopNavLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
@@ -69,7 +78,7 @@ export function Navbar() {
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 border-2",
+                    "px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 border-2",
                     isActive
                       ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
                       : "text-cream/80 border-transparent hover:border-white/25 hover:bg-white/5 hover:text-white"
@@ -93,12 +102,16 @@ export function Navbar() {
             })}
           </div>
 
-          {/* CTA & Mobile Trigger */}
+          {/* Clean Integrated CTA & Mobile Trigger */}
           <div className="flex items-center space-x-3">
             <Link href="/events/athena-summit#register" className="hidden sm:inline-flex">
-              <Button size="sm" className="font-extrabold text-xs uppercase px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000]">
-                <span>Register</span>
-                <ArrowRight size={14} className="ml-1" />
+              <Button
+                size="sm"
+                className="font-extrabold text-xs uppercase px-4 sm:px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] flex items-center gap-1.5"
+              >
+                <span>{isDiwaliOffer ? "Register · ₹1,000" : "Register"}</span>
+                {isDiwali && <span className="text-sm">🪔</span>}
+                <ArrowRight size={14} />
               </Button>
             </Link>
 
@@ -125,7 +138,7 @@ export function Navbar() {
             className="lg:hidden border-t-2 border-white/10 bg-[#140b24] px-6 py-5"
           >
             <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {mobileNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -148,7 +161,13 @@ export function Navbar() {
                   <ArrowRight size={14} />
                 </Link>
               ))}
-              <div className="pt-3 border-t border-white/10">
+              <div className="pt-3 border-t border-white/10 space-y-2">
+                {isDiwali && (
+                  <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b0714] border border-gold/40 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">
+                    <span>🪔 Shubh Deepavali Offer</span>
+                    <span>{isDiwaliOffer ? "₹1,000 Flat" : "Live"}</span>
+                  </div>
+                )}
                 <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)}>
                   <Button size="sm" className="w-full text-xs font-extrabold uppercase py-3 shadow-[4px_4px_0px_0px_#000000]">
                     Register for Summit

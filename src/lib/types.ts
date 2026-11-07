@@ -3,6 +3,7 @@ export interface Portfolio {
   name: string;
   group?: "P5" | "Other Portfolios";
   team?: string;
+  role?: string;
 }
 
 export interface Committee {
@@ -12,6 +13,8 @@ export interface Committee {
   agenda: string;
   maxDelegates: number;
   portfolios: Portfolio[];
+  eligibility?: "all" | "school_only";
+  eligibilityLabel?: string;
 }
 
 export interface EventTeamMember {

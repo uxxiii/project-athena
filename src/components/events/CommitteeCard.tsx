@@ -45,6 +45,15 @@ export function CommitteeCard({ committee, availability, index = 0 }: CommitteeC
                   ACTIVE
                 </span>
               )}
+              {committee.eligibility === "school_only" ? (
+                <span className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 text-[9px] font-mono font-bold tracking-wider uppercase shadow-[2px_2px_0px_0px_#000000]">
+                  School Only
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-mono font-bold tracking-wider uppercase shadow-[2px_2px_0px_0px_#000000]">
+                  School & College
+                </span>
+              )}
             </div>
             <p className="text-xs text-cream/70 font-sans leading-snug">{committee.fullName}</p>
           </div>

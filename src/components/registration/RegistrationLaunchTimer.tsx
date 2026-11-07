@@ -66,10 +66,10 @@ export function RegistrationLaunchTimer({
   if (compact) {
     return (
       <div
-        className={`inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-linear-to-r from-amber-500/15 via-gold/15 to-amber-500/15 px-4 py-1.5 text-xs text-amber-300 font-mono shadow-md shadow-amber-500/10 backdrop-blur-md ${className}`}
+        className={`inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-gold/15 to-amber-500/15 px-4 py-1.5 text-xs text-amber-300 font-mono shadow-md shadow-amber-500/10 backdrop-blur-md ${className}`}
       >
         <Calendar className="w-4 h-4 text-amber-400 animate-bounce" />
-        <span>Registration Opens Soon: </span>
+        <span>Registration Opens Today @ 6:00 PM IST: </span>
         <span className="font-bold text-cream">
           {timeLeft.days > 0 ? `${timeLeft.days}d ` : ""}{String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
         </span>
@@ -82,7 +82,7 @@ export function RegistrationLaunchTimer({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-amber-400 font-mono text-xs uppercase tracking-widest">
           <Calendar className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Registration Opening Soon</span>
+          <span>Registration Opens Today @ 6:00 PM IST</span>
         </div>
         <span className="text-[10px] text-amber-400/80 font-mono bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
           Official Launch

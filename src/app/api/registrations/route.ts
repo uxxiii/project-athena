@@ -133,6 +133,14 @@ export async function POST(request: Request) {
 
     await addRegistration(registration);
 
+    // Trigger receipt submission email (reminding that allocation is pending payment verification)
+    try {
+      const { sendSummitSubmissionEmail } = await import("@/lib/email");
+      await sendSummitSubmissionEmail(registration);
+    } catch (emailErr) {
+      console.warn("Failed to send summit submission email:", emailErr);
+    }
+
     return NextResponse.json({ registration }, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
