@@ -138,16 +138,16 @@ export function DiwaliDecor() {
       </div>
 
       {/* ─── 3. TRADITIONAL FLORAL RANGOLIS (CORNER FLOURISHES) ─── */}
-      {/* Top Right Rangoli */}
+      {/* Top Right Rangoli — tucked into upper-right, partially clipped by edge */}
       <div
-        className="pointer-events-none fixed top-12 right-0 z-10 opacity-25 hidden xl:block translate-x-10 -translate-y-6"
+        className="pointer-events-none fixed top-16 right-0 z-10 opacity-20 hidden xl:block translate-x-16"
         aria-hidden="true"
       >
-        <svg width="220" height="220" viewBox="0 0 200 200" fill="none">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
           <circle cx="100" cy="100" r="90" stroke="#d4af37" strokeWidth="1" strokeDasharray="3 3" />
           <circle cx="100" cy="100" r="70" stroke="#f59e0b" strokeWidth="1.5" />
           <circle cx="100" cy="100" r="45" stroke="#ef4444" strokeWidth="1" strokeDasharray="4 2" />
-          <circle cx="100" cy="100" r="20" fill="#d4af37" fillOpacity="0.15" stroke="#d4af37" strokeWidth="2" />
+          <circle cx="100" cy="100" r="20" fill="#d4af37" fillOpacity="0.12" stroke="#d4af37" strokeWidth="2" />
           {/* 8 Lotus Rangoli Petals */}
           {Array.from({ length: 8 }).map((_, i) => (
             <path
@@ -156,11 +156,10 @@ export function DiwaliDecor() {
               stroke="#fbbf24"
               strokeWidth="1.2"
               fill="#f59e0b"
-              fillOpacity="0.1"
+              fillOpacity="0.08"
               transform={`rotate(${i * 45} 100 100)`}
             />
           ))}
-          {/* Outer Diya Points */}
           {Array.from({ length: 8 }).map((_, i) => (
             <circle
               key={i}
@@ -174,12 +173,12 @@ export function DiwaliDecor() {
         </svg>
       </div>
 
-      {/* Bottom Left Rangoli */}
+      {/* Bottom Left Rangoli — tucked into lower-left corner, partially clipped */}
       <div
-        className="pointer-events-none fixed bottom-0 left-0 z-10 opacity-20 hidden xl:block -translate-x-12 translate-y-12"
+        className="pointer-events-none fixed bottom-0 left-0 z-10 opacity-15 hidden xl:block -translate-x-16 translate-y-16"
         aria-hidden="true"
       >
-        <svg width="260" height="260" viewBox="0 0 200 200" fill="none">
+        <svg width="240" height="240" viewBox="0 0 200 200" fill="none">
           <circle cx="100" cy="100" r="95" stroke="#d4af37" strokeWidth="1" strokeDasharray="4 4" />
           <circle cx="100" cy="100" r="65" stroke="#ea580c" strokeWidth="1.5" />
           <circle cx="100" cy="100" r="30" stroke="#d4af37" strokeWidth="1.5" />
@@ -190,7 +189,7 @@ export function DiwaliDecor() {
               stroke="#fbbf24"
               strokeWidth="1"
               fill="#f59e0b"
-              fillOpacity="0.08"
+              fillOpacity="0.07"
               transform={`rotate(${i * 30} 100 100)`}
             />
           ))}
@@ -200,47 +199,48 @@ export function DiwaliDecor() {
       {/* ─── 4. INTERACTIVE FESTIVE CRACKER & DIYA WIDGET ─── */}
       <aside
         aria-label="Festive Diwali Offer"
-        className="fixed bottom-4 left-4 z-40 hidden sm:flex items-center gap-3 bg-[#0b0714]/95 border-2 border-gold/50 px-3.5 py-2.5 shadow-[5px_5px_0px_0px_#000000] backdrop-blur-md rounded-none text-xs font-mono"
+        className="fixed bottom-5 right-5 z-40 hidden sm:flex flex-col items-end gap-2 select-none"
       >
-        {/* Glowing clay diya with double flame */}
-        <div className="relative group cursor-pointer" onClick={triggerManualCracker} title="Click to burst crackers!">
-          <div className="w-7 h-4 bg-gradient-to-r from-amber-800 via-amber-600 to-amber-900 rounded-b-full border border-amber-500 shadow-[0_0_12px_#f59e0b]" />
-          {/* Flame outer */}
-          <div
-            className={`absolute -top-3.5 left-1/2 -translate-x-1/2 w-3.5 h-4.5 bg-gradient-to-t from-orange-500 to-yellow-300 rounded-full blur-[0.6px] transition-transform duration-300 ${
-              lightsBlink ? "scale-110" : "scale-90"
-            }`}
-          />
-          {/* Flame inner white-hot core */}
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-2.5 bg-white rounded-full blur-[0.2px]" />
-        </div>
+        {/* Sale pill — only when active */}
+        {saleActive && (
+          <Link
+            href="/registration"
+            className="flex items-center gap-2 px-3 py-1.5 bg-gold text-[#0b0714] font-black text-[10px] uppercase tracking-wider hover:bg-gold/90 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000000] whitespace-nowrap"
+          >
+            🪔 Diwali Sale · ₹1,000 — Claim Now →
+          </Link>
+        )}
 
-        <div>
-          <div className="flex items-center gap-1.5 text-gold font-bold uppercase tracking-wider text-[11px]">
-            <span>Shubh Deepavali</span>
+        {/* Diya card */}
+        <div className="flex items-center gap-3 bg-[#0b0714]/95 border-2 border-gold/50 px-3.5 py-2.5 shadow-[4px_4px_0px_0px_#000000] backdrop-blur-md text-xs font-mono">
+          {/* Glowing clay diya */}
+          <div
+            className="relative cursor-pointer shrink-0"
+            onClick={triggerManualCracker}
+            title="Click to burst crackers!"
+          >
+            <div className="w-7 h-4 bg-gradient-to-r from-amber-800 via-amber-600 to-amber-900 rounded-b-full border border-amber-500 shadow-[0_0_12px_#f59e0b]" />
+            <div
+              className={`absolute -top-3.5 left-1/2 -translate-x-1/2 w-3.5 h-5 bg-gradient-to-t from-orange-500 to-yellow-200 rounded-full blur-[0.6px] transition-transform duration-300 ${
+                lightsBlink ? "scale-110" : "scale-90"
+              }`}
+            />
+            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-2.5 bg-white rounded-full blur-[0.2px]" />
+          </div>
+
+          <div>
+            <div className="text-gold font-bold uppercase tracking-wider text-[11px]">
+              Shubh Deepavali 🪔
+            </div>
             <button
               onClick={triggerManualCracker}
-              className="text-[10px] text-amber-300 hover:text-white px-1.5 py-0.2 bg-amber-500/20 border border-amber-400/40 font-mono transition-colors cursor-pointer"
+              className="mt-0.5 text-[10px] text-amber-300 hover:text-white px-1.5 bg-amber-500/20 border border-amber-400/30 font-mono transition-colors cursor-pointer"
               title="Burst Phuljhadi!"
             >
               Burst Crackers 🎆
             </button>
           </div>
-          <p className="text-[10px] text-cream/70 font-sans mt-0.5">
-            {saleActive
-              ? "Diwali Sale: ₹1,000 Early Bird Pass (Till 9 Nov Noon)"
-              : "Celebrate with Athena Summit 2026"}
-          </p>
         </div>
-
-        {saleActive && (
-          <Link
-            href="/registration"
-            className="ml-1 px-3 py-1 bg-gold text-[#0b0714] font-black text-[10px] uppercase tracking-wider hover:bg-gold/90 transition-all border border-black shadow-[2px_2px_0px_0px_#000000]"
-          >
-            Claim
-          </Link>
-        )}
       </aside>
     </>
   );

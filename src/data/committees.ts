@@ -411,7 +411,7 @@ export const committees: Committee[] = [
     name: "JPC",
     fullName: "Joint Parliamentary Committee",
     agenda:
-      "Deliberation upon Cross-Party Parliamentary Scrutiny, Institutional Transparency, and Public Accountability in Governance Frameworks and Regulatory Oversight.",
+      "Deliberating upon the Ram Janmabhoomi Dispute: the Construction of the Shri Ram Janmabhoomi Mandir and its Socio-Political Implications for Communal Harmony in India.",
     maxDelegates: 60,
     portfolios: generatePortfolios("jpc"),
     eligibility: "school_only",

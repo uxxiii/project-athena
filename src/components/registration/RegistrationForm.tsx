@@ -673,7 +673,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         <p className="text-sm font-medium text-cream">
                           Official UPI ID:{" "}
                           <span className="text-gold font-mono font-bold">
-                            6202910742@fam
+                            arnav86011-2@okaxis
                           </span>
                         </p>
                         <p className="text-xs text-cream/50">

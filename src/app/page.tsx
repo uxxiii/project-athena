@@ -238,11 +238,12 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
         <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
 
-        {/* Festive Clay Diyas in Hero */}
+        {/* Festive Diya Row — subtle bottom accent in hero */}
         {isDiwali && (
-          <div className="absolute bottom-6 right-6 hidden md:flex items-center gap-2 pointer-events-none opacity-80 z-20">
-            <span className="text-2xl animate-pulse" role="img" aria-label="Diya">🪔</span>
-            <span className="text-xl animate-bounce">✨</span>
+          <div className="absolute bottom-0 left-0 right-0 hidden md:flex justify-between items-end pointer-events-none px-6 pb-4 z-10 opacity-50">
+            {["🪔", "🪔", "🪔", "🪔", "🪔"].map((d, i) => (
+              <span key={i} className="text-lg" style={{ animationDelay: `${i * 0.3}s` }}>{d}</span>
+            ))}
           </div>
         )}
 
