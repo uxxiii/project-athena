@@ -105,17 +105,18 @@ export default function AdminPaymentsPage() {
         const data = await res.json();
         const regs: Registration[] = data.registrations || [];
         setRegistrations(regs);
-        if (selectedRegistration) {
-          const updated = regs.find((r) => r.id === selectedRegistration.id);
-          if (updated) setSelectedRegistration(updated);
-        }
+        setSelectedRegistration((curr) => {
+          if (!curr) return null;
+          const updated = regs.find((r) => r.id === curr.id);
+          return updated ? { ...updated, paymentScreenshot: curr.paymentScreenshot || updated.paymentScreenshot } : curr;
+        });
       }
     } catch (err) {
       console.error("Failed to fetch registrations", err);
     } finally {
       setLoading(false);
     }
-  }, [filter, selectedRegistration]);
+  }, [filter]);
 
   useEffect(() => {
     fetchRegistrations();
