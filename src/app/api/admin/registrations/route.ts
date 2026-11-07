@@ -5,8 +5,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
+    const includeScreenshots = searchParams.get("includeScreenshots") === "true";
 
-    let registrations = await readRegistrations({ includeScreenshots: true });
+    let registrations = await readRegistrations({ includeScreenshots });
 
     if (status) {
       registrations = registrations.filter((r) => r.status === status);

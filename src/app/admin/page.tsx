@@ -595,15 +595,13 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="py-3.5 pr-4">
-                          {reg.paymentScreenshot ? (
-                            <a
-                              href={reg.paymentScreenshot}
-                              target="_blank"
-                              rel="noreferrer"
+                          {reg.paymentScreenshot || reg.hasScreenshot ? (
+                            <Link
+                              href={`/admin/payments?search=${encodeURIComponent(reg.id)}`}
                               className="text-gold hover:text-gold-light inline-flex items-center gap-1 font-mono text-[11px]"
                             >
                               <Eye size={12} /> View
-                            </a>
+                            </Link>
                           ) : (
                             <span className="text-cream/30 font-mono text-[11px]">—</span>
                           )}

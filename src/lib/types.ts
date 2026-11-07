@@ -66,6 +66,7 @@ export interface RegistrationInput {
   munExperience: string;
   reference: string;
   paymentScreenshot?: string;
+  hasScreenshot?: boolean;
   isUnscRegistration?: boolean;
   unscDelegate?: DelegateProfile | null;
   unscDelegatePortfolioPreferences?: [string, string, string];

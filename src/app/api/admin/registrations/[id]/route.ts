@@ -1,9 +1,31 @@
 import { NextResponse } from "next/server";
-import { updateRegistrationStatus } from "@/lib/storage";
+import { updateRegistrationStatus, getRegistrationById } from "@/lib/storage";
 import { sendApprovalEmail, sendRejectionEmail } from "@/lib/email";
 
 interface RouteProps {
   params: Promise<{ id: string }>;
+}
+
+export async function GET(request: Request, { params }: RouteProps) {
+  try {
+    const { id } = await params;
+    const registration = await getRegistrationById(id, { includeScreenshots: true });
+
+    if (!registration) {
+      return NextResponse.json(
+        { error: "Registration not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ registration });
+  } catch (error) {
+    console.error("Admin get registration error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PATCH(request: Request, { params }: RouteProps) {

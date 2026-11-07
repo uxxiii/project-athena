@@ -113,6 +113,11 @@ function normalizeRegistrationRow(row: Record<string, unknown>): Registration {
       : value.payment_screenshot
         ? String(value.payment_screenshot)
         : undefined,
+    hasScreenshot: Boolean(
+      value.hasScreenshot ??
+      value.has_screenshot ??
+      Boolean(value.paymentScreenshot || value.payment_screenshot)
+    ),
     isUnscRegistration: Boolean(
       value.isUnscRegistration ?? value.is_unsc_registration ?? false
     ),
@@ -432,14 +437,63 @@ export async function addRegistration(
   return registration;
 }
 
+export async function getRegistrationById(
+  id: string,
+  options: { includeScreenshots?: boolean } = {}
+): Promise<Registration | undefined> {
+  const includeScreenshots = options.includeScreenshots ?? false;
+
+  // 1. Direct single-row lookup from Supabase if enabled
+  if (supabaseConfig.enabled && supabase) {
+    try {
+      const numericId = registrationIdToInteger(id);
+      const client = supabase as unknown as {
+        from: (table: string) => {
+          select: (cols: string) => {
+            eq: (col: string, val: unknown) => {
+              single: () => Promise<{ data: unknown; error: unknown }>;
+            };
+          };
+        };
+      };
+
+      const selectCols = includeScreenshots ? "*" : (
+        cachedSupportsExtendedColumns !== false
+          ? "id, event_slug, name, phone, email, class_year, institution, committee_preferences, portfolio_preferences, mun_experience, reference, is_unsc_registration, unsc_delegate, unsc_delegate_portfolio_preferences, created_at, status, assigned_committee, assigned_portfolio, assigned_agenda, rejection_reason, food_preference, notes"
+          : "id, event_slug, name, phone, email, class_year, institution, committee_preferences, portfolio_preferences, mun_experience, reference, is_unsc_registration, unsc_delegate, unsc_delegate_portfolio_preferences, created_at, status, assigned_committee, assigned_portfolio, assigned_agenda"
+      );
+
+      const res = await client.from("registrations").select(selectCols).eq("id", numericId).single();
+      if (!res.error && res.data) {
+        return normalizeRegistrationRow(res.data as Record<string, unknown>);
+      }
+    } catch (err) {
+      console.warn("Supabase getRegistrationById single-row lookup failed, falling back:", err);
+    }
+  }
+
+  // Fallback to local store or list search
+  const localList = await readLocalRegistrations();
+  const localTarget = localList.find((r) => r.id === id);
+  if (localTarget) return localTarget;
+
+  const registrations = await readRegistrations(options);
+  return registrations.find((r) => r.id === id);
+}
+
 export async function updateRegistrationStatus(
   id: string,
   status: "approved" | "rejected" | "pending",
   rejectionReason?: string
 ): Promise<Registration | null> {
-  // Read registrations (queries Supabase when enabled, fallback to local store)
-  const registrations = await readRegistrations();
-  const target = registrations.find((r) => r.id === id);
+  // 1. Direct single-row fetch instead of full table scan
+  let target = await getRegistrationById(id, { includeScreenshots: false });
+
+  // 2. Fallback to local search if not found
+  if (!target) {
+    const localList = await readLocalRegistrations();
+    target = localList.find((r) => r.id === id);
+  }
 
   if (!target) {
     console.warn(`Registration with id ${id} not found in database.`);
@@ -451,18 +505,19 @@ export async function updateRegistrationStatus(
     target.rejectionReason = rejectionReason;
   }
 
-  // 1. Update local JSON store if present in local file
-  const localList = await readLocalRegistrations();
-  const localIndex = localList.findIndex((r) => r.id === id);
-  if (localIndex !== -1) {
-    localList[localIndex].status = status;
-    if (rejectionReason !== undefined) {
-      localList[localIndex].rejectionReason = rejectionReason;
+  // 3. Fast async local file update
+  readLocalRegistrations().then(async (localList) => {
+    const localIndex = localList.findIndex((r) => r.id === id);
+    if (localIndex !== -1) {
+      localList[localIndex].status = status;
+      if (rejectionReason !== undefined) {
+        localList[localIndex].rejectionReason = rejectionReason;
+      }
+      await writeLocalRegistrations(localList);
     }
-    await writeLocalRegistrations(localList);
-  }
+  }).catch(() => {});
 
-  // 2. Directly update only this specific row in Supabase
+  // 4. Directly update only this specific row in Supabase
   if (supabaseConfig.enabled && supabase) {
     try {
       const numericId = registrationIdToInteger(id);
@@ -495,12 +550,4 @@ export async function updateRegistrationStatus(
   }
 
   return target;
-}
-
-export async function getRegistrationById(
-  id: string,
-  options: { includeScreenshots?: boolean } = {}
-): Promise<Registration | undefined> {
-  const registrations = await readRegistrations(options);
-  return registrations.find((r) => r.id === id);
 }

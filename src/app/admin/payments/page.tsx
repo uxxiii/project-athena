@@ -39,6 +39,39 @@ export default function AdminPaymentsPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const [loadingScreenshot, setLoadingScreenshot] = useState(false);
+
+  // Lazy-fetch full screenshot when delegate is selected
+  const handleSelectRegistration = useCallback(async (reg: Registration) => {
+    setSelectedRegistration(reg);
+    if (!reg.paymentScreenshot && reg.hasScreenshot) {
+      setLoadingScreenshot(true);
+      try {
+        const res = await fetch(`/api/admin/registrations/${encodeURIComponent(reg.id)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.registration?.paymentScreenshot) {
+            setSelectedRegistration((prev) =>
+              prev?.id === reg.id
+                ? { ...prev, paymentScreenshot: data.registration.paymentScreenshot }
+                : prev
+            );
+            setRegistrations((prev) =>
+              prev.map((r) =>
+                r.id === reg.id
+                  ? { ...r, paymentScreenshot: data.registration.paymentScreenshot }
+                  : r
+              )
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load payment screenshot:", err);
+      } finally {
+        setLoadingScreenshot(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -106,9 +139,16 @@ export default function AdminPaymentsPage() {
 
       if (res.ok) {
         const data = await res.json();
-        await fetchRegistrations();
+        // Optimistic update without refetching entire table
+        setRegistrations((prev) =>
+          prev.map((r) =>
+            r.id === id ? { ...r, status, rejectionReason: reason || r.rejectionReason } : r
+          )
+        );
         if (selectedRegistration?.id === id) {
-          setSelectedRegistration(data.registration);
+          setSelectedRegistration((prev) =>
+            prev ? { ...prev, status, rejectionReason: reason || prev.rejectionReason } : null
+          );
         }
 
         if (data.emailStatus?.success) {
@@ -429,7 +469,7 @@ export default function AdminPaymentsPage() {
                 return (
                   <div
                     key={reg.id}
-                    onClick={() => setSelectedRegistration(reg)}
+                    onClick={() => handleSelectRegistration(reg)}
                     className={`bg-[#140b24] border-2 p-5 transition-all cursor-pointer shadow-[3px_3px_0px_0px_#000000] ${
                       isSelected
                         ? "border-gold bg-[#1c0f33]"
@@ -520,9 +560,22 @@ export default function AdminPaymentsPage() {
                         className="flex items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {reg.paymentScreenshot && (
+                        {(reg.paymentScreenshot || reg.hasScreenshot) && (
                           <button
-                            onClick={() => setPreviewImage(reg.paymentScreenshot || null)}
+                            onClick={async () => {
+                              if (reg.paymentScreenshot) {
+                                setPreviewImage(reg.paymentScreenshot);
+                              } else {
+                                await handleSelectRegistration(reg);
+                                const res = await fetch(`/api/admin/registrations/${encodeURIComponent(reg.id)}`);
+                                if (res.ok) {
+                                  const data = await res.json();
+                                  if (data.registration?.paymentScreenshot) {
+                                    setPreviewImage(data.registration.paymentScreenshot);
+                                  }
+                                }
+                              }
+                            }}
                             className="inline-flex items-center gap-1 text-gold hover:text-gold-light px-2.5 py-1 bg-gold/10 border border-gold/30 text-[11px] font-bold"
                           >
                             <Eye size={12} /> View Receipt
@@ -700,7 +753,12 @@ export default function AdminPaymentsPage() {
                   <span className="text-xs text-cream/40 font-mono uppercase block">
                     Payment Receipt Screenshot:
                   </span>
-                  {selectedRegistration.paymentScreenshot ? (
+                  {loadingScreenshot ? (
+                    <div className="border-2 border-white/10 bg-[#0b0714] p-8 text-center text-cream/50 flex flex-col items-center justify-center gap-2">
+                      <Loader2 size={24} className="animate-spin text-gold" />
+                      <span className="text-xs font-mono">Loading full-res receipt from Supabase...</span>
+                    </div>
+                  ) : selectedRegistration.paymentScreenshot ? (
                     <div
                       className="relative border-2 border-white/20 bg-black cursor-pointer group overflow-hidden"
                       onClick={() => setPreviewImage(selectedRegistration.paymentScreenshot || null)}
