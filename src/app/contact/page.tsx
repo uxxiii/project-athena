@@ -2,9 +2,10 @@
 
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageSquare, Send, Clock, ArrowRight } from "lucide-react";
+import { Mail, MessageSquare, Send, Clock, ArrowRight, Phone } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { SUMMIT_INQUIRY_CONTACTS } from "@/components/registration/RegistrationHelpline";
 
 const InstagramIcon = ({ size = 22, className = "" }: { size?: number; className?: string }) => (
   <svg
@@ -27,23 +28,24 @@ const InstagramIcon = ({ size = 22, className = "" }: { size?: number; className
 
 const contactChannels: { icon: typeof Mail | typeof InstagramIcon; title: string; detail: string; sub: string; href?: string }[] = [
   {
+    icon: Phone,
+    title: "Secretariat Helplines",
+    detail: "4 Direct Phone / WhatsApp Lines",
+    sub: "Anushka, Sarthak, Rigved & Saanvi",
+    href: "https://wa.me/918797228078",
+  },
+  {
+    icon: MessageSquare,
+    title: "Response Window",
+    detail: "Direct WhatsApp Line",
+    sub: "Instant assistance during registration",
+  },
+  {
     icon: Mail,
     title: "Secretariat Email",
     detail: "project.athena03@gmail.com",
     sub: "Official inquiries & delegate support",
     href: "mailto:project.athena03@gmail.com",
-  },
-  {
-    icon: MessageSquare,
-    title: "Delegate Helpline",
-    detail: "Available via WhatsApp",
-    sub: "Direct line during registration window",
-  },
-  {
-    icon: Clock,
-    title: "Response Window",
-    detail: "24 Hours Priority",
-    sub: "Prompt resolution for all queries",
   },
   {
     icon: InstagramIcon,
@@ -118,7 +120,7 @@ export default function ContactPage() {
                   rel={item.href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
                   className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-gold hover:underline transition-colors"
                 >
-                  <span>{item.href.startsWith("mailto:") ? "Send Email" : "Visit Profile"}</span>
+                  <span>{item.href.startsWith("mailto:") ? "Send Email" : item.href.includes("wa.me") ? "WhatsApp Us" : "Visit Profile"}</span>
                   <ArrowRight size={10} />
                 </a>
               )}
