@@ -31,7 +31,7 @@ const contactChannels: { icon: typeof Mail | typeof InstagramIcon; title: string
     icon: Phone,
     title: "Secretariat Helplines",
     detail: "4 Direct Phone / WhatsApp Lines",
-    sub: "Anushka, Sarthak, Rigved & Saanvi",
+    sub: "Helpline 1, Helpline 2, Helpline 3 & Helpline 4",
     href: "https://wa.me/918797228078",
   },
   {

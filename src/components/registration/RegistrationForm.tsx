@@ -713,7 +713,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                           Scan QR · PhonePe / Google Pay / Paytm / BHIM / Any UPI app
                         </p>
                         <p className="text-[11px] text-amber-300/80 font-mono pt-1">
-                          Payment query? WhatsApp helpline: <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Anushka</a> · <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Sarthak</a> · <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Rigved</a> · <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Saanvi</a>
+                          Payment query? WhatsApp helpline: <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Helpline 1</a> · <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Helpline 2</a> · <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Helpline 3</a> · <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Helpline 4</a>
                         </p>
                       </div>
                     </div>

@@ -670,13 +670,13 @@ export default function DonatePage() {
                   Have an inquiry or corporate matching donation? Reach out directly via WhatsApp:
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1 font-mono text-xs">
-                  <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Anushka</a>
+                  <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Helpline 1</a>
                   <span>•</span>
-                  <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Sarthak</a>
+                  <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Helpline 2</a>
                   <span>•</span>
-                  <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Rigved</a>
+                  <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Helpline 3</a>
                   <span>•</span>
-                  <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Saanvi</a>
+                  <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Helpline 4</a>
                 </div>
               </div>
 

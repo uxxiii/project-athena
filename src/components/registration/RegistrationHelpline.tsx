@@ -2,10 +2,10 @@ import React from "react";
 import { Phone, MessageCircle } from "lucide-react";
 
 export const SUMMIT_INQUIRY_CONTACTS = [
-  { name: "Anushka Raj", phone: "+91 87972 28078", raw: "918797228078" },
-  { name: "Sarthak", phone: "+91 93116 79175", raw: "919311679175" },
-  { name: "Rigved", phone: "+91 92149 72080", raw: "919214972080" },
-  { name: "Saanvi", phone: "+91 99422 03720", raw: "919942203720" },
+  { name: "Helpline 1", phone: "+91 87972 28078", raw: "918797228078" },
+  { name: "Helpline 2", phone: "+91 93116 79175", raw: "919311679175" },
+  { name: "Helpline 3", phone: "+91 92149 72080", raw: "919214972080" },
+  { name: "Helpline 4", phone: "+91 99422 03720", raw: "919942203720" },
 ];
 
 export function RegistrationHelpline() {
