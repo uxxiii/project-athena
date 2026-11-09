@@ -121,16 +121,10 @@ export default function AdminPage() {
   // First 75 summit registrations = ₹1,000 each (₹75,000)
   // Registrations from 76th onwards = ₹1,300 each
   // Picnic registrations = ₹100 each
-  const confirmedRevenue = useMemo(() => {
-    return registrations
-      .filter((r) => r.status === "approved")
-      .reduce((sum, r) => sum + getRegistrationFeeForRecord(r), 0);
-  }, [registrations]);
-
-  const regularFeeSummitApproved = summitRegs.filter(
-    (r) => r.status === "approved" && getRegistrationFeeForRecord(r) === 1300
-  ).length;
-  const earlyBirdSummitApproved = summitApproved - regularFeeSummitApproved;
+  const earlyBirdSummitApproved = Math.min(summitApproved, 75);
+  const regularFeeSummitApproved = Math.max(0, summitApproved - 75);
+  const confirmedRevenue =
+    earlyBirdSummitApproved * 1000 + regularFeeSummitApproved * 1300 + picnicApproved * 100;
   const totalSummitCapacity = 420;
 
   // Filtered recent registrations

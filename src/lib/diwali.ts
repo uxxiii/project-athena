@@ -55,8 +55,8 @@ export function getCurrentRegistrationFee(): number {
 /**
  * Calculates the exact fee for a specific registration.
  * - Picnic registrations: ₹100
- * - First 75 Summit registrations (IDs <= 100075 or created <= Nov 9 12:00 PM IST): ₹1,000 (Diwali Sale)
- * - Registrations after the 75th / after Nov 9 12:00 PM: ₹1,300 (Regular Price)
+ * - First 75 Summit registrations (IDs <= 100079 or created <= Nov 9 12:00 PM IST): ₹1,000 (Diwali Sale)
+ * - Registrations after the 75th (IDs > 100079 / registered after 12:00 PM): ₹1,300 (Regular Price)
  */
 export function getRegistrationFeeForRecord(reg: {
   eventSlug?: string;
@@ -67,7 +67,8 @@ export function getRegistrationFeeForRecord(reg: {
     return 100;
   }
 
-  // Parse numeric sequence from ID (e.g. 100045, "ATH-SUMMIT-045", "100075")
+  // Parse numeric sequence from ID (e.g. 100045, "ATH-SUMMIT-045", 100079)
+  // The 75th approved summit delegate was ATH-SUMMIT-079 (100079) registered at 11:59:54 AM IST.
   const numericId =
     typeof reg.id === "string"
       ? parseInt(reg.id.replace(/\D/g, ""), 10)
@@ -75,14 +76,17 @@ export function getRegistrationFeeForRecord(reg: {
       ? reg.id
       : 0;
 
-  // The first 75 summit registrations were during the sale (ids 100001 - 100075)
-  if (numericId > 0 && numericId <= 100075) {
+  // First 75 summit delegates capped up to ID 100079
+  if (numericId > 0 && numericId <= 100079) {
     return DIWALI_PRICING.festiveFee; // 1000
   }
 
-  // Fallback: check timestamp against sale deadline
+  // Check timestamp (normalize to UTC if lacking timezone offset from database)
   if (reg.createdAt) {
-    const createdTime = new Date(reg.createdAt).getTime();
+    const normalized = /Z|[+-]\d{2}:?\d{2}$/.test(reg.createdAt)
+      ? reg.createdAt
+      : `${reg.createdAt}Z`;
+    const createdTime = new Date(normalized).getTime();
     const deadlineTime = new Date(DIWALI_SALE_DEADLINE_ISO).getTime();
     if (!isNaN(createdTime) && createdTime <= deadlineTime) {
       return DIWALI_PRICING.festiveFee; // 1000
