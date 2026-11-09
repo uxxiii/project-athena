@@ -12,6 +12,8 @@ import {
   Loader2,
   AlertCircle,
   Award,
+  Smartphone,
+  Copy,
 } from "lucide-react";
 import { committees, getCommitteeById, IPL_TEAMS } from "@/data/committees";
 import { Button } from "@/components/ui/Button";
@@ -668,15 +670,25 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
                     <PaymentPricingBanner />
 
-                    <div className="border-2 border-white/15 bg-[#0b0714] p-6 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
-                      <div className="mx-auto w-56 h-56 border-2 border-white/20 bg-white p-2 shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center">
+                    <div className="border-2 border-white/15 bg-[#0b0714] p-5 text-center space-y-4 shadow-[4px_4px_0px_0px_#000000]">
+                      {/* Full-width scannable QR — no cropping */}
+                      <div className="mx-auto w-full max-w-xs sm:max-w-sm border-2 border-white/20 bg-white p-0 shadow-[4px_4px_0px_0px_#000000] flex items-center justify-center overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/upi-qr.png"
-                          alt="Athena Summit UPI payment QR code — PhonePe"
-                          className="w-full h-full object-contain"
+                          alt="Startly Innovations UPI Payment QR — PhonePe / GPay / Any UPI"
+                          className="w-full h-auto block"
                         />
                       </div>
+
+                      {/* Open UPI App Button */}
+                      <a
+                        href="upi://pay?pa=startly@ybl&pn=Startly%20Innovations&cu=INR"
+                        className="flex items-center justify-center gap-2 w-full py-3 bg-[#5f259f] hover:bg-[#4e1f86] text-white font-bold text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+                      >
+                        <Smartphone size={15} />
+                        Open UPI App to Pay
+                      </a>
 
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-cream">
@@ -685,8 +697,20 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                             Startly Innovations
                           </span>
                         </p>
+                        {/* Copyable UPI ID */}
+                        <div className="inline-flex items-center gap-2 bg-[#140b24] border border-white/20 px-3 py-1.5 shadow-[2px_2px_0px_0px_#000]">
+                          <span className="text-xs font-mono text-gold font-bold">startly@ybl</span>
+                          <button
+                            type="button"
+                            onClick={() => { navigator.clipboard?.writeText("startly@ybl"); }}
+                            className="text-cream/60 hover:text-gold transition-colors cursor-pointer"
+                            title="Copy UPI ID"
+                          >
+                            <Copy size={12} />
+                          </button>
+                        </div>
                         <p className="text-xs text-cream/50">
-                          Scan QR using PhonePe · also accepted via Google Pay, Paytm, BHIM &amp; all UPI apps
+                          Scan QR · PhonePe / Google Pay / Paytm / BHIM / Any UPI app
                         </p>
                         <p className="text-[11px] text-amber-300/80 font-mono pt-1">
                           Payment query? WhatsApp helpline: <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Anushka</a> · <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Sarthak</a> · <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Rigved</a> · <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold underline hover:text-white">Saanvi</a>

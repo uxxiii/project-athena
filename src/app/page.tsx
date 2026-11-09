@@ -613,7 +613,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link href="/donate">
                   <Button size="md" className="shadow-[3px_3px_0px_0px_#000000] text-xs font-bold uppercase">
-                    <span>Societal Mission & Waitlist</span>
+                    <span>Support The Fundraiser</span>
                     <ArrowRight size={14} />
                   </Button>
                 </Link>

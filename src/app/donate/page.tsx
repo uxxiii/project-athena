@@ -1,25 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
   BookOpen,
   ShieldCheck,
+  QrCode,
+  Copy,
+  Check,
+  Upload,
   Maximize2,
   X,
   CheckCircle2,
-  Clock,
-  Bell,
   Sparkles,
-  ShieldAlert,
+  ArrowRight,
+  Phone,
+  Smartphone,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 
 const PRESET_AMOUNTS = [250, 500, 1000, 2500, 5000];
+
+const OFFICIAL_UPI_ID = "startly@ybl";
+const UPI_DEEP_LINK = `upi://pay?pa=${OFFICIAL_UPI_ID}&pn=Startly%20Innovations&cu=INR`;
 
 const IMPACT_TIERS: Record<number, string> = {
   250: "Provides essential textbooks, notebooks, and writing supplies for 1 child.",
@@ -39,12 +45,22 @@ export default function DonatePage() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(500);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [showPosterModal, setShowPosterModal] = useState(false);
+  const [copiedUpi, setCopiedUpi] = useState(false);
 
-  // Waitlist form state
+  const handleCopyUpi = useCallback(() => {
+    navigator.clipboard?.writeText(OFFICIAL_UPI_ID).then(() => {
+      setCopiedUpi(true);
+      setTimeout(() => setCopiedUpi(false), 2000);
+    });
+  }, []);
+
+  // Contribution form state
   const [donorName, setDonorName] = useState("");
   const [donorEmail, setDonorEmail] = useState("");
   const [donorPhone, setDonorPhone] = useState("");
   const [causeInterest, setCauseInterest] = useState("both");
+  const [transactionRef, setTransactionRef] = useState("");
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,12 +74,37 @@ export default function DonatePage() {
       ? parseInt(customAmount, 10) || 0
       : 0;
 
-  const handleJoinWaitlist = async (e: React.FormEvent) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("File size exceeds 5MB limit. Please choose a smaller image.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setScreenshotPreview(reader.result as string);
+      setErrorMessage("");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitContribution = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
     if (!donorName.trim() || !donorEmail.trim()) {
       setErrorMessage("Please enter both your full name and email address.");
+      return;
+    }
+
+    if (!transactionRef.trim()) {
+      setErrorMessage("Please enter the UPI Transaction Reference / UTR ID from your payment.");
+      return;
+    }
+
+    if (currentAmountValue <= 0) {
+      setErrorMessage("Please select or enter a valid contribution amount.");
       return;
     }
 
@@ -80,14 +121,17 @@ export default function DonatePage() {
           donorEmail,
           donorPhone,
           amount: currentAmountValue,
-          isWaitlist: true,
+          transactionRef,
+          screenshot: screenshotPreview,
+          isWaitlist: false,
+          status: "pending",
           causeInterest: selectedCauseLabel,
           message,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to join waitlist");
+      if (!res.ok) throw new Error(data.error || "Failed to submit donation receipt");
       setSubmittedSuccess(true);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -101,6 +145,8 @@ export default function DonatePage() {
     setDonorName("");
     setDonorEmail("");
     setDonorPhone("");
+    setTransactionRef("");
+    setScreenshotPreview(null);
     setMessage("");
     setErrorMessage("");
   };
@@ -142,9 +188,9 @@ export default function DonatePage() {
                   Societal Mission
                 </span>
               </div>
-              <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-mono font-bold uppercase bg-[#140b24] px-3.5 py-1.5 border border-amber-400/50 shadow-[2px_2px_0px_0px_#000000]">
-                <Clock size={12} className="text-amber-400" />
-                Forms Paused • Waitlist Open
+              <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono font-bold uppercase bg-[#140b24] px-3.5 py-1.5 border border-emerald-500/50 shadow-[2px_2px_0px_0px_#000000]">
+                <Heart size={12} className="text-emerald-400 fill-emerald-400" />
+                Fundraiser Live • Contributions Open
               </span>
             </div>
 
@@ -156,15 +202,15 @@ export default function DonatePage() {
 
             {/* Subtitle */}
             <p className="text-cream/75 text-base sm:text-lg leading-relaxed font-normal max-w-2xl">
-              This year, we&apos;re putting that belief into action. Alongside our summit, we&apos;re running a fundraiser for local NGOs working on two fronts we genuinely care about — <strong className="text-cream font-bold">giving underprivileged children access to education</strong>, and <strong className="text-cream font-bold">supporting marginalized women through rehabilitation and self-reliance programs.</strong>
+              Alongside the Athena Summit, we are spearheading an active community fundraiser supporting verified ground NGOs on two vital fronts: <strong className="text-cream font-bold">providing underprivileged children with schooling kits &amp; education</strong>, and <strong className="text-cream font-bold">empowering marginalized women &amp; abuse survivors through vocational self-reliance.</strong>
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-3">
-              <a href="#waitlist">
+              <a href="#contribute">
                 <button className="px-8 py-4 bg-gold text-[#0b0714] font-extrabold text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2 cursor-pointer">
-                  <Bell size={16} />
-                  <span>Join the Waitlist</span>
+                  <Heart size={16} className="fill-current" />
+                  <span>Donate Now →</span>
                 </button>
               </a>
               <button
@@ -217,7 +263,7 @@ export default function DonatePage() {
                 </div>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold uppercase text-cream tracking-tight">
-                Childhood Access to Education & Opportunity
+                Childhood Access to Education &amp; Opportunity
               </h3>
               <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
                 Giving underprivileged children access to education, learning supplies, school uniforms, textbooks, and after-school tuition—breaking cycle barriers and opening real opportunities.
@@ -252,7 +298,7 @@ export default function DonatePage() {
                 </div>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold uppercase text-cream tracking-tight">
-                Women&apos;s Empowerment & Abuse Recovery
+                Women&apos;s Empowerment &amp; Abuse Recovery
               </h3>
               <p className="text-cream/75 text-sm leading-relaxed font-sans font-light">
                 Supporting marginalized women, including survivors of domestic abuse and social hardship, through rehabilitation programs, vocational skill-building, and financial independence toolkits.
@@ -277,9 +323,9 @@ export default function DonatePage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          SECTION 3 — WAITLIST HUB
+          SECTION 3 — ACTIVE FUNDRAISER CONTRIBUTION HUB
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section className="py-20 lg:py-24 relative neo-grid-bg" id="waitlist">
+      <section className="py-20 lg:py-24 relative neo-grid-bg" id="contribute">
         <div id="donate-now" className="scroll-mt-24" />
         <div className="mx-auto max-w-7xl px-6">
 
@@ -292,59 +338,31 @@ export default function DonatePage() {
           >
             <div className="inline-block transform -rotate-1">
               <span className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
-                Early Supporter Access
+                Direct Community Aid
               </span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-extrabold uppercase tracking-tight text-cream">
-              Join the Contribution <span className="text-gold">Waitlist</span>
+              Make a <span className="text-gold">Contribution</span>
             </h2>
             <p className="text-cream/75 text-sm font-normal">
-              Direct donation forms are temporarily paused while our team coordinates ground logistics and beneficiary allocation. Join the priority waitlist to be alerted first when donations reopen.
+              100% of your contributions go straight toward educational supplies for underprivileged children and self-reliance vocational toolkits for women survivors.
             </p>
           </motion.div>
 
-          {/* Paused Notice Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-[#140b24] border-2 border-amber-400/40 p-6 sm:p-7 mb-10 shadow-[4px_4px_0px_0px_#000000]"
-          >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="h-11 w-11 bg-amber-500/20 border border-amber-400/60 flex items-center justify-center shrink-0 text-amber-400 shadow-[2px_2px_0px_0px_#000000]">
-                <Clock size={22} />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#0b0714] font-black bg-amber-400 px-2 py-0.5 border border-black shadow-[1px_1px_0px_0px_#000]">
-                    STATUS: COLLECTION PAUSED
-                  </span>
-                  <span className="text-xs text-cream/60 font-mono font-bold">• Reopening Soon</span>
-                </div>
-                <h3 className="text-xl font-extrabold uppercase text-cream tracking-tight">
-                  Online Donation Submissions Are Temporarily Closed
-                </h3>
-                <p className="text-xs sm:text-sm text-cream/70 font-sans font-light leading-relaxed">
-                  We are currently auditing initial allocations and aligning distributions with our verified NGO partners. By registering below, you will receive guaranteed first notification and priority donor credentials when the portal reopens.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+          {/* Grid: Form + Startly QR Box */}
+          <div className="grid lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,.9fr)] gap-8 items-start">
 
-          {/* Grid: Waitlist Form + Information Sidebar */}
-          <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(19rem,.8fr)] gap-8 items-start">
-
-            {/* Left: Waitlist Registration Form */}
+            {/* Left Column: Contribution Details & Receipt Form */}
             <div className="bg-[#140b24] border-2 border-white/20 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] relative">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6 border-b border-white/10 pb-4">
                 <div>
-                  <h3 className="text-2xl font-extrabold uppercase text-cream tracking-tight">Priority Supporter Registry</h3>
+                  <h3 className="text-2xl font-extrabold uppercase text-cream tracking-tight">Step 2: Log Contribution Receipt</h3>
                   <p className="text-xs text-cream/60 mt-0.5">
-                    Leave your contact details and intended pledge to be prioritized.
+                    Scan the QR on the right, pay via any UPI app, then submit your details below:
                   </p>
                 </div>
-                <span className="text-[10px] font-mono font-bold uppercase bg-[#0b0714] text-cream/80 px-2.5 py-1 border border-white/20 shadow-[2px_2px_0px_0px_#000000]">
-                  Phase II Waitlist
+                <span className="text-[10px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-400 px-2.5 py-1 border border-emerald-500/30 shadow-[2px_2px_0px_0px_#000000]">
+                  Live Channel
                 </span>
               </div>
 
@@ -352,38 +370,110 @@ export default function DonatePage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl border border-emerald-500/40 bg-emerald-950/30 p-8 sm:p-10 text-center space-y-4"
+                  className="rounded-none border-2 border-emerald-500/40 bg-emerald-950/30 p-8 sm:p-10 text-center space-y-4 shadow-[4px_4px_0px_0px_#000]"
                 >
                   <div className="h-16 w-16 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
                     <CheckCircle2 size={36} className="text-emerald-400" />
                   </div>
                   <h4 className="font-heading text-2xl sm:text-3xl text-emerald-300">
-                    You&apos;re On The Priority Waitlist!
+                    Thank You For Your Generosity!
                   </h4>
                   <p className="text-xs sm:text-sm text-cream/80 font-sans leading-relaxed max-w-md mx-auto">
-                    Thank you, <strong className="text-gold font-medium">{donorName || "friend"}</strong>. Your pledge of interest has been safely recorded. You will be among the first to receive direct communication as soon as donation forms and UPI channels reopen.
+                    Thank you, <strong className="text-gold font-medium">{donorName || "Supporter"}</strong>. Your contribution of <strong className="text-gold font-bold">₹{currentAmountValue.toLocaleString("en-IN")}</strong> has been successfully logged. The Athena Secretariat and our NGO partners express our heartfelt gratitude.
                   </p>
 
                   <div className="pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
+                    <button
                       onClick={handleResetForm}
-                      className="text-xs font-mono uppercase tracking-wider"
+                      className="px-6 py-2.5 bg-gold text-[#0b0714] text-xs font-mono font-bold uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000]"
                     >
-                      Add Another Email
-                    </Button>
+                      Make Another Contribution
+                    </button>
                   </div>
                 </motion.div>
               ) : (
-                <form onSubmit={handleJoinWaitlist} className="space-y-6">
+                <form onSubmit={handleSubmitContribution} className="space-y-6">
                   {errorMessage && (
-                    <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 p-3.5 rounded-lg">
+                    <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 p-3.5 shadow-[2px_2px_0px_0px_#000]">
                       {errorMessage}
                     </div>
                   )}
 
-                  {/* Personal Info */}
+                  {/* 1. Contribution Amount Preset */}
+                  <div className="border border-white/10 bg-[#0b0714] p-4 sm:p-5 space-y-3 shadow-[2px_2px_0px_0px_#000]">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs uppercase tracking-wider text-cream/80 font-mono block font-bold">
+                        1. Select Contribution Amount *
+                      </label>
+                      <span className="text-[10px] text-gold font-mono font-bold">
+                        ₹{currentAmountValue.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+                      {PRESET_AMOUNTS.map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAmount(amt);
+                            setCustomAmount("");
+                          }}
+                          className={`py-2.5 px-1.5 text-xs font-mono font-bold transition-all border-2 cursor-pointer ${
+                            selectedAmount === amt
+                              ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5"
+                              : "bg-[#140b24] text-cream/80 border-white/15 hover:border-white/30"
+                          }`}
+                        >
+                          ₹{amt.toLocaleString("en-IN")}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="pt-1">
+                      <Input
+                        placeholder="Or enter custom amount in ₹ INR"
+                        type="number"
+                        min="1"
+                        value={customAmount}
+                        onChange={(e) => {
+                          setCustomAmount(e.target.value);
+                          setSelectedAmount(null);
+                        }}
+                        className="font-mono text-xs"
+                      />
+                    </div>
+
+                    {/* Impact preview */}
+                    <div className="text-[11px] text-cream/70 font-sans italic pt-1 border-t border-white/10">
+                      💡 {IMPACT_TIERS[currentAmountValue] || "Your contribution will directly fund educational supplies and women's rehabilitation toolkits."}
+                    </div>
+                  </div>
+
+                  {/* 2. Cause Selection */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2 font-mono">
+                      2. Direct Aid Toward
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {CAUSE_OPTIONS.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setCauseInterest(c.id)}
+                          className={`py-2 px-2 text-[11px] font-sans font-medium text-center transition-all border-2 cursor-pointer ${
+                            causeInterest === c.id
+                              ? "bg-gold text-[#0b0714] border-black font-bold shadow-[2px_2px_0px_0px_#000]"
+                              : "bg-[#0b0714] text-cream/70 border-white/15 hover:border-white/40 hover:text-cream"
+                          }`}
+                        >
+                          {c.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Personal Info */}
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Input
                       label="Full Name *"
@@ -409,83 +499,65 @@ export default function DonatePage() {
                       value={donorPhone}
                       onChange={(e) => setDonorPhone(e.target.value)}
                     />
-
-                    {/* Cause Selection */}
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2">
-                        Preferred Cause
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {CAUSE_OPTIONS.map((c) => (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => setCauseInterest(c.id)}
-                            className={`py-2 px-2 rounded-lg text-[11px] font-sans font-medium text-center transition-all border ${
-                              causeInterest === c.id
-                                ? "bg-gold text-purple-deep border-gold font-bold shadow-md shadow-gold/20"
-                                : "bg-purple-deep/70 text-cream/70 border-gold/20 hover:border-gold/40 hover:text-cream"
-                            }`}
-                          >
-                            {c.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <Input
+                      label="UPI Transaction Ref / UTR ID *"
+                      placeholder="e.g. 431256789012"
+                      value={transactionRef}
+                      onChange={(e) => setTransactionRef(e.target.value)}
+                      required
+                    />
                   </div>
 
-                  {/* Pledged Amount (Optional) */}
-                  <div className="rounded-xl border border-white/10 bg-[#0b0714] p-4 sm:p-5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs uppercase tracking-wider text-cream/80 font-mono block">
-                        Intended / Pledged Contribution (Optional)
-                      </label>
-                      <span className="text-[10px] text-cream/40 font-mono">No payment required now</span>
-                    </div>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
-                      {PRESET_AMOUNTS.map((amt) => (
-                        <button
-                          key={amt}
-                          type="button"
-                          onClick={() => {
-                            setSelectedAmount(amt);
-                            setCustomAmount("");
-                          }}
-                          className={`py-2.5 px-1.5 text-xs font-mono font-bold transition-all border-2 cursor-pointer ${
-                            selectedAmount === amt
-                              ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5"
-                              : "bg-[#140b24] text-cream/80 border-white/15 hover:border-white/30"
-                          }`}
-                        >
-                          ₹{amt.toLocaleString("en-IN")}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="pt-1">
-                      <Input
-                        placeholder="Or specify custom intended amount in ₹ INR"
-                        type="number"
-                        value={customAmount}
-                        onChange={(e) => {
-                          setCustomAmount(e.target.value);
-                          setSelectedAmount(null);
-                        }}
-                        className="font-mono text-xs"
+                  {/* 4. Payment Screenshot Upload */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-cream/70 mb-2 font-mono">
+                      Upload Payment Screenshot (Optional, Max 5MB)
+                    </label>
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 hover:border-gold/60 transition-all cursor-pointer bg-[#0b0714] group shadow-[2px_2px_0px_0px_#000000]">
+                      {screenshotPreview ? (
+                        <div className="flex items-center gap-4 p-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={screenshotPreview}
+                            alt="Receipt Preview"
+                            className="h-20 w-20 object-cover border border-white/30"
+                          />
+                          <div className="text-left">
+                            <p className="text-xs text-emerald-400 font-medium flex items-center gap-1 font-mono">
+                              <Check size={14} /> SCREENSHOT ATTACHED
+                            </p>
+                            <p className="text-[10px] text-cream/40 mt-1 font-mono">
+                              Click box to re-select image
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload
+                            size={24}
+                            className="text-cream/40 group-hover:text-gold transition-colors mb-2"
+                          />
+                          <span className="text-xs text-cream/70 group-hover:text-cream transition-colors font-mono">
+                            Click to attach UPI payment receipt screenshot
+                          </span>
+                          <span className="text-[10px] text-cream/40 mt-1 font-mono">
+                            PNG, JPG, JPEG accepted (up to 5MB)
+                          </span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
                       />
-                    </div>
-
-                    {/* Impact preview */}
-                    <div className="text-[11px] text-cream/60 font-sans italic pt-1 border-t border-white/10">
-                      💡 {IMPACT_TIERS[currentAmountValue] || "Your pledge will directly aid education and rehabilitation kits."}
-                    </div>
+                    </label>
                   </div>
 
-                  {/* Encouragement message */}
+                  {/* 5. Encouragement message */}
                   <Textarea
-                    label="Message of Support or Inquiry (Optional)"
-                    placeholder="Share any thoughts, suggestions, or questions for our NGO partners..."
+                    label="Message of Encouragement (Optional)"
+                    placeholder="Leave a message for the children and women supported by this drive..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                   />
@@ -498,11 +570,11 @@ export default function DonatePage() {
                   >
                     {isSubmitting ? (
                       <span className="flex items-center justify-center gap-2">
-                        <Clock className="w-4 h-4 animate-spin" /> Adding to Waitlist...
+                        Submitting Contribution Receipt...
                       </span>
                     ) : (
                       <span className="flex items-center justify-center gap-2">
-                        <Bell size={15} /> Join Contribution Waitlist
+                        <Heart size={15} className="fill-current" /> Submit Contribution Receipt (₹{currentAmountValue.toLocaleString("en-IN")})
                       </span>
                     )}
                   </button>
@@ -510,50 +582,101 @@ export default function DonatePage() {
               )}
             </div>
 
-            {/* Right: Sidebar Status & Assurance */}
+            {/* Right Column: Startly QR Box & UPI Details */}
             <div className="space-y-6">
 
-              {/* Status Card */}
-              <div className="border-2 border-white/15 bg-[#140b24] p-6 sm:p-7 shadow-[4px_4px_0px_0px_#000000] space-y-4">
-                <div className="inline-flex items-center gap-2 border border-white/20 bg-[#0b0714] px-3.5 py-1 text-cream/80 text-xs font-mono">
-                  <Clock size={13} className="text-amber-400" /> DRIVE LIFECYCLE
+              {/* Startly QR Payment Box */}
+              <div className="border-2 border-white/20 bg-[#140b24] p-6 sm:p-7 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase text-gold">
+                    <QrCode size={14} /> STEP 1: SCAN &amp; PAY
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 font-bold">
+                    Startly Innovations
+                  </span>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-heading text-xl font-extrabold uppercase text-cream">Next Disbursement Cycle</h4>
-                  <p className="text-xs text-cream/70 leading-relaxed font-sans font-light">
-                    Online forms will reopen as soon as field verifications with partner NGOs conclude. Waitlist members will get direct links and early access before public announcements.
+                {/* QR Code Container */}
+                <div className="mx-auto w-72 h-72 sm:w-80 sm:h-80 max-w-full border-2 border-white/20 bg-white p-3 shadow-[4px_4px_0px_0px_#000000] flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/upi-qr.png"
+                    alt="Startly Innovations UPI Payment QR Code — PhonePe"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className="space-y-2 text-center">
+                  <p className="text-sm font-bold text-cream">
+                    Pay via PhonePe to{" "}
+                    <span className="text-gold font-mono font-black">
+                      Startly Innovations
+                    </span>
+                  </p>
+                  <p className="text-xs text-cream/60 font-sans">
+                    Scan QR using PhonePe · also accepted via Google Pay, Paytm, BHIM &amp; any UPI app
                   </p>
                 </div>
 
-                <div className="border-t border-white/10 pt-4 space-y-3 text-xs font-sans text-cream/80">
-                  <div className="flex items-start gap-2.5">
-                    <CheckCircle2 size={15} className="text-gold shrink-0 mt-0.5" />
-                    <span>Priority email & WhatsApp notification</span>
+                {/* UPI ID row with copy button */}
+                <div className="flex items-center justify-between gap-3 bg-[#0b0714] border border-white/15 px-4 py-2.5 rounded-none shadow-[2px_2px_0px_0px_#000000]">
+                  <div>
+                    <span className="text-[9px] text-cream/40 font-mono uppercase tracking-widest block">UPI ID</span>
+                    <span className="text-sm font-mono font-bold text-gold">{OFFICIAL_UPI_ID}</span>
                   </div>
-                  <div className="flex items-start gap-2.5">
-                    <CheckCircle2 size={15} className="text-gold shrink-0 mt-0.5" />
-                    <span>Official Donor Thank-You Certificate reservation</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyUpi}
+                    title="Copy UPI ID"
+                    className="shrink-0 p-2 border border-white/20 hover:border-gold hover:text-gold text-cream/60 transition-colors"
+                  >
+                    {copiedUpi ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  </button>
+                </div>
+
+                {/* Open UPI App button */}
+                <a
+                  href={UPI_DEEP_LINK}
+                  className="flex items-center justify-center gap-2 w-full py-3 px-4 text-xs font-bold uppercase tracking-wider text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                  style={{ background: "#5f259f" }}
+                >
+                  <Smartphone size={15} />
+                  Open UPI App to Pay
+                </a>
+
+                <div className="border-t border-white/10 pt-3 space-y-2 text-xs font-sans text-cream/80">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 size={14} className="text-gold shrink-0 mt-0.5" />
+                    <span>Copy transaction UTR number after payment</span>
                   </div>
-                  <div className="flex items-start gap-2.5">
-                    <CheckCircle2 size={15} className="text-gold shrink-0 mt-0.5" />
-                    <span>Post-drive transparency audit report sent directly</span>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 size={14} className="text-gold shrink-0 mt-0.5" />
+                    <span>Paste in the form &amp; upload receipt screenshot</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 size={14} className="text-gold shrink-0 mt-0.5" />
+                    <span>100% of proceeds go to grassroots beneficiaries</span>
                   </div>
                 </div>
               </div>
 
-              {/* Payments Paused Notice */}
-              <div className="border-2 border-white/15 bg-[#140b24] p-6 space-y-3 shadow-[4px_4px_0px_0px_#000000]">
-                <div className="flex items-center gap-2 text-cream font-mono text-xs uppercase tracking-wider font-bold">
-                  <ShieldAlert size={16} className="text-amber-400" />
-                  <span>Direct Payments Inactive</span>
+              {/* Inquiry Helpline Card */}
+              <div className="border-2 border-gold/30 bg-[#0b0714] p-5 shadow-[4px_4px_0px_0px_#000000] space-y-2">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-gold uppercase tracking-wider">
+                  <Phone size={13} />
+                  <span>Contribution Support</span>
                 </div>
-                <p className="text-xs text-cream/65 leading-relaxed font-sans font-light">
-                  Direct UPI and QR payments are paused to protect donors from unverified submissions while the portal is undergoing maintenance. Please do not initiate payments until the form reopens.
+                <p className="text-xs text-cream/70 font-sans leading-relaxed">
+                  Have an inquiry or corporate matching donation? Reach out directly via WhatsApp:
                 </p>
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-cream/40 font-mono">
-                  <span>Audited Remittance</span>
-                  <ShieldCheck size={14} className="text-gold" />
+                <div className="flex flex-wrap gap-2 pt-1 font-mono text-xs">
+                  <a href="https://wa.me/918797228078" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Anushka</a>
+                  <span>•</span>
+                  <a href="https://wa.me/919311679175" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Sarthak</a>
+                  <span>•</span>
+                  <a href="https://wa.me/919214972080" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Rigved</a>
+                  <span>•</span>
+                  <a href="https://wa.me/919942203720" target="_blank" rel="noreferrer" className="text-gold hover:text-white underline">Saanvi</a>
                 </div>
               </div>
 
@@ -587,12 +710,12 @@ export default function DonatePage() {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
-              className="relative max-w-xl w-full bg-purple-deep border border-gold/40 p-4 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="relative max-w-xl w-full bg-[#140b24] border-2 border-gold/40 p-4 shadow-2xl max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setShowPosterModal(false)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-cream/80 hover:text-gold transition-colors z-10"
+                className="absolute top-4 right-4 p-2 bg-black/60 text-cream/80 hover:text-gold transition-colors z-10 border border-white/20 cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -601,7 +724,7 @@ export default function DonatePage() {
                 alt="A Step Taken Together Poster"
                 width={800}
                 height={1040}
-                className="rounded-xl w-full h-auto object-contain"
+                className="w-full h-auto object-contain border border-white/20"
               />
             </motion.div>
           </motion.div>

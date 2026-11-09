@@ -15,7 +15,7 @@ const desktopNavLinks = [
   { href: "/events", label: "Events" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/teams", label: "Teams" },
-  { href: "/donate", label: "Mission", badge: "Waitlist" },
+  { href: "/donate", label: "Fundraiser", badge: "Live" },
   { href: "/contact", label: "Contact" },
 ];
 

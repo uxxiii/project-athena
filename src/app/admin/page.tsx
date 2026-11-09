@@ -117,14 +117,28 @@ export default function AdminPage() {
   const currentSummitFee = getCurrentRegistrationFee();
   const isSale = isDiwaliSaleActive();
 
-  // Revenue calculation:
-  // First 75 summit registrations = ₹1,000 each (₹75,000)
-  // Registrations from 76th onwards = ₹1,300 each
-  // Picnic registrations = ₹100 each
-  const earlyBirdSummitApproved = Math.min(summitApproved, 75);
-  const regularFeeSummitApproved = Math.max(0, summitApproved - 75);
-  const confirmedRevenue =
-    earlyBirdSummitApproved * 1000 + regularFeeSummitApproved * 1300 + picnicApproved * 100;
+  // Revenue calculation using per-registration fee logic (ID-based + timestamp fallback).
+  // Uses getRegistrationFeeForRecord() so the 75-cap is determined by actual IDs/timestamps,
+  // not by a simple count that misclassifies delegates with IDs > 100079 as early-bird.
+  const { confirmedRevenue, earlyBirdSummitApproved, regularFeeSummitApproved } = useMemo(() => {
+    let earlyBird = 0;
+    let regular = 0;
+    let revenue = 0;
+    for (const r of registrations) {
+      if (r.status !== "approved") continue;
+      const fee = getRegistrationFeeForRecord({
+        eventSlug: r.eventSlug,
+        createdAt: r.createdAt,
+        id: r.id,
+      });
+      revenue += fee;
+      if (r.eventSlug !== "mun-picnic") {
+        if (fee <= 1000) earlyBird++;
+        else regular++;
+      }
+    }
+    return { confirmedRevenue: revenue, earlyBirdSummitApproved: earlyBird, regularFeeSummitApproved: regular };
+  }, [registrations]);
   const totalSummitCapacity = 420;
 
   // Filtered recent registrations
