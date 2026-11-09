@@ -53,10 +53,35 @@ export function getCurrentRegistrationFee(): number {
 }
 
 /**
+ * Helper to extract the numeric summit sequence number from any delegate ID.
+ * Handles:
+ * - "ATH-SUMMIT-079" -> 79
+ * - "ATH-SUMMIT-081" -> 81
+ * - 100079 -> 79
+ * - 100081 -> 81
+ * - "100081" -> 81
+ * - 81 -> 81
+ */
+export function extractSummitNumber(id: string | number | undefined): number {
+  if (id === undefined || id === null) return 0;
+  if (typeof id === "number") {
+    if (id >= 100000 && id < 200000) return id - 100000;
+    return id;
+  }
+  const str = String(id).trim();
+  const match = str.match(/ATH-SUMMIT-(\d+)/i);
+  if (match) return parseInt(match[1], 10);
+  const digits = parseInt(str.replace(/\D/g, ""), 10);
+  if (isNaN(digits)) return 0;
+  if (digits >= 100000 && digits < 200000) return digits - 100000;
+  return digits;
+}
+
+/**
  * Calculates the exact fee for a specific registration.
  * - Picnic registrations: ₹100
- * - First 75 Summit registrations (IDs <= 100079 or created <= Nov 9 12:00 PM IST): ₹1,000 (Diwali Sale)
- * - Registrations after the 75th (IDs > 100079 / registered after 12:00 PM): ₹1,300 (Regular Price)
+ * - First 75 Summit registrations (IDs <= ATH-SUMMIT-079 / 100079 or registered <= Nov 9 12:00 PM IST): ₹1,000 (Early Bird)
+ * - Registrations after the 75th (IDs >= ATH-SUMMIT-081 / 100081 / registered after 12:00 PM IST): ₹1,300 (Regular Price)
  */
 export function getRegistrationFeeForRecord(reg: {
   eventSlug?: string;
@@ -67,17 +92,11 @@ export function getRegistrationFeeForRecord(reg: {
     return 100;
   }
 
-  // Parse numeric sequence from ID (e.g. 100045, "ATH-SUMMIT-045", 100079)
-  // The 75th approved summit delegate was ATH-SUMMIT-079 (100079) registered at 11:59:54 AM IST.
-  const numericId =
-    typeof reg.id === "string"
-      ? parseInt(reg.id.replace(/\D/g, ""), 10)
-      : typeof reg.id === "number"
-      ? reg.id
-      : 0;
-
-  // First 75 summit delegates capped up to ID 100079
-  if (numericId > 0 && numericId <= 100079) {
+  // The 75th approved summit delegate was ATH-SUMMIT-079 (numeric 79 / 100079),
+  // submitted at 11:59:54 AM IST (just before the 12:00 PM IST deadline).
+  // First 75 summit delegates are strictly capped up to summit #79.
+  const summitNum = extractSummitNumber(reg.id);
+  if (summitNum > 0 && summitNum <= 79) {
     return DIWALI_PRICING.festiveFee; // 1000
   }
 
@@ -93,6 +112,6 @@ export function getRegistrationFeeForRecord(reg: {
     }
   }
 
-  // From registration #76 onwards after deadline
+  // From registration #76 onwards after deadline (ATH-SUMMIT-081+ / after 12:00 PM)
   return DIWALI_PRICING.originalFee; // 1300
 }

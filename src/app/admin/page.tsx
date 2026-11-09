@@ -117,27 +117,46 @@ export default function AdminPage() {
   const currentSummitFee = getCurrentRegistrationFee();
   const isSale = isDiwaliSaleActive();
 
-  // Revenue calculation using per-registration fee logic (ID-based + timestamp fallback).
-  // Uses getRegistrationFeeForRecord() so the 75-cap is determined by actual IDs/timestamps,
-  // not by a simple count that misclassifies delegates with IDs > 100079 as early-bird.
+  // Revenue calculation:
+  // - First 75 summit approved delegates = ₹1,000 each (Early-Bird ₹75,000)
+  // - All summit approved delegates from 76th onwards = ₹1,300 each (Regular)
+  // - All picnic approved delegates = ₹100 each
   const { confirmedRevenue, earlyBirdSummitApproved, regularFeeSummitApproved } = useMemo(() => {
+    const approvedSummit = registrations
+      .filter((r) => r.status === "approved" && r.eventSlug !== "mun-picnic")
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
     let earlyBird = 0;
     let regular = 0;
-    let revenue = 0;
-    for (const r of registrations) {
-      if (r.status !== "approved") continue;
-      const fee = getRegistrationFeeForRecord({
+    let summitRev = 0;
+
+    approvedSummit.forEach((r, index) => {
+      const feeByRecord = getRegistrationFeeForRecord({
         eventSlug: r.eventSlug,
         createdAt: r.createdAt,
         id: r.id,
       });
-      revenue += fee;
-      if (r.eventSlug !== "mun-picnic") {
-        if (fee <= 1000) earlyBird++;
-        else regular++;
+      // The first 75 delegates are strictly Early Bird (₹1,000); 76th onwards are Regular (₹1,300)
+      const isEarlyBird = index < 75 && feeByRecord === 1000;
+      if (isEarlyBird) {
+        earlyBird++;
+        summitRev += 1000;
+      } else {
+        regular++;
+        summitRev += 1300;
       }
-    }
-    return { confirmedRevenue: revenue, earlyBirdSummitApproved: earlyBird, regularFeeSummitApproved: regular };
+    });
+
+    const approvedPicnicCount = registrations.filter(
+      (r) => r.status === "approved" && r.eventSlug === "mun-picnic"
+    ).length;
+    const picnicRev = approvedPicnicCount * 100;
+
+    return {
+      confirmedRevenue: summitRev + picnicRev,
+      earlyBirdSummitApproved: earlyBird,
+      regularFeeSummitApproved: regular,
+    };
   }, [registrations]);
   const totalSummitCapacity = 420;
 
