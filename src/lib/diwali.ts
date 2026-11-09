@@ -92,10 +92,16 @@ export function getRegistrationFeeForRecord(reg: {
     return 100;
   }
 
+  const summitNum = extractSummitNumber(reg.id);
+
+  // Special founder's offer exception: Reg ID 100087 (ATH-SUMMIT-087 / Ayesha Aftab)
+  if (summitNum === 87 || String(reg.id).includes("100087")) {
+    return DIWALI_PRICING.festiveFee; // 1000
+  }
+
   // The 75th approved summit delegate was ATH-SUMMIT-079 (numeric 79 / 100079),
   // submitted at 11:59:54 AM IST (just before the 12:00 PM IST deadline).
   // First 75 summit delegates are strictly capped up to summit #79.
-  const summitNum = extractSummitNumber(reg.id);
   if (summitNum > 0 && summitNum <= 79) {
     return DIWALI_PRICING.festiveFee; // 1000
   }

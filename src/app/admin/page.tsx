@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
-import { getCurrentRegistrationFee, isDiwaliSaleActive, getRegistrationFeeForRecord } from "@/lib/diwali";
+import { getCurrentRegistrationFee, isDiwaliSaleActive, getRegistrationFeeForRecord, extractSummitNumber } from "@/lib/diwali";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -136,8 +136,9 @@ export default function AdminPage() {
         createdAt: r.createdAt,
         id: r.id,
       });
-      // The first 75 delegates are strictly Early Bird (₹1,000); 76th onwards are Regular (₹1,300)
-      const isEarlyBird = index < 75 && feeByRecord === 1000;
+      // The first 75 delegates are strictly Early Bird (₹1,000), plus Reg ID 100087 (Founder's Offer)
+      const isSpecialEarlyBird = extractSummitNumber(r.id) === 87 || String(r.id).includes("100087");
+      const isEarlyBird = (index < 75 && feeByRecord === 1000) || isSpecialEarlyBird;
       if (isEarlyBird) {
         earlyBird++;
         summitRev += 1000;
