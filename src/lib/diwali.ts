@@ -77,11 +77,22 @@ export function extractSummitNumber(id: string | number | undefined): number {
   return digits;
 }
 
+// Special founder's offer exceptions: IDs granted early-bird price (₹1,000)
+export const SPECIAL_EARLY_BIRD_SUMMIT_NUMBERS = new Set([87, 89]);
+
+export function isSpecialEarlyBirdRegistration(id: string | number | undefined): boolean {
+  const num = extractSummitNumber(id);
+  if (SPECIAL_EARLY_BIRD_SUMMIT_NUMBERS.has(num)) return true;
+  const str = String(id ?? "");
+  return str.includes("100087") || str.includes("100089");
+}
+
 /**
  * Calculates the exact fee for a specific registration.
  * - Picnic registrations: ₹100
  * - First 75 Summit registrations (IDs <= ATH-SUMMIT-079 / 100079 or registered <= Nov 9 12:00 PM IST): ₹1,000 (Early Bird)
- * - Registrations after the 75th (IDs >= ATH-SUMMIT-081 / 100081 / registered after 12:00 PM IST): ₹1,300 (Regular Price)
+ * - Special exceptions: Reg IDs 100087 & 100089 (Founder's Offer): ₹1,000 (Early Bird)
+ * - Registrations after the 75th: ₹1,300 (Regular Price)
  */
 export function getRegistrationFeeForRecord(reg: {
   eventSlug?: string;
@@ -92,16 +103,15 @@ export function getRegistrationFeeForRecord(reg: {
     return 100;
   }
 
-  const summitNum = extractSummitNumber(reg.id);
-
-  // Special founder's offer exception: Reg ID 100087 (ATH-SUMMIT-087 / Ayesha Aftab)
-  if (summitNum === 87 || String(reg.id).includes("100087")) {
+  // Special founder's offer exceptions: Reg IDs 100087 (Ayesha Aftab) & 100089 (Falak Razia)
+  if (isSpecialEarlyBirdRegistration(reg.id)) {
     return DIWALI_PRICING.festiveFee; // 1000
   }
 
   // The 75th approved summit delegate was ATH-SUMMIT-079 (numeric 79 / 100079),
   // submitted at 11:59:54 AM IST (just before the 12:00 PM IST deadline).
   // First 75 summit delegates are strictly capped up to summit #79.
+  const summitNum = extractSummitNumber(reg.id);
   if (summitNum > 0 && summitNum <= 79) {
     return DIWALI_PRICING.festiveFee; // 1000
   }
