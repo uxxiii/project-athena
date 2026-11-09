@@ -1,5 +1,5 @@
-import { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, DIWALI_SALE_DEADLINE_ISO } from "./diwali";
-export { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING } from "./diwali";
+import { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, DIWALI_SALE_DEADLINE_ISO, getRegistrationFeeForRecord } from "./diwali";
+export { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, getRegistrationFeeForRecord } from "./diwali";
 
 // Registration temporarily closed — reopens at 8:15 PM IST
 export const REGISTRATION_OPEN_DATE_ISO = "2026-11-07T20:15:00+05:30";

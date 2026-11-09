@@ -51,3 +51,44 @@ export function isDiwaliSaleActive(): boolean {
 export function getCurrentRegistrationFee(): number {
   return isDiwaliSaleActive() ? DIWALI_PRICING.festiveFee : DIWALI_PRICING.originalFee;
 }
+
+/**
+ * Calculates the exact fee for a specific registration.
+ * - Picnic registrations: ₹100
+ * - First 75 Summit registrations (IDs <= 100075 or created <= Nov 9 12:00 PM IST): ₹1,000 (Diwali Sale)
+ * - Registrations after the 75th / after Nov 9 12:00 PM: ₹1,300 (Regular Price)
+ */
+export function getRegistrationFeeForRecord(reg: {
+  eventSlug?: string;
+  createdAt?: string;
+  id?: string | number;
+}): number {
+  if (reg.eventSlug === "mun-picnic") {
+    return 100;
+  }
+
+  // Parse numeric sequence from ID (e.g. 100045, "ATH-SUMMIT-045", "100075")
+  const numericId =
+    typeof reg.id === "string"
+      ? parseInt(reg.id.replace(/\D/g, ""), 10)
+      : typeof reg.id === "number"
+      ? reg.id
+      : 0;
+
+  // The first 75 summit registrations were during the sale (ids 100001 - 100075)
+  if (numericId > 0 && numericId <= 100075) {
+    return DIWALI_PRICING.festiveFee; // 1000
+  }
+
+  // Fallback: check timestamp against sale deadline
+  if (reg.createdAt) {
+    const createdTime = new Date(reg.createdAt).getTime();
+    const deadlineTime = new Date(DIWALI_SALE_DEADLINE_ISO).getTime();
+    if (!isNaN(createdTime) && createdTime <= deadlineTime) {
+      return DIWALI_PRICING.festiveFee; // 1000
+    }
+  }
+
+  // From registration #76 onwards after deadline
+  return DIWALI_PRICING.originalFee; // 1300
+}

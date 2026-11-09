@@ -24,7 +24,7 @@ import {
 import type { Registration } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
 import { Badge } from "@/components/ui/Badge";
-import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
+import { getCurrentRegistrationFee, isDiwaliSaleActive, getRegistrationFeeForRecord } from "@/lib/diwali";
 
 type SortOption = "date-desc" | "date-asc" | "name-asc" | "name-desc" | "pending-first";
 
@@ -318,7 +318,7 @@ export default function AdminPaymentsPage() {
                 Delegate Payment & Allocation <span className="text-gold">Verification</span>
               </h1>
               <p className="text-xs sm:text-sm text-cream/60 mt-1 font-sans">
-                Inspect uploaded UPI screenshots, verify payments (₹{currentSummitFee.toLocaleString("en-IN")} Summit {isSale ? "· Diwali Offer" : ""} / ₹100 Picnic), and dispatch confirmation passes.
+                Inspect uploaded UPI screenshots, verify payments (₹1,000 for early bird #1–75 / ₹1,300 regular / ₹100 Picnic), and dispatch confirmation passes.
               </p>
             </div>
 
@@ -498,7 +498,7 @@ export default function AdminPaymentsPage() {
                             </span>
                           ) : (
                             <span className="text-[10px] font-mono bg-gold/15 text-gold px-2 py-0.5 border border-gold/30 font-bold">
-                              Summit (₹{currentSummitFee.toLocaleString("en-IN")})
+                              Summit (₹{getRegistrationFeeForRecord(reg).toLocaleString("en-IN")}{getRegistrationFeeForRecord(reg) === 1000 ? " · Early Bird" : ""})
                             </span>
                           )}
                         </div>

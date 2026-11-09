@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
-import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
+import { getCurrentRegistrationFee, isDiwaliSaleActive, getRegistrationFeeForRecord } from "@/lib/diwali";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -117,8 +117,20 @@ export default function AdminPage() {
   const currentSummitFee = getCurrentRegistrationFee();
   const isSale = isDiwaliSaleActive();
 
-  // Revenue: Approved Summit (dynamic based on sale: ₹1,000 during sale, ₹1,300 normal) + Approved Picnic (₹100)
-  const confirmedRevenue = summitApproved * currentSummitFee + picnicApproved * 100;
+  // Revenue calculation:
+  // First 75 summit registrations = ₹1,000 each (₹75,000)
+  // Registrations from 76th onwards = ₹1,300 each
+  // Picnic registrations = ₹100 each
+  const confirmedRevenue = useMemo(() => {
+    return registrations
+      .filter((r) => r.status === "approved")
+      .reduce((sum, r) => sum + getRegistrationFeeForRecord(r), 0);
+  }, [registrations]);
+
+  const regularFeeSummitApproved = summitRegs.filter(
+    (r) => r.status === "approved" && getRegistrationFeeForRecord(r) === 1300
+  ).length;
+  const earlyBirdSummitApproved = summitApproved - regularFeeSummitApproved;
   const totalSummitCapacity = 420;
 
   // Filtered recent registrations
@@ -357,7 +369,7 @@ export default function AdminPage() {
               ₹{confirmedRevenue.toLocaleString("en-IN")}
             </p>
             <span className="text-[10px] text-cream/40 font-mono mt-1 block">
-              {isSale ? `Diwali Sale (₹${currentSummitFee.toLocaleString("en-IN")}/pass) + Picnic (₹100)` : "From approved delegate fees (₹1,300)"}
+              {earlyBirdSummitApproved} Early-Bird Summit (₹1,000) + {regularFeeSummitApproved} Regular (₹1,300) + {picnicApproved} Picnic (₹100)
             </span>
           </div>
 
