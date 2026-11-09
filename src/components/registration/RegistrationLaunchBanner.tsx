@@ -120,7 +120,7 @@ export function RegistrationLaunchBanner({
                 <span className="text-gold font-bold">100 Seats (All)</span>
               </div>
               <div>
-                <span className="text-cream/50 block text-[10px]">IPL (12 Teams)</span>
+                <span className="text-cream/50 block text-[10px]">IPL (10 Teams)</span>
                 <span className="text-gold font-bold">60 Seats (All)</span>
               </div>
               <div>

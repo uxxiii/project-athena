@@ -289,16 +289,12 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
     if (value && !portfolioPrefs[value]) {
       if (value === "ipl") {
-        const teamSlug = selectedIplTeam.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        const teamPorts = getCommitteeById("ipl")?.portfolios.filter((p) => p.team === selectedIplTeam) ?? [];
         setValue(
           "portfolioPreferences",
           {
             ...portfolioPrefs,
-            ipl: [
-              `${teamSlug}-owner`,
-              `${teamSlug}-co-owner`,
-              `${teamSlug}-head-coach`,
-            ],
+            ipl: teamPorts.length >= 3 ? [teamPorts[0].id, teamPorts[1].id, teamPorts[2].id] : ["", "", ""],
           },
           { shouldValidate: true }
         );
@@ -567,19 +563,21 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                               <div className="bg-[#0b0714] border border-gold/30 p-4 space-y-2 mb-4 shadow-[2px_2px_0px_0px_#000]">
                                 <div className="flex items-center justify-between">
                                   <label className="text-xs font-mono font-bold text-gold uppercase tracking-wider">
-                                    🏏 Select IPL Franchise (12 Teams)
+                                    🏏 Select IPL Franchise (10 Teams)
                                   </label>
-                                  <span className="text-[10px] font-mono text-cream/50">5 Roles / Team</span>
+                                  <span className="text-[10px] font-mono text-cream/50">6 Roles / Team (incl. PR Head)</span>
                                 </div>
                                 <Select
                                   value={selectedIplTeam}
                                   onChange={(e) => {
                                     const team = e.target.value;
                                     setSelectedIplTeam(team);
-                                    const teamSlug = team.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-                                    updatePortfolioPref(committeeId, 0, `${teamSlug}-owner`);
-                                    updatePortfolioPref(committeeId, 1, `${teamSlug}-co-owner`);
-                                    updatePortfolioPref(committeeId, 2, `${teamSlug}-head-coach`);
+                                    const teamPorts = getCommitteeById("ipl")?.portfolios.filter((p) => p.team === team) ?? [];
+                                    if (teamPorts.length >= 3) {
+                                      updatePortfolioPref(committeeId, 0, teamPorts[0].id);
+                                      updatePortfolioPref(committeeId, 1, teamPorts[1].id);
+                                      updatePortfolioPref(committeeId, 2, teamPorts[2].id);
+                                    }
                                   }}
                                   options={IPL_TEAMS.map((t) => ({ value: t, label: t }))}
                                 />

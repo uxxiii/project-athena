@@ -238,11 +238,11 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
         <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
 
-        {/* Festive Diya Row — subtle bottom accent in hero */}
+        {/* Chhath Festive Ganga Ghat Accent in hero */}
         {isDiwali && (
-          <div className="absolute bottom-0 left-0 right-0 hidden md:flex justify-between items-end pointer-events-none px-6 pb-4 z-10 opacity-50">
-            {["🪔", "🪔", "🪔", "🪔", "🪔"].map((d, i) => (
-              <span key={i} className="text-lg" style={{ animationDelay: `${i * 0.3}s` }}>{d}</span>
+          <div className="absolute bottom-0 left-0 right-0 hidden md:flex justify-between items-end pointer-events-none px-6 pb-4 z-10 opacity-60">
+            {["🌾", "🪔", "☀️", "🪔", "🌾"].map((d, i) => (
+              <span key={i} className="text-xl" style={{ animationDelay: `${i * 0.3}s` }}>{d}</span>
             ))}
           </div>
         )}
@@ -279,11 +279,12 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="text-center lg:text-left space-y-8"
             >
-              {/* Diwali Festive Announcement Banner */}
+              {/* Chhath & Kharna Festive Announcement Banner */}
               {isDiwali && (
                 <div className="flex justify-center lg:justify-start">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 border-2 border-gold/60 text-cream font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] animate-pulse">
-                    <span>🪔 Shubh Deepavali! Early Bird ₹1,000 Flat Rate Active</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-orange-600/30 to-amber-500/20 border-2 border-gold/60 text-cream font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
+                    <span className="text-amber-400">☀️</span>
+                    <span>छठ महापर्व एवं खरना की शुभकामनाएं · CNLU, Patna</span>
                   </div>
                 </div>
               )}

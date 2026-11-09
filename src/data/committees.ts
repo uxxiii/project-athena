@@ -18,8 +18,6 @@ export const IPL_TEAMS = [
   "Sunrisers Hyderabad",
   "Gujarat Titans",
   "Lucknow Super Giants",
-  "Deccan Chargers",
-  "Pune Warriors India",
 ] as const;
 
 export const IPL_ROLES = [
@@ -28,6 +26,7 @@ export const IPL_ROLES = [
   "Head Coach",
   "Analyst",
   "Head of Finance",
+  "PR Head",
 ] as const;
 
 const CUSTOM_PORTFOLIOS: Record<string, PortfolioDefinition[]> = {
@@ -199,7 +198,7 @@ const CUSTOM_PORTFOLIOS: Record<string, PortfolioDefinition[]> = {
     { name: "Harivansh Narayan Singh" },
   ],
 
-  // IPL Auction & Crisis (12 Teams x 5 Portfolios = 60 Portfolios)
+  // IPL Auction & Crisis (10 Teams x 6 Portfolios = 60 Portfolios)
   ipl: IPL_TEAMS.flatMap((team) =>
     IPL_ROLES.map((role) => ({
       name: `${team} — ${role}`,

@@ -110,7 +110,7 @@ export function Navbar() {
                 className="font-extrabold text-xs uppercase px-4 sm:px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] flex items-center gap-1.5"
               >
                 <span>{isDiwaliOffer ? "Register · ₹1,000" : "Register"}</span>
-                {isDiwali && <span className="text-sm">🪔</span>}
+                {isDiwali && <span className="text-sm">☀️</span>}
                 <ArrowRight size={14} />
               </Button>
             </Link>
