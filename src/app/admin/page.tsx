@@ -135,9 +135,10 @@ export default function AdminPage() {
         eventSlug: r.eventSlug,
         createdAt: r.createdAt,
         id: r.id,
+        name: r.name,
       });
-      // The first 75 delegates are strictly Early Bird (₹1,000), plus special Founder's Offers (Reg IDs 100087, 100089, 100093)
-      const isEarlyBird = (index < 75 && feeByRecord === 1000) || isSpecialEarlyBirdRegistration(r.id);
+      // The first 75 delegates are strictly Early Bird (₹1,000), plus special Founder's Offers (Reg IDs 100087, 100089, 100093, 100117 Tanya)
+      const isEarlyBird = (index < 75 && feeByRecord === 1000) || isSpecialEarlyBirdRegistration(r.id, r.name);
       if (isEarlyBird) {
         earlyBird++;
         summitRev += 1000;
