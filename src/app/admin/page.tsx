@@ -137,7 +137,7 @@ export default function AdminPage() {
         id: r.id,
         name: r.name,
       });
-      // The first 75 delegates are strictly Early Bird (₹1,000), plus special Founder's Offers (Reg IDs 100087, 100089, 100093, 100117 Tanya)
+      // The first 75 delegates are strictly Early Bird (₹1,000), plus special Founder's Offers (Reg IDs 100087, 100089, 100093, 100117, 100119)
       const isEarlyBird = (index < 75 && feeByRecord === 1000) || isSpecialEarlyBirdRegistration(r.id, r.name);
       if (isEarlyBird) {
         earlyBird++;
