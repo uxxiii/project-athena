@@ -89,7 +89,7 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                 isDiwaliSeason()
                   ? `
               <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
-                🪔 <strong>Shubh Deepavali from Project Athena!</strong> May this festive season illuminate your preparation and bring triumph at Athena Summit 2026.
+                ☀️ <strong>जय छठी मईया · Chhath Mahaparv Greetings from Project Athena!</strong> May Chhathi Maiya &amp; Surya Dev bless your preparation and bring triumph at Athena Summit 2026.
               </div>
               `
                   : ""
@@ -755,7 +755,7 @@ export function generateSummitSubmissionEmailHtml(registration: Registration): s
                 isDiwali
                   ? `
               <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
-                🪔 <strong>Shubh Deepavali & Mithai Khao!</strong> We are delighted to welcome you during the auspicious festival of lights. Your registration has been safely received.
+                ☀️ <strong>जय छठी मईया &amp; ठेकुआ प्रसाद!</strong> We are delighted to welcome you during the auspicious festival of Chhath Mahaparv in Patna. Your registration has been safely received.
               </div>
               `
                   : ""

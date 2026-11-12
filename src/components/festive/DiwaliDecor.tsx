@@ -1,332 +1,396 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { isDiwaliSeason, isDiwaliSaleActive } from "@/lib/diwali";
-import Link from "next/link";
-import { Sun, Sparkles, Check, Heart } from "lucide-react";
-
-interface FloatingPrasad {
-  id: number;
-  x: number;
-  y: number;
-  type: "thekua" | "diya" | "flower" | "sun";
-  size: number;
-  rotate: number;
-}
+import { useEffect, useRef, useState } from "react";
+import { isDiwaliSeason } from "@/lib/diwali";
 
 export function DiwaliDecor() {
   const [active, setActive] = useState(false);
-  const [saleActive, setSaleActive] = useState(false);
-  const [lightsBlink, setLightsBlink] = useState(true);
-  const [floatingPrasad, setFloatingPrasad] = useState<FloatingPrasad[]>([]);
-  const [blessingToast, setBlessingToast] = useState<string | null>(null);
-  const [arghyaSurge, setArghyaSurge] = useState(false);
+  const [flameFlicker, setFlameFlicker] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    setActive(isDiwaliSeason());
-    setSaleActive(isDiwaliSaleActive());
+    const seasonActive = isDiwaliSeason();
+    setActive(seasonActive);
 
-    const blinkTimer = setInterval(() => {
-      setLightsBlink((b) => !b);
-    }, 1200);
+    const flickerInterval = setInterval(() => {
+      setFlameFlicker((f) => !f);
+    }, 1100);
 
-    return () => clearInterval(blinkTimer);
+    return () => clearInterval(flickerInterval);
   }, []);
 
-  const triggerThekuaPrasad = () => {
-    const types: ("thekua" | "flower" | "diya")[] = ["thekua", "thekua", "flower", "diya"];
-    const newItems: FloatingPrasad[] = Array.from({ length: 12 }).map((_, i) => ({
-      id: Date.now() + i,
-      x: 20 + Math.random() * 60,
-      y: 70 + Math.random() * 20,
-      type: types[Math.floor(Math.random() * types.length)],
-      size: 24 + Math.random() * 16,
-      rotate: Math.floor(Math.random() * 360),
-    }));
+  // Background Chhath song playback at soft volume (no UI)
+  useEffect(() => {
+    if (!active) return;
 
-    setFloatingPrasad((prev) => [...prev.slice(-18), ...newItems]);
-    setBlessingToast("ठेकुआ प्रसाद एवं खरना की असीम शुभकामनाएं! 🥮✨ (Pure Gur & Ghee Prasad Accepted)");
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    setTimeout(() => {
-      setBlessingToast((curr) =>
-        curr?.includes("ठेकुआ") ? null : curr
+    audio.volume = 0.2; // Low, peaceful ambient volume
+
+    const tryPlay = () => {
+      if (!audio) return;
+      audio.volume = 0.2;
+      audio
+        .play()
+        .then(() => {
+          removeInteractionListeners();
+        })
+        .catch(() => {
+          // Autoplay blocked until first user interaction; listeners below will trigger it
+        });
+    };
+
+    const events = ["click", "touchstart", "keydown", "pointerdown", "scroll"];
+
+    const removeInteractionListeners = () => {
+      events.forEach((evt) =>
+        window.removeEventListener(evt, tryPlay, { capture: true })
       );
-    }, 4500);
-  };
+    };
 
-  const triggerArghya = () => {
-    setArghyaSurge(true);
-    const sunItems: FloatingPrasad[] = Array.from({ length: 8 }).map((_, i) => ({
-      id: Date.now() + i,
-      x: 15 + Math.random() * 70,
-      y: 50 + Math.random() * 30,
-      type: "sun",
-      size: 28 + Math.random() * 20,
-      rotate: Math.floor(Math.random() * 360),
-    }));
+    events.forEach((evt) =>
+      window.addEventListener(evt, tryPlay, { capture: true, passive: true })
+    );
 
-    setFloatingPrasad((prev) => [...prev.slice(-15), ...sunItems]);
-    setBlessingToast("ॐ सूर्याय नमः · Pehla & Dusra Arghya Blessings! ☀️🌾 May Lord Surya illuminate your path!");
+    // Attempt immediate playback on site load
+    tryPlay();
 
-    setTimeout(() => setArghyaSurge(false), 2000);
-    setTimeout(() => {
-      setBlessingToast((curr) =>
-        curr?.includes("सूर्याय") ? null : curr
-      );
-    }, 5000);
-  };
+    return () => {
+      removeInteractionListeners();
+    };
+  }, [active]);
 
   if (!active) return null;
 
   return (
     <>
-      {/* ─── 1. TOP GANGA GHAT SUGARCANE & MARIGOLD TORAN ─── */}
-      <div
-        className="pointer-events-none fixed top-0 left-0 right-0 z-40 overflow-hidden h-6 sm:h-7"
-        aria-hidden="true"
-      >
-        {/* Divine Sunrise Ribbon */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-700 via-orange-500 via-yellow-400 to-amber-700 shadow-[0_0_12px_#f97316]" />
-
-        <div className="flex justify-between items-start px-2 sm:px-6 w-full max-w-7xl mx-auto">
-          {Array.from({ length: 32 }).map((_, i) => {
-            const isCenter = i === 15 || i === 16;
-            const isSugarcaneLeaf = i % 5 === 0;
-            const isHolyDiya = i % 4 === 2;
-
-            if (isCenter) {
-              return (
-                <div key={i} className="flex flex-col items-center">
-                  <div className="w-[1.5px] h-2 bg-gradient-to-b from-amber-500 to-yellow-300" />
-                  <span className="text-xs -mt-1 drop-shadow-[0_0_6px_#f59e0b] scale-110">
-                    ☀️
-                  </span>
-                </div>
-              );
-            }
-
-            return (
-              <div key={i} className="flex flex-col items-center">
-                <div
-                  className="w-[1px] bg-amber-600/40"
-                  style={{ height: `${3 + (i % 3) * 2.5}px` }}
-                />
-                {isHolyDiya ? (
-                  <div className="relative">
-                    <div className="w-2.5 h-1.5 bg-gradient-to-r from-amber-800 to-orange-950 rounded-b-full border border-amber-500/80 shadow-[0_0_5px_#f97316]" />
-                    <div
-                      className={`absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-2 bg-yellow-300 rounded-full blur-[0.4px] transition-transform duration-300 ${
-                        lightsBlink ? "scale-125 opacity-100" : "scale-85 opacity-70"
-                      }`}
-                    />
-                  </div>
-                ) : isSugarcaneLeaf ? (
-                  <div className="w-2 h-2 text-emerald-500/80 text-[10px] -mt-0.5">
-                    🎋
-                  </div>
-                ) : (
-                  <div
-                    className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                      i % 2 === 0
-                        ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-[0_0_5px_#f97316]"
-                        : "bg-yellow-300 shadow-[0_0_4px_#fef08a]"
-                    } ${lightsBlink ? "opacity-100 scale-105" : "opacity-75 scale-90"}`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ─── 2. ARGYA SURGE / SUNRISE GOLDEN FLASH (TRIGGERED ON ACTION) ─── */}
-      <div
-        className={`pointer-events-none fixed inset-0 z-30 transition-opacity duration-1000 ${
-          arghyaSurge ? "opacity-25" : "opacity-0"
-        } bg-gradient-to-t from-orange-600/40 via-amber-500/20 to-transparent`}
+      {/* Hidden Background Chhath Geet Audio (No UI, Low Volume) */}
+      <audio
+        ref={audioRef}
+        src="/chhath-song.mp3"
+        loop
+        preload="auto"
+        className="hidden"
         aria-hidden="true"
       />
 
-      {/* ─── 3. FLOATING THEKUA, DIYAS & MARIGOLD FLOWERS ─── */}
+      {/* ─── 1. TOP CHHATH GHAT TORAN: SUGARCANE, MANGO LEAVES, MARIGOLD & DIYAS ─── */}
       <div
-        className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
+        className="pointer-events-none fixed top-0 left-0 right-0 z-40 overflow-hidden h-8 sm:h-10"
         aria-hidden="true"
       >
-        {floatingPrasad.map((item) => (
-          <div
-            key={item.id}
-            className="absolute -translate-x-1/2 -translate-y-1/2 animate-bounce transition-all duration-1000"
-            style={{
-              left: `${item.x}%`,
-              top: `${item.y}%`,
-              transform: `rotate(${item.rotate}deg)`,
-            }}
-          >
-            {item.type === "thekua" && (
-              <div
-                className="relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#b45309] via-[#92400e] to-[#78350f] border-2 border-[#d97706] shadow-[0_0_12px_#d97706]"
-                style={{ width: `${item.size}px`, height: `${item.size * 0.75}px` }}
-                title="Traditional Bihari Thekua Prasad"
-              >
-                {/* Authentic Thekua Leaf Sancha Vein Mark */}
-                <div className="w-[60%] h-[1.5px] bg-[#fbbf24]/70" />
-                <div className="absolute w-[40%] h-[1px] bg-[#fbbf24]/50 rotate-45" />
-                <div className="absolute w-[40%] h-[1px] bg-[#fbbf24]/50 -rotate-45" />
-              </div>
-            )}
+        {/* Top Surya Arghya Golden-Saffron Line */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-700 via-orange-500 via-yellow-400 to-amber-700 shadow-[0_0_14px_#f97316]" />
 
-            {item.type === "sun" && (
-              <div className="text-2xl animate-spin duration-3000 drop-shadow-[0_0_14px_#f59e0b]">
-                ☀️
-              </div>
-            )}
+        {/* Hanging Marigold Scallop & Mango Leaf Garland SVG */}
+        <svg
+          className="w-full h-8 sm:h-10"
+          viewBox="0 0 1440 44"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            <linearGradient id="marigoldGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#ea580c" />
+              <stop offset="50%" stopColor="#facc15" />
+              <stop offset="100%" stopColor="#ea580c" />
+            </linearGradient>
+          </defs>
 
-            {item.type === "diya" && (
-              <div className="text-xl drop-shadow-[0_0_10px_#f97316]">
-                🪔
-              </div>
-            )}
+          {/* Repeating Scalloped Marigold Garlands */}
+          {Array.from({ length: 12 }).map((_, idx) => {
+            const xStart = idx * 120;
+            const xMid = xStart + 60;
+            const xEnd = xStart + 120;
+            return (
+              <g key={idx}>
+                {/* Garland Swag */}
+                <path
+                  d={`M ${xStart} 2 Q ${xMid} 30 ${xEnd} 2`}
+                  stroke="url(#marigoldGrad)"
+                  strokeWidth="3.5"
+                  strokeDasharray="6 3"
+                  fill="none"
+                  opacity="0.85"
+                />
+                {/* Mango Leaf (Aam Pallav) at each knot */}
+                <path
+                  d={`M ${xStart} 2 L ${xStart - 4} 14 L ${xStart} 19 L ${xStart + 4} 14 Z`}
+                  fill="#15803d"
+                  stroke="#22c55e"
+                  strokeWidth="0.7"
+                />
+                {/* Hanging Diya at center of every second swag */}
+                {idx % 2 === 0 && (
+                  <g transform={`translate(${xMid}, 18)`}>
+                    <line x1="0" y1="-8" x2="0" y2="2" stroke="#f59e0b" strokeWidth="1" />
+                    {/* Clay Diya Bowl */}
+                    <path
+                      d="M -7 3 Q 0 10 7 3 Z"
+                      fill="#9a3412"
+                      stroke="#f59e0b"
+                      strokeWidth="1"
+                    />
+                    {/* Diya Flame */}
+                    <ellipse
+                      cx="0"
+                      cy={flameFlicker ? "0" : "0.5"}
+                      rx={flameFlicker ? "2.3" : "1.8"}
+                      ry={flameFlicker ? "4" : "3.2"}
+                      fill="#fde047"
+                    />
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
 
-            {item.type === "flower" && (
-              <div className="text-lg drop-shadow-[0_0_8px_#f59e0b]">
-                🌼
-              </div>
-            )}
+      {/* ─── 2. SIDE MARIGOLD LADI (VERTICAL GARLANDS ON DESKTOP EDGES) ─── */}
+      <div
+        className="pointer-events-none fixed top-10 left-2 bottom-24 z-20 hidden xl:flex flex-col items-center justify-between opacity-35"
+        aria-hidden="true"
+      >
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${
+                i % 2 === 0
+                  ? "bg-orange-500 shadow-[0_0_6px_#f97316]"
+                  : "bg-yellow-400 shadow-[0_0_5px_#facc15]"
+              }`}
+            />
+            <div className="w-[1px] h-4 bg-amber-500/40" />
           </div>
         ))}
       </div>
 
-      {/* ─── 4. CORNER MOTIFS: BAMBOO SOOP (सूप), SUGARCANE & THEKUA ─── */}
-      {/* Top Right: Sacred Chhath Soop with Thekua & Coconut */}
       <div
-        className="pointer-events-none fixed top-14 right-2 z-10 opacity-25 hidden xl:block"
+        className="pointer-events-none fixed top-10 right-2 bottom-24 z-20 hidden xl:flex flex-col items-center justify-between opacity-35"
         aria-hidden="true"
       >
-        <svg width="170" height="170" viewBox="0 0 200 200" fill="none">
-          {/* Bamboo Soop Basket Base */}
-          <path
-            d="M40 70 L160 70 L145 160 C145 175 55 175 55 160 Z"
-            fill="#d97706"
-            fillOpacity="0.25"
-            stroke="#f59e0b"
-            strokeWidth="2.5"
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${
+                i % 2 === 0
+                  ? "bg-yellow-400 shadow-[0_0_5px_#facc15]"
+                  : "bg-orange-500 shadow-[0_0_6px_#f97316]"
+              }`}
+            />
+            <div className="w-[1px] h-4 bg-amber-500/40" />
+          </div>
+        ))}
+      </div>
+
+      {/* ─── 3. BOTTOM PATNA CHHATH GHAT SCENE (GANGA RIVER, STEPS, SUGARCANE, SOOP & FLOATING DIYAS) ─── */}
+      <div
+        className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 overflow-hidden h-20 sm:h-28"
+        aria-hidden="true"
+      >
+        {/* Warm Sunset/Sunrise Horizon Glow */}
+        <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-[#1a0a2a]/90 via-orange-950/25 to-transparent" />
+
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            {/* Surya Dev Arghya Sun Gradient */}
+            <radialGradient id="suryaGlow" cx="50%" cy="100%" r="60%">
+              <stop offset="0%" stopColor="#fde047" stopOpacity="0.85" />
+              <stop offset="45%" stopColor="#f97316" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
+            </radialGradient>
+
+            {/* River Ganga Water Gradient */}
+            <linearGradient id="gangaWater" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1e1b4b" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#090514" stopOpacity="0.95" />
+            </linearGradient>
+
+            {/* Ghat Steps Gradient */}
+            <linearGradient id="ghatStone" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#78350f" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#451a03" stopOpacity="0.95" />
+            </linearGradient>
+          </defs>
+
+          {/* ── Rising/Setting Arghya Surya Dev at Center Horizon ── */}
+          <circle cx="720" cy="88" r="56" fill="url(#suryaGlow)" />
+          <circle
+            cx="720"
+            cy="88"
+            r="26"
+            fill="#f59e0b"
+            fillOpacity="0.7"
+            stroke="#fde047"
+            strokeWidth="1.5"
           />
-          {/* Soop Bamboo Weave Lines */}
-          <line x1="50" y1="100" x2="150" y2="100" stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 3" />
-          <line x1="60" y1="130" x2="140" y2="130" stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 3" />
-          {/* Traditional Red/Orange Vermillion (Pila/Lal Sindoor) Stripe */}
-          <path d="M100 65 L100 165" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
 
-          {/* Fresh Coconut (श्रीफल) */}
-          <circle cx="100" cy="90" r="18" fill="#78350f" stroke="#fbbf24" strokeWidth="2" />
-          <circle cx="100" cy="85" r="5" fill="#fef08a" />
+          {/* ── Left Patna Ganga Ghat Steps (घाट की सीढ़ियाँ) ── */}
+          <g>
+            <polygon points="0,42 150,42 170,58 0,58" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="0,58 195,58 215,74 0,74" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="0,74 240,74 265,90 0,90" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="0,90 290,90 315,108 0,108" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
 
-          {/* Thekua Pieces in Soop */}
-          <ellipse cx="75" cy="110" rx="14" ry="9" fill="#92400e" stroke="#f59e0b" strokeWidth="1.5" transform="rotate(-15 75 110)" />
-          <ellipse cx="125" cy="110" rx="14" ry="9" fill="#92400e" stroke="#f59e0b" strokeWidth="1.5" transform="rotate(15 125 110)" />
-          
-          {/* Sugarcane stalks rising behind */}
-          <path d="M25 180 L75 25" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" />
-          <path d="M175 180 L125 25" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" />
+            {/* Left Sugarcane Canopy (ईख का मंडप) */}
+            <g transform="translate(55, 8)">
+              <line x1="0" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
+              <line x1="12" y1="75" x2="25" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
+              <line x1="44" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
+              <line x1="32" y1="75" x2="20" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
+              {/* Sugarcane Leaves */}
+              <path d="M 22 8 Q 5 -2 -8 10" stroke="#22c55e" strokeWidth="2" fill="none" />
+              <path d="M 24 8 Q 42 -2 55 10" stroke="#22c55e" strokeWidth="2" fill="none" />
+              <path d="M 22 14 Q 8 6 -4 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
+              <path d="M 24 14 Q 38 6 50 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
+              {/* Red Cloth Tie at Top */}
+              <circle cx="23" cy="10" r="3.5" fill="#dc2626" />
+            </g>
 
-          {/* Golden Sun rising in backdrop */}
-          <circle cx="100" cy="40" r="16" fill="#f59e0b" fillOpacity="0.4" stroke="#fbbf24" strokeWidth="1.5" />
+            {/* Left Bamboo Soop (सूप) with Thekua, Coconut & Fruits on Ghat Step */}
+            <g transform="translate(145, 56)">
+              {/* Bamboo Soop Base */}
+              <path
+                d="M 0 12 L 48 12 L 42 26 C 40 30 8 30 6 26 Z"
+                fill="#b45309"
+                stroke="#f59e0b"
+                strokeWidth="1.5"
+              />
+              {/* Sindoor Markings on Soop */}
+              <line x1="16" y1="13" x2="16" y2="26" stroke="#ef4444" strokeWidth="2" />
+              <line x1="32" y1="13" x2="32" y2="26" stroke="#ef4444" strokeWidth="2" />
+              {/* Coconut (नारियल) */}
+              <circle cx="24" cy="12" r="7" fill="#78350f" stroke="#fbbf24" strokeWidth="1" />
+              <circle cx="24" cy="10" r="2" fill="#ef4444" />
+              {/* Thekua Prasad Stack */}
+              <ellipse cx="11" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
+              <ellipse cx="13" cy="11" rx="5.5" ry="3.5" fill="#78350f" stroke="#f59e0b" strokeWidth="0.9" />
+              <ellipse cx="37" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
+              {/* Lit Diya on Soop Corner */}
+              <circle cx="44" cy="10" r="3" fill="#fde047" />
+            </g>
+          </g>
+
+          {/* ── Right Patna Ganga Ghat Steps (घाट की सीढ़ियाँ) ── */}
+          <g>
+            <polygon points="1440,42 1290,42 1270,58 1440,58" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="1440,58 1245,58 1225,74 1440,74" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="1440,74 1200,74 1175,90 1440,90" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+            <polygon points="1440,90 1150,90 1125,108 1440,108" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
+
+            {/* Right Sugarcane Canopy (ईख का मंडप) */}
+            <g transform="translate(1335, 8)">
+              <line x1="0" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
+              <line x1="12" y1="75" x2="25" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
+              <line x1="44" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
+              <line x1="32" y1="75" x2="20" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
+              {/* Sugarcane Leaves */}
+              <path d="M 22 8 Q 5 -2 -8 10" stroke="#22c55e" strokeWidth="2" fill="none" />
+              <path d="M 24 8 Q 42 -2 55 10" stroke="#22c55e" strokeWidth="2" fill="none" />
+              <path d="M 22 14 Q 8 6 -4 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
+              <path d="M 24 14 Q 38 6 50 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
+              <circle cx="23" cy="10" r="3.5" fill="#dc2626" />
+            </g>
+
+            {/* Right Bamboo Daura & Soop with Thekua & Banana Cluster */}
+            <g transform="translate(1240, 56)">
+              <path
+                d="M 0 12 L 48 12 L 42 26 C 40 30 8 30 6 26 Z"
+                fill="#b45309"
+                stroke="#f59e0b"
+                strokeWidth="1.5"
+              />
+              <line x1="16" y1="13" x2="16" y2="26" stroke="#ef4444" strokeWidth="2" />
+              <line x1="32" y1="13" x2="32" y2="26" stroke="#ef4444" strokeWidth="2" />
+              <circle cx="24" cy="12" r="7" fill="#78350f" stroke="#fbbf24" strokeWidth="1" />
+              <circle cx="24" cy="10" r="2" fill="#ef4444" />
+              <ellipse cx="11" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
+              <ellipse cx="37" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
+              <ellipse cx="35" cy="11" rx="5.5" ry="3.5" fill="#78350f" stroke="#f59e0b" strokeWidth="0.9" />
+              <circle cx="4" cy="10" r="3" fill="#fde047" />
+            </g>
+          </g>
+
+          {/* ── River Ganga Flowing Water & Golden Reflections ── */}
+          <path
+            d="M 0 88 Q 360 82 720 88 T 1440 88 L 1440 120 L 0 120 Z"
+            fill="url(#gangaWater)"
+          />
+
+          {/* Shimmering Surya Reflection Ripples on Ganga */}
+          <ellipse cx="720" cy="96" rx="65" ry="2.5" fill="#fde047" fillOpacity="0.45" />
+          <ellipse cx="720" cy="104" rx="48" ry="2" fill="#f97316" fillOpacity="0.4" />
+          <ellipse cx="720" cy="112" rx="30" ry="1.5" fill="#fde047" fillOpacity="0.35" />
+
+          {/* Gentle River Wave Lines */}
+          <path
+            d="M 180 98 Q 260 94 340 98 T 500 98"
+            stroke="#fbbf24"
+            strokeWidth="1"
+            strokeOpacity="0.3"
+            fill="none"
+          />
+          <path
+            d="M 940 100 Q 1020 96 1100 100 T 1260 100"
+            stroke="#fbbf24"
+            strokeWidth="1"
+            strokeOpacity="0.3"
+            fill="none"
+          />
+
+          {/* ── Floating Diyas (दीपदान) on River Ganga ── */}
+          {[
+            { x: 250, y: 97, scale: 0.9 },
+            { x: 390, y: 105, scale: 1.05 },
+            { x: 540, y: 96, scale: 0.85 },
+            { x: 645, y: 107, scale: 1.1 },
+            { x: 795, y: 106, scale: 1.1 },
+            { x: 910, y: 96, scale: 0.85 },
+            { x: 1055, y: 105, scale: 1.05 },
+            { x: 1190, y: 97, scale: 0.9 },
+          ].map((diya, i) => (
+            <g
+              key={i}
+              transform={`translate(${diya.x}, ${diya.y}) scale(${diya.scale})`}
+            >
+              {/* Water Glow Reflection under Diya */}
+              <ellipse
+                cx="0"
+                cy="6"
+                rx="11"
+                ry="2.5"
+                fill="#f59e0b"
+                fillOpacity={flameFlicker ? "0.45" : "0.25"}
+              />
+              {/* Earthen Clay Diya Boat */}
+              <path
+                d="M -9 0 Q 0 8 9 0 Z"
+                fill="#9a3412"
+                stroke="#f59e0b"
+                strokeWidth="1"
+              />
+              {/* Glowing Flame */}
+              <path
+                d="M 0 -9 C 3 -5 3 -1 0 0 C -3 -1 -3 -5 0 -9 Z"
+                fill="#fde047"
+              />
+              <circle
+                cx="0"
+                cy="-3"
+                r={flameFlicker ? "2" : "1.4"}
+                fill="#ffffff"
+              />
+            </g>
+          ))}
         </svg>
       </div>
-
-      {/* Bottom Left: River Ganga Ghat with Floating Diya */}
-      <div
-        className="pointer-events-none fixed bottom-4 left-4 z-10 opacity-20 hidden xl:block"
-        aria-hidden="true"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl animate-pulse">☀️</span>
-          <div className="font-mono text-xs text-amber-300">
-            <span className="block font-bold">छठ महापर्व · पटना</span>
-            <span className="text-[10px] text-cream/70">CNLU Campus · Bihar</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 5. INTERACTIVE KHARNA & CHHATH MAHAPARV WIDGET (BOTTOM-RIGHT) ─── */}
-      <aside
-        aria-label="Chhath Mahaparv & Kharna Celebration"
-        className="fixed bottom-5 right-5 z-40 hidden sm:flex flex-col items-end gap-2 select-none"
-      >
-        {/* Blessing Toast Popup */}
-        {blessingToast && (
-          <div className="bg-[#120722] border-2 border-amber-500/80 px-4 py-2.5 text-xs font-mono text-cream shadow-[4px_4px_0px_0px_#000000] max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex items-start gap-2">
-              <Sun className="w-4 h-4 text-amber-400 shrink-0 mt-0.5 animate-spin" />
-              <p className="leading-snug text-cream">{blessingToast}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Sale pill — if still active */}
-        {saleActive && (
-          <Link
-            href="/registration"
-            className="flex items-center gap-2 px-3 py-1.5 bg-gold text-[#0b0714] font-black text-[10px] uppercase tracking-wider hover:bg-gold/90 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000000] whitespace-nowrap"
-          >
-            ☀️ Festive Sale · ₹1,000 — Claim Now →
-          </Link>
-        )}
-
-        {/* Kharna & Chhath Mahaparv Main Card */}
-        <div className="flex flex-col bg-[#0d0718]/95 border-2 border-amber-500/70 p-3 shadow-[5px_5px_0px_0px_#000000] backdrop-blur-md font-mono min-w-[260px]">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-7 h-7 rounded-none bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center border border-yellow-200 shadow-[0_0_8px_#f59e0b] cursor-pointer hover:scale-105 transition-transform"
-                onClick={triggerArghya}
-                title="Click to offer Surya Arghya!"
-              >
-                <Sun className="w-4 h-4 text-[#0b0714]" />
-              </div>
-              <div>
-                <div className="text-amber-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                  <span>जय छठी मईया</span>
-                  <span className="text-xs">☀️</span>
-                </div>
-                <div className="text-[9px] text-cream/60">
-                  छठ महापर्व · खरना स्पेशल
-                </div>
-              </div>
-            </div>
-
-            <span className="text-[9px] text-amber-300/80 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5">
-              Patna, Bihar
-            </span>
-          </div>
-
-          {/* Interactive Prasad & Arghya Action Buttons */}
-          <div className="grid grid-cols-2 gap-1.5 mt-1">
-            <button
-              onClick={triggerThekuaPrasad}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              title="Click to receive authentic Thekua Prasad"
-            >
-              <span>ठेकुआ लें</span>
-              <span className="text-xs">🥮</span>
-            </button>
-
-            <button
-              onClick={triggerArghya}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/50 text-orange-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              title="Click to offer Surya Arghya"
-            >
-              <span>अर्घ्य दें</span>
-              <span className="text-xs">☀️</span>
-            </button>
-          </div>
-
-          <div className="text-[9px] text-cream/50 text-center mt-2 italic">
-            Ganga Ghat · CNLU Patna
-          </div>
-        </div>
-      </aside>
     </>
   );
 }

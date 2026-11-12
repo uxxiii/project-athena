@@ -842,7 +842,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         <div className="flex justify-between py-1">
                           <span className="text-cream/50">REGISTRATION FEE:</span>
                           <span className="text-emerald-400 font-bold">
-                            ₹{effectiveFee.toLocaleString("en-IN")} {isDiwaliActive ? "(Diwali Dhamaka Offer)" : ""}{" "}
+                            ₹{effectiveFee.toLocaleString("en-IN")} {isDiwaliActive ? "(Festive Offer)" : ""}{" "}
                             (UPI Receipt Uploaded)
                           </span>
                         </div>
@@ -865,7 +865,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         onClick={() => setShowKajuKatli(true)}
                         className="text-xs bg-gold text-[#0b0714] font-bold shadow-[2px_2px_0px_0px_#000]"
                       >
-                        🪔 View Diwali Mithai (Kaju Katli)
+                        ☀️ Receive Chhath Prasad (Thekua)
                       </Button>
                       <Button
                         href="/"

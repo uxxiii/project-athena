@@ -164,7 +164,7 @@ export function Navbar() {
               <div className="pt-3 border-t border-white/10 space-y-2">
                 {isDiwali && (
                   <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b0714] border border-gold/40 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">
-                    <span>🪔 Shubh Deepavali Offer</span>
+                    <span>☀️ छठ महापर्व · पटना</span>
                     <span>{isDiwaliOffer ? "₹1,000 Flat" : "Live"}</span>
                   </div>
                 )}
