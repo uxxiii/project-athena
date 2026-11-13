@@ -15,6 +15,7 @@ import {
   X,
   Calendar,
   MapPin,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -315,17 +316,30 @@ export default function HomePage() {
               </p>
 
               {/* Tactile Buttons with Clean Black Shadows */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-5 pt-2">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-4 pt-2">
                 <Link href="/events/athena-summit#register" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto px-9 py-4 text-sm sm:text-base font-extrabold uppercase tracking-wider bg-gold text-[#0b0714] border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
+                  <button className="w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-extrabold uppercase tracking-wider bg-gold text-[#0b0714] border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
                     <span>Register Now</span>
                     <ArrowRight size={18} />
                   </button>
                 </Link>
 
                 <a href="#events" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto px-9 py-4 text-sm sm:text-base font-bold uppercase tracking-wider bg-[#140b24] text-cream border-2 border-white/25 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:border-white hover:text-white hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
+                  <button className="w-full sm:w-auto px-7 py-4 text-sm sm:text-base font-bold uppercase tracking-wider bg-[#140b24] text-cream border-2 border-white/25 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:border-white hover:text-white hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
                     <span>View Committees</span>
+                  </button>
+                </a>
+
+                <a
+                  href="/brochure/athena-summit.pdf"
+                  download="Athena-Summit-Delegate-Brochure.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                >
+                  <button className="w-full sm:w-auto px-7 py-4 text-sm sm:text-base font-bold uppercase tracking-wider bg-[#140b24] text-gold border-2 border-gold/50 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:border-gold hover:bg-gold/10 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
+                    <BookOpen size={17} />
+                    <span>Delegate Brochure</span>
                   </button>
                 </a>
               </div>

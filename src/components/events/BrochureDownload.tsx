@@ -40,7 +40,13 @@ export function BrochureDownload({
           </div>
 
           {brochureUrl ? (
-            <Button href={brochureUrl} download className="whitespace-nowrap relative flex-shrink-0">
+            <Button
+              href={brochureUrl}
+              download="Athena-Summit-Delegate-Brochure.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap relative flex-shrink-0"
+            >
               <Download size={16} />
               Download Brochure
             </Button>

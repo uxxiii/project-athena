@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, ArrowDown, Lock, BadgeCheck } from "lucide-react";
+import { Calendar, MapPin, ArrowDown, Lock, BadgeCheck, Download } from "lucide-react";
 import type { SummitEvent } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -131,6 +131,20 @@ export function EventHero({ event }: EventHeroProps) {
                   <Button href="#committees" size="lg" variant="outline">
                     View Committees ({event.committees.length})
                   </Button>
+                  {event.brochureUrl && (
+                    <Button
+                      href={event.brochureUrl}
+                      download="Athena-Summit-Delegate-Brochure.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="lg"
+                      variant="outline"
+                      className="border-gold/40 hover:border-gold text-gold"
+                    >
+                      <Download size={15} className="mr-1 text-gold" />
+                      <span>Delegate Brochure</span>
+                    </Button>
+                  )}
                   <Button href="#venue" size="lg" variant="outline" className="border-gold/30 hover:border-gold">
                     <MapPin size={15} className="mr-1 text-gold" />
                     <span>Venue: CNLU</span>
