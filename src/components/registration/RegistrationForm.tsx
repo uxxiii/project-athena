@@ -930,6 +930,11 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   )}
                 </div>
               )}
+              {step < 6 && (
+                <p className="mt-3 text-center text-[10px] text-cream/35 font-mono">
+                  * Note: Registration fees once paid are strictly non-refundable.
+                </p>
+              )}
             </form>
           </>
         )}

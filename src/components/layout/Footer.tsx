@@ -165,7 +165,10 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-14 pt-6 border-t border-white/10 text-xs text-cream/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-mono">
-          <p>© {new Date().getFullYear()} Project Athena. All rights reserved. Built for collegiate delegates.</p>
+          <div>
+            <p>© {new Date().getFullYear()} Project Athena. All rights reserved. Built for collegiate delegates.</p>
+            <p className="text-[9px] text-cream/30 mt-1">* All delegate registrations and fees are non-refundable.</p>
+          </div>
           <div className="flex items-center gap-4 text-cream/60">
             <span className="font-bold">Athena Summit • &ldquo;We debate, therefore we lead.&rdquo;</span>
           </div>
