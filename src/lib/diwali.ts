@@ -1,10 +1,12 @@
 /**
- * Diwali Festive Season Configuration
- * Controls the festive decorations, Diwali sale pricing, and kaju katli celebrations.
- * Automatically reverts to default theme when the festive season ends.
+ * Festive & Special Day Configuration
+ * Controls the Children's Day (14th November) revamp, festive decorations, and special celebrations.
+ * Automatically reverts to default theme at 12:00 midnight tonight (2026-11-14T23:59:59+05:30).
  */
 
-export const DIWALI_FESTIVE_END_ISO = "2026-11-15T23:59:59+05:30";
+export const DIWALI_FESTIVE_END_ISO = "2026-11-14T23:59:59+05:30";
+export const CHILDRENS_DAY_START_ISO = "2026-11-14T00:00:00+05:30";
+export const CHILDRENS_DAY_END_ISO = "2026-11-14T23:59:59+05:30";
 export const DIWALI_SALE_DEADLINE_ISO = "2026-11-09T12:00:00+05:30";
 
 export const DIWALI_PRICING = {
@@ -17,8 +19,25 @@ export const DIWALI_PRICING = {
 };
 
 /**
- * Checks if the Diwali festive theme decorations should be displayed.
- * Enabled through mid-November 2026 or via NEXT_PUBLIC_DIWALI_SEASON=true.
+ * Checks if today is Children's Day (14th November 2026, until 11:59:59 PM IST).
+ */
+export function isChildrensDay(): boolean {
+  const now = new Date().getTime();
+  const start = new Date(CHILDRENS_DAY_START_ISO).getTime();
+  const end = new Date(CHILDRENS_DAY_END_ISO).getTime();
+  return now >= start && now <= end;
+}
+
+/**
+ * Milliseconds remaining until Children's Day ends at 12:00 midnight IST.
+ */
+export function getMsUntilChildrensDayEnd(): number {
+  return Math.max(0, new Date(CHILDRENS_DAY_END_ISO).getTime() - Date.now());
+}
+
+/**
+ * Checks if the festive/special-day theme decorations should be displayed.
+ * Automatically expires at 2026-11-14T23:59:59+05:30 (12:00 midnight tonight).
  */
 export function isDiwaliSeason(): boolean {
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_DIWALI_SEASON === "false") {

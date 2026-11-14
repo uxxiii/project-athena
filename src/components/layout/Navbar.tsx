@@ -8,7 +8,7 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { isDiwaliSeason, isDiwaliSaleActive } from "@/lib/diwali";
+import { isDiwaliSeason, isDiwaliSaleActive, getMsUntilChildrensDayEnd } from "@/lib/diwali";
 
 const desktopNavLinks = [
   { href: "/about", label: "About" },
@@ -32,8 +32,17 @@ export function Navbar() {
 
   useEffect(() => {
     setMobileOpen(false);
-    setIsDiwali(isDiwaliSeason());
+    const active = isDiwaliSeason();
+    setIsDiwali(active);
     setIsDiwaliOffer(isDiwaliSaleActive());
+    if (!active) return;
+    const msRemaining = getMsUntilChildrensDayEnd();
+    if (msRemaining <= 0) {
+      setIsDiwali(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsDiwali(false), msRemaining + 250);
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   return (
@@ -110,7 +119,7 @@ export function Navbar() {
                 className="font-extrabold text-xs uppercase px-4 sm:px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] flex items-center gap-1.5"
               >
                 <span>{isDiwaliOffer ? "Register · ₹1,000" : "Register"}</span>
-                {isDiwali && <span className="text-sm">☀️</span>}
+                {isDiwali && <span className="text-sm">🎈</span>}
                 <ArrowRight size={14} />
               </Button>
             </Link>
@@ -163,9 +172,9 @@ export function Navbar() {
               ))}
               <div className="pt-3 border-t border-white/10 space-y-2">
                 {isDiwali && (
-                  <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b0714] border border-gold/40 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">
-                    <span>☀️ छठ महापर्व · पटना</span>
-                    <span>{isDiwaliOffer ? "₹1,000 Flat" : "Live"}</span>
+                  <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b0714] border border-sky-400/50 text-sky-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+                    <span>🎈 Happy Children&apos;s Day · Nov 14</span>
+                    <span className="text-gold">{isDiwaliOffer ? "₹1,000 Flat" : "Young Leaders"}</span>
                   </div>
                 )}
                 <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)}>

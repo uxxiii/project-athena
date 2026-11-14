@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { committees as committeeData } from "@/data/committees";
 import { HomeSponsorSection } from "@/components/sponsors/HomeSponsorSection";
-import { isDiwaliSeason, isDiwaliSaleActive } from "@/lib/diwali";
+import { isDiwaliSeason, isDiwaliSaleActive, getMsUntilChildrensDayEnd } from "@/lib/diwali";
 
 function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -180,9 +180,20 @@ export default function HomePage() {
       }
     }
     loadRegistrationCount();
-    setIsDiwali(isDiwaliSeason());
+    const active = isDiwaliSeason();
+    setIsDiwali(active);
+    let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+    if (active) {
+      const msRemaining = getMsUntilChildrensDayEnd();
+      if (msRemaining <= 0) {
+        setIsDiwali(false);
+      } else {
+        expiryTimer = setTimeout(() => setIsDiwali(false), msRemaining + 250);
+      }
+    }
     return () => {
       ignore = true;
+      if (expiryTimer) clearTimeout(expiryTimer);
     };
   }, []);
 
@@ -239,11 +250,11 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-32 sm:w-44 h-32 sm:h-44 border-l-2 border-t-2 border-white/15 pointer-events-none" />
         <div className="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 border-r-2 border-t-2 border-white/15 pointer-events-none" />
 
-        {/* Chhath Festive Ganga Ghat Accent in hero */}
+        {/* Children's Day Festive Accent in hero */}
         {isDiwali && (
-          <div className="absolute bottom-0 left-0 right-0 hidden md:flex justify-between items-end pointer-events-none px-6 pb-4 z-10 opacity-60">
-            {["🌾", "🪔", "☀️", "🪔", "🌾"].map((d, i) => (
-              <span key={i} className="text-xl" style={{ animationDelay: `${i * 0.3}s` }}>{d}</span>
+          <div className="absolute bottom-0 left-0 right-0 hidden md:flex justify-between items-end pointer-events-none px-6 pb-4 z-10 opacity-75">
+            {["🎈", "🚀", "🌹", "🏆", "📚", "⭐", "🎈"].map((d, i) => (
+              <span key={i} className="text-xl" style={{ animationDelay: `${i * 0.25}s` }}>{d}</span>
             ))}
           </div>
         )}
@@ -280,12 +291,13 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="text-center lg:text-left space-y-8"
             >
-              {/* Chhath & Kharna Festive Announcement Banner */}
+              {/* Children's Day (Bal Diwas) Special Announcement Banner */}
               {isDiwali && (
                 <div className="flex justify-center lg:justify-start">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-orange-600/30 to-amber-500/20 border-2 border-gold/60 text-cream font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
-                    <span className="text-amber-400">☀️</span>
-                    <span>छठ महापर्व एवं खरना की शुभकामनाएं · CNLU, Patna</span>
+                  <div className="inline-flex flex-wrap items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500/25 via-purple-500/30 to-rose-500/25 border-2 border-sky-400 text-cream font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
+                    <span className="text-base">🎈</span>
+                    <span>Happy Children&apos;s Day (Bal Diwas) · Celebrating Young Leaders &amp; Debaters</span>
+                    <span className="px-1.5 py-0.5 bg-gold text-[#0b0714] border border-black text-[10px] font-black">14 NOV</span>
                   </div>
                 </div>
               )}
@@ -419,6 +431,62 @@ export default function HomePage() {
         {/* Crisp Sawtooth Border Bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-3 bg-white/10 pointer-events-none neo-sawtooth" />
       </section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          CHILDREN'S DAY (BAL DIWAS — 14 NOV) SPECIAL REVAMP SECTION
+          Automatically hides at 12:00 midnight tonight (2026-11-14T23:59:59+05:30)
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {isDiwali && (
+        <section className="py-10 sm:py-12 border-b-2 border-sky-400/30 bg-gradient-to-r from-[#0e1528] via-[#170d2b] to-[#1f0d24] relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="border-2 border-sky-400/60 bg-[#120a1f]/95 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000]">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-3 max-w-3xl">
+                  <div className="inline-flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 bg-sky-400 text-[#0b0714] border-2 border-black font-mono text-[11px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
+                      🎈 Children&apos;s Day Special · 14 November 2026
+                    </span>
+                    <span className="px-2.5 py-1 bg-[#1b1030] border border-gold/50 text-gold font-mono text-[10px] font-bold uppercase tracking-wider">
+                      🌹 Bal Diwas Tribute · Live Today Until 12:00 Midnight
+                    </span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-cream tracking-tight leading-tight">
+                    Today&apos;s Young Voices,{" "}
+                    <span className="text-gold">Tomorrow&apos;s Global Leaders.</span>
+                  </h2>
+                  <p className="text-sm sm:text-base text-cream/80 leading-relaxed">
+                    built by students, for students — this Children&apos;s Day, Project Athena celebrates every young debater, parliamentarian, and changemaker from Class 5 to 12 stepping up to the podium, while dedicating <strong className="text-gold">100% of summit proceeds</strong> toward childhood literacy &amp; education kits for underserved children across Bihar.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 shrink-0">
+                  <div className="p-3 sm:p-4 bg-[#180e29] border-2 border-sky-400/50 text-center shadow-[3px_3px_0px_0px_#000]">
+                    <div className="text-xl sm:text-2xl mb-1">🎙️</div>
+                    <p className="font-mono text-[10px] sm:text-xs font-extrabold uppercase text-sky-300">
+                      Young Diplomats
+                    </p>
+                    <p className="text-[10px] text-cream/60 font-mono mt-0.5">Class 5–12 &amp; Uni</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-[#180e29] border-2 border-gold/60 text-center shadow-[3px_3px_0px_0px_#000]">
+                    <div className="text-xl sm:text-2xl mb-1">📚</div>
+                    <p className="font-mono text-[10px] sm:text-xs font-extrabold uppercase text-gold">
+                      Child Education
+                    </p>
+                    <p className="text-[10px] text-cream/60 font-mono mt-0.5">100% NGO Impact</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-[#180e29] border-2 border-rose-400/50 text-center shadow-[3px_3px_0px_0px_#000]">
+                    <div className="text-xl sm:text-2xl mb-1">🏆</div>
+                    <p className="font-mono text-[10px] sm:text-xs font-extrabold uppercase text-rose-300">
+                      Future Leaders
+                    </p>
+                    <p className="text-[10px] text-cream/60 font-mono mt-0.5">CNLU Patna</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           SECTION 2 — STATS STRIP (Clean & Grounded Neo-Brutalist)

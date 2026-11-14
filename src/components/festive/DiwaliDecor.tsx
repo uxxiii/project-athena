@@ -1,396 +1,286 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { isDiwaliSeason } from "@/lib/diwali";
+import { useEffect, useState } from "react";
+import { isDiwaliSeason, getMsUntilChildrensDayEnd } from "@/lib/diwali";
 
+/**
+ * Children's Day (Bal Diwas — 14th November) Site-Wide Festive Revamp:
+ * 1. Top Neo-Brutalist Colorful Paper Bunting Garland with Stars & Soaring Paper Airplanes
+ * 2. Subtle Desktop Side Floating Trails (Paper Airplanes, Balloons, Stars & Young Diplomat Badges)
+ * 3. Bottom Young Leaders & Children's Day Vector Illustration (Floating Balloons, Paper Airplanes,
+ *    Open Books of Diplomacy, Young Leaders' Podium with Gavel & Trophy, and Chacha Nehru's Red Rose)
+ * 4. Automatically unmounts at 12:00 midnight tonight (2026-11-14T23:59:59+05:30).
+ */
 export function DiwaliDecor() {
   const [active, setActive] = useState(false);
-  const [flameFlicker, setFlameFlicker] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const seasonActive = isDiwaliSeason();
-    setActive(seasonActive);
+    const isNowActive = isDiwaliSeason();
+    setActive(isNowActive);
+    if (!isNowActive) return;
 
-    const flickerInterval = setInterval(() => {
-      setFlameFlicker((f) => !f);
-    }, 1100);
+    const msRemaining = getMsUntilChildrensDayEnd();
+    if (msRemaining <= 0) {
+      setActive(false);
+      return;
+    }
 
-    return () => clearInterval(flickerInterval);
+    const expiryTimer = setTimeout(() => {
+      setActive(false);
+    }, msRemaining + 250);
+
+    return () => clearTimeout(expiryTimer);
   }, []);
-
-  // Background Chhath song playback at soft volume (no UI)
-  useEffect(() => {
-    if (!active) return;
-
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = 0.2; // Low, peaceful ambient volume
-
-    const tryPlay = () => {
-      if (!audio) return;
-      audio.volume = 0.2;
-      audio
-        .play()
-        .then(() => {
-          removeInteractionListeners();
-        })
-        .catch(() => {
-          // Autoplay blocked until first user interaction; listeners below will trigger it
-        });
-    };
-
-    const events = ["click", "touchstart", "keydown", "pointerdown", "scroll"];
-
-    const removeInteractionListeners = () => {
-      events.forEach((evt) =>
-        window.removeEventListener(evt, tryPlay, { capture: true })
-      );
-    };
-
-    events.forEach((evt) =>
-      window.addEventListener(evt, tryPlay, { capture: true, passive: true })
-    );
-
-    // Attempt immediate playback on site load
-    tryPlay();
-
-    return () => {
-      removeInteractionListeners();
-    };
-  }, [active]);
 
   if (!active) return null;
 
+  const buntingColors = [
+    "#38bdf8", // Sky Blue
+    "#facc15", // Sunshine Gold
+    "#fb7185", // Coral Rose
+    "#34d399", // Emerald Mint
+    "#a855f7", // Royal Purple
+    "#fb923c", // Tangerine
+  ];
+
   return (
-    <>
-      {/* Hidden Background Chhath Geet Audio (No UI, Low Volume) */}
-      <audio
-        ref={audioRef}
-        src="/chhath-song.mp3"
-        loop
-        preload="auto"
-        className="hidden"
-        aria-hidden="true"
-      />
-
-      {/* ─── 1. TOP CHHATH GHAT TORAN: SUGARCANE, MANGO LEAVES, MARIGOLD & DIYAS ─── */}
-      <div
-        className="pointer-events-none fixed top-0 left-0 right-0 z-40 overflow-hidden h-8 sm:h-10"
-        aria-hidden="true"
-      >
-        {/* Top Surya Arghya Golden-Saffron Line */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-700 via-orange-500 via-yellow-400 to-amber-700 shadow-[0_0_14px_#f97316]" />
-
-        {/* Hanging Marigold Scallop & Mango Leaf Garland SVG */}
-        <svg
-          className="w-full h-8 sm:h-10"
-          viewBox="0 0 1440 44"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          <defs>
-            <linearGradient id="marigoldGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#ea580c" />
-              <stop offset="50%" stopColor="#facc15" />
-              <stop offset="100%" stopColor="#ea580c" />
-            </linearGradient>
-          </defs>
-
-          {/* Repeating Scalloped Marigold Garlands */}
-          {Array.from({ length: 12 }).map((_, idx) => {
-            const xStart = idx * 120;
-            const xMid = xStart + 60;
-            const xEnd = xStart + 120;
-            return (
-              <g key={idx}>
-                {/* Garland Swag */}
-                <path
-                  d={`M ${xStart} 2 Q ${xMid} 30 ${xEnd} 2`}
-                  stroke="url(#marigoldGrad)"
-                  strokeWidth="3.5"
-                  strokeDasharray="6 3"
-                  fill="none"
-                  opacity="0.85"
-                />
-                {/* Mango Leaf (Aam Pallav) at each knot */}
-                <path
-                  d={`M ${xStart} 2 L ${xStart - 4} 14 L ${xStart} 19 L ${xStart + 4} 14 Z`}
-                  fill="#15803d"
-                  stroke="#22c55e"
-                  strokeWidth="0.7"
-                />
-                {/* Hanging Diya at center of every second swag */}
-                {idx % 2 === 0 && (
-                  <g transform={`translate(${xMid}, 18)`}>
-                    <line x1="0" y1="-8" x2="0" y2="2" stroke="#f59e0b" strokeWidth="1" />
-                    {/* Clay Diya Bowl */}
-                    <path
-                      d="M -7 3 Q 0 10 7 3 Z"
-                      fill="#9a3412"
-                      stroke="#f59e0b"
-                      strokeWidth="1"
-                    />
-                    {/* Diya Flame */}
-                    <ellipse
-                      cx="0"
-                      cy={flameFlicker ? "0" : "0.5"}
-                      rx={flameFlicker ? "2.3" : "1.8"}
-                      ry={flameFlicker ? "4" : "3.2"}
-                      fill="#fde047"
-                    />
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-
-      {/* ─── 2. SIDE MARIGOLD LADI (VERTICAL GARLANDS ON DESKTOP EDGES) ─── */}
-      <div
-        className="pointer-events-none fixed top-10 left-2 bottom-24 z-20 hidden xl:flex flex-col items-center justify-between opacity-35"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 14 }).map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
+    <div
+      className="pointer-events-none fixed inset-0 z-40 overflow-hidden select-none"
+      aria-hidden="true"
+    >
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          1. TOP CHILDREN'S DAY COLORFUL BUNTING GARLAND & PAPER AIRPLANES
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="absolute top-0 left-0 right-0 flex justify-around items-start">
+        {Array.from({ length: 18 }).map((_, i) => {
+          const color = buntingColors[i % buntingColors.length];
+          return (
             <div
-              className={`w-2.5 h-2.5 rounded-full ${
-                i % 2 === 0
-                  ? "bg-orange-500 shadow-[0_0_6px_#f97316]"
-                  : "bg-yellow-400 shadow-[0_0_5px_#facc15]"
-              }`}
-            />
-            <div className="w-[1px] h-4 bg-amber-500/40" />
-          </div>
-        ))}
-      </div>
-
-      <div
-        className="pointer-events-none fixed top-10 right-2 bottom-24 z-20 hidden xl:flex flex-col items-center justify-between opacity-35"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 14 }).map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div
-              className={`w-2.5 h-2.5 rounded-full ${
-                i % 2 === 0
-                  ? "bg-yellow-400 shadow-[0_0_5px_#facc15]"
-                  : "bg-orange-500 shadow-[0_0_6px_#f97316]"
-              }`}
-            />
-            <div className="w-[1px] h-4 bg-amber-500/40" />
-          </div>
-        ))}
-      </div>
-
-      {/* ─── 3. BOTTOM PATNA CHHATH GHAT SCENE (GANGA RIVER, STEPS, SUGARCANE, SOOP & FLOATING DIYAS) ─── */}
-      <div
-        className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 overflow-hidden h-20 sm:h-28"
-        aria-hidden="true"
-      >
-        {/* Warm Sunset/Sunrise Horizon Glow */}
-        <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-[#1a0a2a]/90 via-orange-950/25 to-transparent" />
-
-        <svg
-          className="w-full h-full"
-          viewBox="0 0 1440 120"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          <defs>
-            {/* Surya Dev Arghya Sun Gradient */}
-            <radialGradient id="suryaGlow" cx="50%" cy="100%" r="60%">
-              <stop offset="0%" stopColor="#fde047" stopOpacity="0.85" />
-              <stop offset="45%" stopColor="#f97316" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
-            </radialGradient>
-
-            {/* River Ganga Water Gradient */}
-            <linearGradient id="gangaWater" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1e1b4b" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="#090514" stopOpacity="0.95" />
-            </linearGradient>
-
-            {/* Ghat Steps Gradient */}
-            <linearGradient id="ghatStone" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#78350f" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#451a03" stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
-
-          {/* ── Rising/Setting Arghya Surya Dev at Center Horizon ── */}
-          <circle cx="720" cy="88" r="56" fill="url(#suryaGlow)" />
-          <circle
-            cx="720"
-            cy="88"
-            r="26"
-            fill="#f59e0b"
-            fillOpacity="0.7"
-            stroke="#fde047"
-            strokeWidth="1.5"
-          />
-
-          {/* ── Left Patna Ganga Ghat Steps (घाट की सीढ़ियाँ) ── */}
-          <g>
-            <polygon points="0,42 150,42 170,58 0,58" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="0,58 195,58 215,74 0,74" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="0,74 240,74 265,90 0,90" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="0,90 290,90 315,108 0,108" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-
-            {/* Left Sugarcane Canopy (ईख का मंडप) */}
-            <g transform="translate(55, 8)">
-              <line x1="0" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
-              <line x1="12" y1="75" x2="25" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
-              <line x1="44" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
-              <line x1="32" y1="75" x2="20" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
-              {/* Sugarcane Leaves */}
-              <path d="M 22 8 Q 5 -2 -8 10" stroke="#22c55e" strokeWidth="2" fill="none" />
-              <path d="M 24 8 Q 42 -2 55 10" stroke="#22c55e" strokeWidth="2" fill="none" />
-              <path d="M 22 14 Q 8 6 -4 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
-              <path d="M 24 14 Q 38 6 50 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
-              {/* Red Cloth Tie at Top */}
-              <circle cx="23" cy="10" r="3.5" fill="#dc2626" />
-            </g>
-
-            {/* Left Bamboo Soop (सूप) with Thekua, Coconut & Fruits on Ghat Step */}
-            <g transform="translate(145, 56)">
-              {/* Bamboo Soop Base */}
-              <path
-                d="M 0 12 L 48 12 L 42 26 C 40 30 8 30 6 26 Z"
-                fill="#b45309"
-                stroke="#f59e0b"
-                strokeWidth="1.5"
-              />
-              {/* Sindoor Markings on Soop */}
-              <line x1="16" y1="13" x2="16" y2="26" stroke="#ef4444" strokeWidth="2" />
-              <line x1="32" y1="13" x2="32" y2="26" stroke="#ef4444" strokeWidth="2" />
-              {/* Coconut (नारियल) */}
-              <circle cx="24" cy="12" r="7" fill="#78350f" stroke="#fbbf24" strokeWidth="1" />
-              <circle cx="24" cy="10" r="2" fill="#ef4444" />
-              {/* Thekua Prasad Stack */}
-              <ellipse cx="11" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
-              <ellipse cx="13" cy="11" rx="5.5" ry="3.5" fill="#78350f" stroke="#f59e0b" strokeWidth="0.9" />
-              <ellipse cx="37" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
-              {/* Lit Diya on Soop Corner */}
-              <circle cx="44" cy="10" r="3" fill="#fde047" />
-            </g>
-          </g>
-
-          {/* ── Right Patna Ganga Ghat Steps (घाट की सीढ़ियाँ) ── */}
-          <g>
-            <polygon points="1440,42 1290,42 1270,58 1440,58" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="1440,58 1245,58 1225,74 1440,74" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="1440,74 1200,74 1175,90 1440,90" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-            <polygon points="1440,90 1150,90 1125,108 1440,108" fill="url(#ghatStone)" stroke="#d97706" strokeWidth="0.8" strokeOpacity="0.5" />
-
-            {/* Right Sugarcane Canopy (ईख का मंडप) */}
-            <g transform="translate(1335, 8)">
-              <line x1="0" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
-              <line x1="12" y1="75" x2="25" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
-              <line x1="44" y1="75" x2="22" y2="5" stroke="#15803d" strokeWidth="3" strokeLinecap="round" />
-              <line x1="32" y1="75" x2="20" y2="5" stroke="#16a34a" strokeWidth="2.8" strokeLinecap="round" />
-              {/* Sugarcane Leaves */}
-              <path d="M 22 8 Q 5 -2 -8 10" stroke="#22c55e" strokeWidth="2" fill="none" />
-              <path d="M 24 8 Q 42 -2 55 10" stroke="#22c55e" strokeWidth="2" fill="none" />
-              <path d="M 22 14 Q 8 6 -4 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
-              <path d="M 24 14 Q 38 6 50 18" stroke="#16a34a" strokeWidth="1.8" fill="none" />
-              <circle cx="23" cy="10" r="3.5" fill="#dc2626" />
-            </g>
-
-            {/* Right Bamboo Daura & Soop with Thekua & Banana Cluster */}
-            <g transform="translate(1240, 56)">
-              <path
-                d="M 0 12 L 48 12 L 42 26 C 40 30 8 30 6 26 Z"
-                fill="#b45309"
-                stroke="#f59e0b"
-                strokeWidth="1.5"
-              />
-              <line x1="16" y1="13" x2="16" y2="26" stroke="#ef4444" strokeWidth="2" />
-              <line x1="32" y1="13" x2="32" y2="26" stroke="#ef4444" strokeWidth="2" />
-              <circle cx="24" cy="12" r="7" fill="#78350f" stroke="#fbbf24" strokeWidth="1" />
-              <circle cx="24" cy="10" r="2" fill="#ef4444" />
-              <ellipse cx="11" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
-              <ellipse cx="37" cy="14" rx="6" ry="4" fill="#92400e" stroke="#fbbf24" strokeWidth="0.9" />
-              <ellipse cx="35" cy="11" rx="5.5" ry="3.5" fill="#78350f" stroke="#f59e0b" strokeWidth="0.9" />
-              <circle cx="4" cy="10" r="3" fill="#fde047" />
-            </g>
-          </g>
-
-          {/* ── River Ganga Flowing Water & Golden Reflections ── */}
-          <path
-            d="M 0 88 Q 360 82 720 88 T 1440 88 L 1440 120 L 0 120 Z"
-            fill="url(#gangaWater)"
-          />
-
-          {/* Shimmering Surya Reflection Ripples on Ganga */}
-          <ellipse cx="720" cy="96" rx="65" ry="2.5" fill="#fde047" fillOpacity="0.45" />
-          <ellipse cx="720" cy="104" rx="48" ry="2" fill="#f97316" fillOpacity="0.4" />
-          <ellipse cx="720" cy="112" rx="30" ry="1.5" fill="#fde047" fillOpacity="0.35" />
-
-          {/* Gentle River Wave Lines */}
-          <path
-            d="M 180 98 Q 260 94 340 98 T 500 98"
-            stroke="#fbbf24"
-            strokeWidth="1"
-            strokeOpacity="0.3"
-            fill="none"
-          />
-          <path
-            d="M 940 100 Q 1020 96 1100 100 T 1260 100"
-            stroke="#fbbf24"
-            strokeWidth="1"
-            strokeOpacity="0.3"
-            fill="none"
-          />
-
-          {/* ── Floating Diyas (दीपदान) on River Ganga ── */}
-          {[
-            { x: 250, y: 97, scale: 0.9 },
-            { x: 390, y: 105, scale: 1.05 },
-            { x: 540, y: 96, scale: 0.85 },
-            { x: 645, y: 107, scale: 1.1 },
-            { x: 795, y: 106, scale: 1.1 },
-            { x: 910, y: 96, scale: 0.85 },
-            { x: 1055, y: 105, scale: 1.05 },
-            { x: 1190, y: 97, scale: 0.9 },
-          ].map((diya, i) => (
-            <g
               key={i}
-              transform={`translate(${diya.x}, ${diya.y}) scale(${diya.scale})`}
+              className="flex flex-col items-center"
+              style={{
+                animation: `gentleSway ${2.8 + (i % 4) * 0.4}s ease-in-out infinite alternate`,
+              }}
             >
-              {/* Water Glow Reflection under Diya */}
-              <ellipse
-                cx="0"
-                cy="6"
-                rx="11"
-                ry="2.5"
-                fill="#f59e0b"
-                fillOpacity={flameFlicker ? "0.45" : "0.25"}
-              />
-              {/* Earthen Clay Diya Boat */}
-              <path
-                d="M -9 0 Q 0 8 9 0 Z"
-                fill="#9a3412"
-                stroke="#f59e0b"
-                strokeWidth="1"
-              />
-              {/* Glowing Flame */}
-              <path
-                d="M 0 -9 C 3 -5 3 -1 0 0 C -3 -1 -3 -5 0 -9 Z"
-                fill="#fde047"
-              />
-              <circle
-                cx="0"
-                cy="-3"
-                r={flameFlicker ? "2" : "1.4"}
-                fill="#ffffff"
-              />
-            </g>
-          ))}
+              {/* Pennant Triangle Flag */}
+              <svg
+                width="34"
+                height="30"
+                viewBox="0 0 34 30"
+                className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.85)]"
+              >
+                <line x1="0" y1="1" x2="34" y2="1" stroke="#facc15" strokeWidth="2" />
+                <polygon
+                  points="3,2 31,2 17,27"
+                  fill={color}
+                  stroke="#0b0714"
+                  strokeWidth="2"
+                />
+                <circle cx="17" cy="10" r="2.2" fill="#ffffff" opacity="0.85" />
+              </svg>
+              {/* Alternating hanging Star or Paper Plane charm */}
+              {i % 3 === 0 && (
+                <div className="-mt-1 text-[11px] drop-shadow-[0_2px_4px_rgba(250,204,21,0.65)] animate-pulse">
+                  ⭐
+                </div>
+              )}
+              {i % 5 === 2 && (
+                <div className="-mt-1 text-[11px] drop-shadow-[0_2px_4px_rgba(56,189,248,0.65)]">
+                  🎈
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          2. DESKTOP SIDE TRAILS (Paper Airplanes, Balloons & Stars)
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="hidden xl:flex fixed left-3 top-1/3 flex-col items-center gap-6 opacity-75">
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#38bdf8] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 3.5s ease-in-out infinite alternate" }}
+        >
+          🎈
+        </div>
+        <div className="w-[1px] h-10 bg-gradient-to-b from-[#38bdf8]/60 to-[#facc15]/60" />
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#facc15] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 4.2s ease-in-out infinite alternate-reverse" }}
+        >
+          🚀
+        </div>
+        <div className="w-[1px] h-10 bg-gradient-to-b from-[#facc15]/60 to-[#fb7185]/60" />
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#fb7185] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 3.8s ease-in-out infinite alternate" }}
+        >
+          🌹
+        </div>
+      </div>
+
+      <div className="hidden xl:flex fixed right-3 top-1/3 flex-col items-center gap-6 opacity-75">
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#facc15] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 3.9s ease-in-out infinite alternate" }}
+        >
+          🏆
+        </div>
+        <div className="w-[1px] h-10 bg-gradient-to-b from-[#facc15]/60 to-[#34d399]/60" />
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#34d399] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 4.4s ease-in-out infinite alternate-reverse" }}
+        >
+          📚
+        </div>
+        <div className="w-[1px] h-10 bg-gradient-to-b from-[#34d399]/60 to-[#38bdf8]/60" />
+        <div
+          className="w-8 h-8 rounded-none bg-[#140b24]/90 border-2 border-[#38bdf8] shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-sm"
+          style={{ animation: "floatUpDown 3.6s ease-in-out infinite alternate" }}
+        >
+          🎈
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          3. BOTTOM CHILDREN'S DAY / YOUNG DIPLOMATS SKYLINE ILLUSTRATION
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="fixed bottom-0 left-0 right-0 h-24 sm:h-28 pointer-events-none flex flex-col justify-end">
+        <svg
+          viewBox="0 0 1440 130"
+          className="w-full h-full preserve-3d"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="cdBottomGlow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0" />
+              <stop offset="55%" stopColor="#a855f7" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#0b0714" stopOpacity="0.92" />
+            </linearGradient>
+            <linearGradient id="goldRibbon" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="25%" stopColor="#facc15" />
+              <stop offset="50%" stopColor="#fb7185" />
+              <stop offset="75%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#a855f7" />
+            </linearGradient>
+          </defs>
+
+          {/* Soft ambient base glow */}
+          <rect x="0" y="20" width="1440" height="110" fill="url(#cdBottomGlow)" />
+
+          {/* Dashed Paper-Airplane Flight Trajectory Across Screen */}
+          <path
+            d="M40,105 Q360,35 720,75 T1390,45"
+            fill="none"
+            stroke="#facc15"
+            strokeWidth="1.5"
+            strokeDasharray="6 6"
+            opacity="0.45"
+          />
+
+          {/* Paper Airplane #1 (Left-Center Soaring) */}
+          <g transform="translate(250, 56) rotate(-14)">
+            <polygon
+              points="0,12 34,0 18,16 14,24"
+              fill="#38bdf8"
+              stroke="#0b0714"
+              strokeWidth="1.5"
+            />
+            <polygon points="0,12 34,0 14,13" fill="#bae6fd" />
+          </g>
+
+          {/* Paper Airplane #2 (Right-Center Soaring) */}
+          <g transform="translate(1140, 48) rotate(-18)">
+            <polygon
+              points="0,12 34,0 18,16 14,24"
+              fill="#facc15"
+              stroke="#0b0714"
+              strokeWidth="1.5"
+            />
+            <polygon points="0,12 34,0 14,13" fill="#fef08a" />
+          </g>
+
+          {/* Left Cluster: Colorful Floating Balloons & Open Book */}
+          <g transform="translate(85, 38)">
+            {/* Strings */}
+            <path d="M12,34 Q15,55 22,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            <path d="M36,28 Q32,52 24,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            <path d="M58,38 Q45,58 26,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            {/* Coral Balloon */}
+            <ellipse cx="12" cy="20" rx="11" ry="14" fill="#fb7185" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="8" cy="15" rx="2.5" ry="4" fill="#ffe4e6" opacity="0.7" />
+            {/* Gold Balloon */}
+            <ellipse cx="36" cy="14" rx="12" ry="15" fill="#facc15" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="32" cy="9" rx="2.5" ry="4" fill="#fef9c3" opacity="0.8" />
+            {/* Sky Balloon */}
+            <ellipse cx="58" cy="24" rx="11" ry="14" fill="#38bdf8" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="54" cy="19" rx="2.5" ry="4" fill="#e0f2fe" opacity="0.75" />
+          </g>
+
+          {/* Center Emblem: Young Leaders' Diplomacy Podium, Red Rose & Star Crest */}
+          <g transform="translate(650, 44)">
+            {/* Radiant Glow Behind Podium */}
+            <circle cx="70" cy="48" r="46" fill="#facc15" opacity="0.14" />
+            {/* Open Book Base */}
+            <path
+              d="M25,74 Q48,65 70,74 Q92,65 115,74 L115,82 Q92,73 70,82 Q48,73 25,82 Z"
+              fill="#f8fafc"
+              stroke="#0b0714"
+              strokeWidth="2"
+            />
+            {/* Golden Star Trophy / Gavel Crest */}
+            <polygon
+              points="70,18 75,32 90,32 78,41 82,55 70,46 58,55 62,41 50,32 65,32"
+              fill="#facc15"
+              stroke="#0b0714"
+              strokeWidth="2"
+            />
+            {/* Twinkling Side Stars */}
+            <circle cx="32" cy="36" r="3" fill="#38bdf8" />
+            <circle cx="108" cy="36" r="3" fill="#fb7185" />
+          </g>
+
+          {/* Right Cluster: Floating Balloons & Graduation Stars */}
+          <g transform="translate(1275, 38)">
+            <path d="M14,36 Q20,56 28,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            <path d="M38,26 Q35,52 30,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            <path d="M60,34 Q48,56 32,78" stroke="#e2e8f0" strokeWidth="1.2" fill="none" opacity="0.7" />
+            {/* Mint Balloon */}
+            <ellipse cx="14" cy="22" rx="11" ry="14" fill="#34d399" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="10" cy="17" rx="2.5" ry="4" fill="#d1fae5" opacity="0.75" />
+            {/* Purple Balloon */}
+            <ellipse cx="38" cy="13" rx="12" ry="15" fill="#a855f7" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="34" cy="8" rx="2.5" ry="4" fill="#f3e8ff" opacity="0.75" />
+            {/* Rose Balloon */}
+            <ellipse cx="60" cy="21" rx="11" ry="14" fill="#fb7185" stroke="#0b0714" strokeWidth="1.5" />
+            <ellipse cx="56" cy="16" rx="2.5" ry="4" fill="#ffe4e6" opacity="0.75" />
+          </g>
+
+          {/* Bottom Rainbow Neo-Brutalist Trim Bar */}
+          <rect x="0" y="124" width="1440" height="6" fill="url(#goldRibbon)" />
         </svg>
       </div>
-    </>
+
+      <style jsx>{`
+        @keyframes gentleSway {
+          0% {
+            transform: rotate(-3deg);
+          }
+          100% {
+            transform: rotate(3deg);
+          }
+        }
+        @keyframes floatUpDown {
+          0% {
+            transform: translateY(-4px);
+          }
+          100% {
+            transform: translateY(5px);
+          }
+        }
+      `}</style>
+    </div>
   );
 }

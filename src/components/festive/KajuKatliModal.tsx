@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
+import { isDiwaliSeason, getMsUntilChildrensDayEnd } from "@/lib/diwali";
 
 interface KajuKatliModalProps {
   isOpen: boolean;
@@ -17,6 +18,20 @@ export function KajuKatliModal({
   registrationId,
 }: KajuKatliModalProps) {
   const [showShimmer, setShowShimmer] = useState(true);
+  const [isChildrensDayActive, setIsChildrensDayActive] = useState(false);
+
+  useEffect(() => {
+    const active = isDiwaliSeason();
+    setIsChildrensDayActive(active);
+    if (!active) return;
+    const msRemaining = getMsUntilChildrensDayEnd();
+    if (msRemaining <= 0) {
+      setIsChildrensDayActive(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsChildrensDayActive(false), msRemaining + 250);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,228 +50,200 @@ export function KajuKatliModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
     >
       <div className="relative w-full max-w-lg bg-[#0b0714] border-2 border-gold p-6 md:p-8 shadow-[8px_8px_0px_0px_#d4af37] text-center space-y-6 overflow-hidden">
-        {/* Background Chhath Sunrise Glow */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Background Festive Glow */}
+        <div className="absolute -top-24 -left-24 w-48 h-48 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-gold/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-cream/60 hover:text-gold transition-colors p-1"
-          aria-label="Close Thekua Prasad modal"
+          aria-label="Close celebration modal"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Chhath Mahaparv Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-amber-500/15 border border-amber-400/50 text-amber-300 text-xs font-mono font-bold uppercase tracking-widest shadow-[2px_2px_0px_0px_#000]">
-          <span>☀️ जय छठी मईया • छठ महापर्व का महाप्रसाद!</span>
+        {/* Top Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-sky-500/15 border border-sky-400/50 text-sky-300 text-xs font-mono font-bold uppercase tracking-widest shadow-[2px_2px_0px_0px_#000]">
+          <span>
+            {isChildrensDayActive
+              ? "🎈 Happy Children's Day • Young Diplomat Honour!"
+              : "🏛️ Project Athena • Official Delegate Welcome!"}
+          </span>
         </div>
 
-        {/* Traditional Bihari Thekua on Sacred Bamboo Soop Showcase */}
+        {/* Center Illustration */}
         <div className="relative py-3 flex items-center justify-center">
-          {/* Left Sugarcane & Diya */}
+          {/* Left Floating Motif */}
           <div className="absolute left-3 sm:left-6 flex flex-col items-center">
-            <span className="text-xl animate-bounce">🎋</span>
-            <div className="text-2xl animate-pulse mt-1" role="img" aria-label="Diya">
-              🪔
+            <span className="text-xl animate-bounce">
+              {isChildrensDayActive ? "🎈" : "🏛️"}
+            </span>
+            <div className="text-2xl animate-pulse mt-1" role="img" aria-label="Rose">
+              {isChildrensDayActive ? "🌹" : "⚖️"}
             </div>
-            <span className="text-[10px] font-mono text-amber-300 font-bold uppercase mt-1">
-              अर्घ्य
+            <span className="text-[10px] font-mono text-sky-300 font-bold uppercase mt-1">
+              {isChildrensDayActive ? "Bal Diwas" : "Debate"}
             </span>
           </div>
 
-          {/* Right Sugarcane & Diya */}
+          {/* Right Floating Motif */}
           <div
             className="absolute right-3 sm:right-6 flex flex-col items-center"
             style={{ animationDelay: "0.4s" }}
           >
-            <span className="text-xl animate-bounce">🎋</span>
-            <div className="text-2xl animate-pulse mt-1" role="img" aria-label="Diya">
-              🪔
+            <span className="text-xl animate-bounce">
+              {isChildrensDayActive ? "🚀" : "✨"}
+            </span>
+            <div className="text-2xl animate-pulse mt-1" role="img" aria-label="Trophy">
+              🏆
             </div>
-            <span className="text-[10px] font-mono text-amber-300 font-bold uppercase mt-1">
-              महाप्रसाद
+            <span className="text-[10px] font-mono text-gold font-bold uppercase mt-1">
+              {isChildrensDayActive ? "Leader" : "Lead"}
             </span>
           </div>
 
-          {/* Golden Surya Halo Ring Underneath */}
+          {/* Golden Halo Ring Underneath */}
           <div
-            className="absolute w-44 h-44 rounded-full border border-amber-500/35 opacity-50 animate-spin"
+            className="absolute w-44 h-44 rounded-full border border-sky-400/35 opacity-50 animate-spin"
             style={{ animationDuration: "28s" }}
           >
-            <div className="absolute inset-2 rounded-full border border-dashed border-orange-400/40" />
+            <div className="absolute inset-2 rounded-full border border-dashed border-gold/40" />
           </div>
 
-          {/* Authentic Bihari Thekua & Bamboo Soop SVG Art */}
-          <div
-            className="relative group cursor-pointer z-10"
-            onClick={() => setShowShimmer((s) => !s)}
-            title="Authentic Gur & Desi Ghee Bihari Thekua Prasad"
-          >
-            {/* Warm Gur & Ghee Golden Glow */}
-            <div
-              className={`absolute inset-0 bg-amber-500/35 blur-xl rounded-full transition-transform duration-700 ${
-                showShimmer ? "scale-115 opacity-95" : "scale-100 opacity-65"
-              }`}
-            />
-
+          {/* Young Diplomat Trophy, Paper Plane & Sweet Treat SVG */}
+          <div className="relative z-10 transform hover:scale-105 transition-transform duration-300">
             <svg
-              width="156"
-              height="144"
-              viewBox="0 0 180 165"
+              width="165"
+              height="165"
+              viewBox="0 0 200 200"
               fill="none"
-              className="relative transition-transform duration-500 hover:scale-105 drop-shadow-[0_6px_16px_rgba(217,119,6,0.45)]"
+              xmlns="http://www.w3.org/2000/svg"
+              className="drop-shadow-[0_12px_28px_rgba(56,189,248,0.35)]"
             >
               <defs>
-                {/* Bamboo Soop Gradient */}
-                <linearGradient id="soopBase" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#eab308" />
-                  <stop offset="50%" stopColor="#ca8a04" />
-                  <stop offset="100%" stopColor="#854d0e" />
+                <radialGradient id="crestBg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#1e1b4b" />
+                  <stop offset="70%" stopColor="#120a1f" />
+                  <stop offset="100%" stopColor="#0b0714" />
+                </radialGradient>
+                <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#fef08a" />
+                  <stop offset="50%" stopColor="#facc15" />
+                  <stop offset="100%" stopColor="#ca8a04" />
                 </linearGradient>
-
-                {/* Crispy Fried Gur Thekua Gradient */}
-                <radialGradient id="thekuaCrust" cx="45%" cy="40%" r="55%">
-                  <stop offset="0%" stopColor="#d97706" />
-                  <stop offset="55%" stopColor="#92400e" />
-                  <stop offset="90%" stopColor="#78350f" />
-                  <stop offset="100%" stopColor="#451a03" />
-                </radialGradient>
-
-                <radialGradient id="thekuaSecond" cx="50%" cy="45%" r="55%">
-                  <stop offset="0%" stopColor="#b45309" />
-                  <stop offset="65%" stopColor="#78350f" />
-                  <stop offset="100%" stopColor="#451a03" />
-                </radialGradient>
               </defs>
 
-              {/* ── Sacred Bamboo Soop (सूप) Tray ── */}
-              <path
-                d="M 22 38 L 158 38 L 146 136 C 144 152 36 152 34 136 Z"
-                fill="url(#soopBase)"
-                stroke="#fde047"
-                strokeWidth="3"
+              {/* Outer Neo-Brutalist Badge Shield */}
+              <circle
+                cx="100"
+                cy="100"
+                r="76"
+                fill="url(#crestBg)"
+                stroke="#38bdf8"
+                strokeWidth="4"
               />
-              {/* Bamboo Weave Texture */}
-              <line x1="30" y1="65" x2="150" y2="65" stroke="#713f12" strokeWidth="1" strokeDasharray="5 3" strokeOpacity="0.55" />
-              <line x1="33" y1="95" x2="147" y2="95" stroke="#713f12" strokeWidth="1" strokeDasharray="5 3" strokeOpacity="0.55" />
-              <line x1="36" y1="125" x2="144" y2="125" stroke="#713f12" strokeWidth="1" strokeDasharray="5 3" strokeOpacity="0.55" />
+              <circle
+                cx="100"
+                cy="100"
+                r="68"
+                fill="none"
+                stroke="#facc15"
+                strokeWidth="1.5"
+                strokeDasharray="5 4"
+              />
 
-              {/* Auspicious Red Sindoor (सिंदूर) Tikka Stripes on Soop Rim */}
-              <line x1="45" y1="36" x2="45" y2="50" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
-              <line x1="90" y1="35" x2="90" y2="51" stroke="#ef4444" strokeWidth="4.5" strokeLinecap="round" />
-              <line x1="135" y1="36" x2="135" y2="50" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
+              {/* Open Book of Diplomacy Base */}
+              <path
+                d="M52,135 Q76,124 100,135 Q124,124 148,135 L148,145 Q124,134 100,145 Q76,134 52,145 Z"
+                fill="#f8fafc"
+                stroke="#0b0714"
+                strokeWidth="2.5"
+              />
 
-              {/* ── Back Left & Right Companion Thekuas ── */}
-              <g transform="translate(56, 76) rotate(-18)">
-                <ellipse
-                  cx="0"
-                  cy="0"
-                  rx="30"
-                  ry="22"
-                  fill="url(#thekuaSecond)"
-                  stroke="#f59e0b"
-                  strokeWidth="1.5"
+              {/* Golden Young Leader Star Trophy */}
+              <polygon
+                points="100,48 110,74 138,74 115,90 124,117 100,101 76,117 85,90 62,74 90,74"
+                fill="url(#trophyGold)"
+                stroke="#0b0714"
+                strokeWidth="2.5"
+              />
+
+              {/* Soaring Paper Airplane */}
+              <g transform="translate(122, 42) rotate(-15)">
+                <polygon
+                  points="0,12 30,0 16,15 12,22"
+                  fill="#38bdf8"
+                  stroke="#0b0714"
+                  strokeWidth="1.8"
                 />
-                <line x1="-18" y1="0" x2="18" y2="0" stroke="#fbbf24" strokeWidth="1.2" strokeOpacity="0.6" />
-                <line x1="-8" y1="-9" x2="0" y2="0" stroke="#fbbf24" strokeWidth="1" strokeOpacity="0.5" />
-                <line x1="-8" y1="9" x2="0" y2="0" stroke="#fbbf24" strokeWidth="1" strokeOpacity="0.5" />
               </g>
 
-              <g transform="translate(124, 78) rotate(18)">
-                <ellipse
-                  cx="0"
-                  cy="0"
-                  rx="30"
-                  ry="22"
-                  fill="url(#thekuaSecond)"
-                  stroke="#f59e0b"
-                  strokeWidth="1.5"
-                />
-                <line x1="-18" y1="0" x2="18" y2="0" stroke="#fbbf24" strokeWidth="1.2" strokeOpacity="0.6" />
-                <line x1="8" y1="-9" x2="0" y2="0" stroke="#fbbf24" strokeWidth="1" strokeOpacity="0.5" />
-                <line x1="8" y1="9" x2="0" y2="0" stroke="#fbbf24" strokeWidth="1" strokeOpacity="0.5" />
-              </g>
-
-              {/* ── Centerpiece Hero Leaf-Shaped Sancha Thekua (ठेकुआ) ── */}
-              <g transform="translate(90, 98)">
-                {/* Scalloped / braided crispy edge of traditional Bihari Thekua */}
-                <path
-                  d="M -46 0 C -44 -22 -22 -34 0 -34 C 22 -34 44 -22 46 0 C 44 22 22 34 0 34 C -22 34 -44 22 -46 0 Z"
-                  fill="url(#thekuaCrust)"
-                  stroke="#fbbf24"
-                  strokeWidth="2.2"
-                />
-                {/* Inner Sancha (Wooden Mould) Leaf & Floral Emboss Pattern */}
-                <ellipse
-                  cx="0"
-                  cy="0"
-                  rx="37"
-                  ry="25"
-                  fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="1"
-                  strokeDasharray="4 2"
-                  strokeOpacity="0.7"
-                />
-                {/* Central Leaf Stem Imprint */}
-                <line x1="-28" y1="0" x2="28" y2="0" stroke="#fde047" strokeWidth="1.8" strokeLinecap="round" strokeOpacity="0.85" />
-                {/* Leaf Veins (Sancha Pattern) */}
-                <line x1="-14" y1="0" x2="-22" y2="-12" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-                <line x1="-14" y1="0" x2="-22" y2="12" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-                <line x1="0" y1="0" x2="-8" y2="-15" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-                <line x1="0" y1="0" x2="-8" y2="15" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-                <line x1="14" y1="0" x2="6" y2="-12" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-                <line x1="14" y1="0" x2="6" y2="12" stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.75" />
-
-                {/* White Coconut & Fennel (Saunf) Specks */}
-                <circle cx="-18" cy="-5" r="1.5" fill="#fef9c3" fillOpacity="0.85" />
-                <circle cx="10" cy="-7" r="1.3" fill="#fef9c3" fillOpacity="0.85" />
-                <circle cx="19" cy="5" r="1.5" fill="#fef9c3" fillOpacity="0.85" />
-                <circle cx="-6" cy="8" r="1.4" fill="#fef9c3" fillOpacity="0.85" />
-              </g>
+              {/* Sparkles */}
+              <circle
+                cx="56"
+                cy="62"
+                r={showShimmer ? "4" : "2.5"}
+                fill="#fb7185"
+                className="transition-all duration-700"
+              />
+              <circle
+                cx="144"
+                cy="106"
+                r={!showShimmer ? "4" : "2.5"}
+                fill="#34d399"
+                className="transition-all duration-700"
+              />
             </svg>
           </div>
         </div>
 
-        {/* Celebration Title & Copy */}
+        {/* Message */}
         <div className="space-y-2">
-          <h3 className="text-2xl sm:text-3xl font-heading font-black uppercase text-cream tracking-tight">
-            Here&apos;s Your <span className="text-gold">Thekua Prasad</span>!
+          <h3 className="text-2xl md:text-3xl font-heading font-bold text-gold">
+            {isChildrensDayActive
+              ? "Happy Children's Day, Young Leader! 🎈"
+              : "Welcome to Athena Summit! 🏛️"}
           </h3>
-          <p className="text-[11px] font-mono text-amber-300/90 uppercase tracking-wider">
-            खरना एवं छठ पूजा का शुद्ध गुड़-घी ठेकुआ महाप्रसाद 🥮🌾
-          </p>
-          <p className="text-xs sm:text-sm text-cream/80 font-sans max-w-sm mx-auto leading-relaxed pt-1">
-            {delegateName ? `Congratulations ${delegateName}! ` : "Congratulations! "}
-            Your registration submission has been safely recorded under ID{" "}
-            <span className="font-mono font-bold text-gold">
-              {registrationId || "ATHENA-REG"}
-            </span>
-            .
+          <p className="text-sm text-cream/85 font-sans max-w-md mx-auto leading-relaxed">
+            {delegateName ? (
+              <>
+                Congratulations <span className="text-gold font-bold">{delegateName}</span>!{" "}
+              </>
+            ) : (
+              "Congratulations! "
+            )}
+            Your registration for <span className="text-gold font-semibold">Athena Summit 2026</span> is confirmed.{" "}
+            {isChildrensDayActive
+              ? "On this special Bal Diwas (14th November), we celebrate your voice, courage, and leadership at the podium!"
+              : "We look forward to welcoming you to the committee floor at CNLU, Patna!"}
           </p>
         </div>
 
-        {/* Verification Protocol Notice */}
-        <div className="bg-[#140b24] border border-gold/30 p-3.5 text-left space-y-1.5 shadow-[2px_2px_0px_0px_#000]">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-cream uppercase tracking-wide">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Allocation Notification Process</span>
+        {/* Registration ID Box */}
+        {registrationId && (
+          <div className="bg-purple-dark/80 border border-gold/40 p-3 max-w-xs mx-auto">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-cream/50">
+              Registration Reference ID
+            </div>
+            <div className="text-sm font-mono font-bold text-gold mt-0.5 select-all">
+              {registrationId}
+            </div>
           </div>
-          <p className="text-[11px] text-cream/70 leading-normal font-sans">
-            To ensure fair and impartial delegate assignment, your committee and portfolio are{" "}
-            <strong>not shown on this public screen</strong>. The Secretariat is currently reviewing your payment screenshot. Once approved, your official Committee &amp; Portfolio allocation along with background guides will be emailed to you directly.
-          </p>
-        </div>
+        )}
 
-        {/* Dismiss Button */}
-        <div>
+        {/* Action Button */}
+        <div className="pt-2">
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gold text-[#0b0714] font-mono font-bold uppercase tracking-wider text-xs border border-black shadow-[4px_4px_0px_0px_#000000] hover:bg-gold/90 transition-all hover:translate-x-0.5 hover:translate-y-0.5 cursor-pointer"
+            className="w-full py-3 px-6 bg-gold hover:bg-gold-light text-[#0b0714] font-mono font-bold text-xs uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
           >
-            ठेकुआ प्रसाद स्वीकार करें &amp; View Pass Summary →
+            <CheckCircle2 className="w-4 h-4" />
+            <span>
+              {isChildrensDayActive
+                ? "Accept Young Diplomat Honour 🎈"
+                : "Continue to Dashboard"}
+            </span>
           </button>
         </div>
       </div>

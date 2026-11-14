@@ -31,7 +31,7 @@ import type { AvailabilitySnapshot, Registration } from "@/lib/types";
 import { PaymentPricingBanner } from "./PaymentPricingBanner";
 import { RegistrationLaunchBanner } from "./RegistrationLaunchBanner";
 import { isRegistrationLaunched } from "@/lib/pricing";
-import { getCurrentRegistrationFee, isDiwaliSaleActive } from "@/lib/diwali";
+import { getCurrentRegistrationFee, isDiwaliSaleActive, isDiwaliSeason, getMsUntilChildrensDayEnd } from "@/lib/diwali";
 import { KajuKatliModal } from "@/components/festive/KajuKatliModal";
 import { RegistrationHelpline } from "./RegistrationHelpline";
 
@@ -59,9 +59,23 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [showKajuKatli, setShowKajuKatli] = useState(false);
   const [selectedIplTeam, setSelectedIplTeam] = useState<string>("Chennai Super Kings");
+  const [isChildrensDay, setIsChildrensDay] = useState(false);
 
   const effectiveFee = getCurrentRegistrationFee();
   const isDiwaliActive = isDiwaliSaleActive();
+
+  useEffect(() => {
+    const active = isDiwaliSeason();
+    setIsChildrensDay(active);
+    if (!active) return;
+    const msRemaining = getMsUntilChildrensDayEnd();
+    if (msRemaining <= 0) {
+      setIsChildrensDay(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsChildrensDay(false), msRemaining + 250);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     setIsFormLaunched(isRegistrationLaunched());
@@ -351,6 +365,13 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   Athena Summit 2026 Registration Dossier
                 </span>
               </div>
+              {isChildrensDay && (
+                <div className="pt-1">
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1 bg-sky-500/20 border border-sky-400/60 text-sky-300 font-mono text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
+                    🎈 Happy Children&apos;s Day! Celebrating every young debater stepping up to lead
+                  </span>
+                </div>
+              )}
               <h2 className="font-heading text-4xl sm:text-5xl font-extrabold uppercase tracking-tight text-cream">
                 Delegate <span className="text-gold">Registration</span>
               </h2>
@@ -865,7 +886,9 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         onClick={() => setShowKajuKatli(true)}
                         className="text-xs bg-gold text-[#0b0714] font-bold shadow-[2px_2px_0px_0px_#000]"
                       >
-                        ☀️ Receive Chhath Prasad (Thekua)
+                        {isChildrensDay
+                          ? "🎈 Claim Children's Day Young Diplomat Badge"
+                          : "🏛️ View Delegate Honour Badge"}
                       </Button>
                       <Button
                         href="/"
