@@ -31,12 +31,23 @@ const emailStyles = `
   }
 `;
 
+export const UN_ROPS_URL =
+  "https://docs.google.com/document/d/1VX57c8XA3AoAjdPA0R-q-jLsZhRptEQs/edit?usp=sharing&ouid=107176384204003614650&rtpof=true&sd=true";
+export const INDIAN_ROPS_URL =
+  "https://docs.google.com/document/d/1hnyFL3LND6BshdJ5DfJ8NydMDbqm3CtoTH8AjDIXlX0/edit?usp=sharing";
+export const BACKGROUND_GUIDE_URL =
+  "https://docs.google.com/document/d/19e9xBjkEdI_K2K2IGOSEd7X6nl_ckOM7TvZjG83qX8I/edit?usp=sharing";
+
 /**
  * Generates an executive-tier confirmation email for Athena Summit with styled resource cards
  */
 export function generateApprovalEmailHtml(registration: Registration): string {
   const portfolioName = getPortfolioName(registration);
   const currentYear = new Date().getFullYear();
+  const commId = (registration.assignedCommittee ?? "").toLowerCase().trim();
+  const isUnCommittee = commId === "unsc" || commId === "unw";
+  const isIndianCommittee = commId === "lok-sabha" || commId === "jpc";
+  const hasBackgroundGuide = isUnCommittee || isIndianCommittee;
 
   return `
 <!DOCTYPE html>
@@ -190,21 +201,24 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                 </tr>
               </table>
 
-              <!-- Resource 2: Rules of Procedure -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #190b2e; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-bottom: 24px;">
+              ${
+                hasBackgroundGuide
+                  ? `
+              <!-- Resource 2: Official Background Guide (UNSC, UNW, Lok Sabha & JPC Only) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #190b2e; border: 1px solid rgba(212,175,55,0.28); border-radius: 10px; margin-bottom: 10px;">
                 <tr>
                   <td style="padding: 14px 16px;">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="left" style="font-size: 13px; color: #ffffff; font-weight: 600;">
-                          ⚖️ Official Rules of Procedure (RoPs)
+                          📘 Official Committee Background Guide
                           <span style="display: block; font-size: 11px; color: #b7a9ce; font-weight: 400; margin-top: 2px;">
-                            Points, motions, voting decorum & resolution drafting rules
+                            Comprehensive agenda dossier, research brief &amp; study guide (${registration.assignedCommittee?.toUpperCase()})
                           </span>
                         </td>
                         <td align="right" style="padding-left: 10px;">
-                          <a href="https://drive.google.com/file/d/1LAKqRpIpe-p48llbc92m8jHwtT9fFdTF/view?usp=sharing" target="_blank" style="background-color: #2e174e; border: 1px solid #d4af37; color: #f0d48c; font-size: 12px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 6px; display: inline-block; white-space: nowrap;">
-                            Download RoPs →
+                          <a href="${BACKGROUND_GUIDE_URL}" target="_blank" style="background-color: #2e174e; border: 1px solid #d4af37; color: #f0d48c; font-size: 12px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 6px; display: inline-block; white-space: nowrap;">
+                            Open Background Guide →
                           </a>
                         </td>
                       </tr>
@@ -212,6 +226,63 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                   </td>
                 </tr>
               </table>
+              `
+                  : ""
+              }
+
+              ${
+                isUnCommittee
+                  ? `
+              <!-- Resource 3A: UN Rules of Procedure (UNSC & UNW Only) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #190b2e; border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 14px 16px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="left" style="font-size: 13px; color: #ffffff; font-weight: 600;">
+                          🇺🇳 Official UN Rules of Procedure (UN RoPs)
+                          <span style="display: block; font-size: 11px; color: #b7a9ce; font-weight: 400; margin-top: 2px;">
+                            UN-M4M procedural rules, caucuses, points, motions &amp; resolution drafting for ${registration.assignedCommittee?.toUpperCase()}
+                          </span>
+                        </td>
+                        <td align="right" style="padding-left: 10px;">
+                          <a href="${UN_ROPS_URL}" target="_blank" style="background-color: #2e174e; border: 1px solid #d4af37; color: #f0d48c; font-size: 12px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 6px; display: inline-block; white-space: nowrap;">
+                            Download UN RoPs →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              `
+                  : isIndianCommittee
+                    ? `
+              <!-- Resource 3B: Indian Parliamentary Rules of Procedure (Lok Sabha & JPC Only) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #190b2e; border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 14px 16px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="left" style="font-size: 13px; color: #ffffff; font-weight: 600;">
+                          🇮🇳 Official Indian Parliamentary Rules of Procedure (RoPs)
+                          <span style="display: block; font-size: 11px; color: #b7a9ce; font-weight: 400; margin-top: 2px;">
+                            Parliamentary Zero Hour, Question Hour, motions &amp; legislative decorum for ${registration.assignedCommittee?.toUpperCase()}
+                          </span>
+                        </td>
+                        <td align="right" style="padding-left: 10px;">
+                          <a href="${INDIAN_ROPS_URL}" target="_blank" style="background-color: #2e174e; border: 1px solid #d4af37; color: #f0d48c; font-size: 12px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 6px; display: inline-block; white-space: nowrap;">
+                            Download Indian RoPs →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              `
+                    : `<div style="margin-bottom: 14px;"></div>`
+              }
 
               <!-- CTA Button -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
