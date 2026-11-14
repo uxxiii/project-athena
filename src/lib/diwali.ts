@@ -164,15 +164,26 @@ export function isSpecialEarlyBirdRegistration(
   return false;
 }
 
+// Special Children's Day Sale exceptions: delegates who made payment within the 9:00–9:30 PM window (₹1,100)
+export const SPECIAL_CHILDRENS_DAY_SALE_SUMMIT_NUMBERS = new Set([155, 156]);
+
 /**
  * Checks whether a registration record was submitted during the Children's Day Sale window
- * (14th November 2026, 9:00 PM – 9:30 PM IST).
+ * (14th November 2026, 9:00 PM – 9:30 PM IST) or is an approved sale exception (155, 156).
  */
 export function isChildrensDaySaleRecord(reg: {
   eventSlug?: string;
   createdAt?: string;
+  id?: string | number;
 }): boolean {
-  if (reg.eventSlug === "mun-picnic" || !reg.createdAt) return false;
+  if (reg.eventSlug === "mun-picnic") return false;
+
+  const num = extractSummitNumber(reg.id);
+  if (SPECIAL_CHILDRENS_DAY_SALE_SUMMIT_NUMBERS.has(num)) return true;
+  const str = String(reg.id ?? "");
+  if (str.includes("100155") || str.includes("100156")) return true;
+
+  if (!reg.createdAt) return false;
   const normalized = /Z|[+-]\d{2}:?\d{2}$/.test(reg.createdAt)
     ? reg.createdAt
     : `${reg.createdAt}Z`;
