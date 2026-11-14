@@ -31,7 +31,14 @@ import type { AvailabilitySnapshot, Registration } from "@/lib/types";
 import { PaymentPricingBanner } from "./PaymentPricingBanner";
 import { RegistrationLaunchBanner } from "./RegistrationLaunchBanner";
 import { isRegistrationLaunched } from "@/lib/pricing";
-import { getCurrentRegistrationFee, isDiwaliSaleActive, isDiwaliSeason, getMsUntilChildrensDayEnd } from "@/lib/diwali";
+import {
+  getCurrentRegistrationFee,
+  isDiwaliSaleActive,
+  isChildrensDaySaleActive,
+  isDiwaliSeason,
+  getMsUntilChildrensDayEnd,
+  getRegistrationFeeForRecord,
+} from "@/lib/diwali";
 import { KajuKatliModal } from "@/components/festive/KajuKatliModal";
 import { RegistrationHelpline } from "./RegistrationHelpline";
 
@@ -61,8 +68,9 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   const [selectedIplTeam, setSelectedIplTeam] = useState<string>("Chennai Super Kings");
   const [isChildrensDay, setIsChildrensDay] = useState(false);
 
-  const effectiveFee = getCurrentRegistrationFee();
-  const isDiwaliActive = isDiwaliSaleActive();
+  const [effectiveFee, setEffectiveFee] = useState(() => getCurrentRegistrationFee());
+  const [isDiwaliActive, setIsDiwaliActive] = useState(() => isDiwaliSaleActive());
+  const [isChildrensSaleActive, setIsChildrensSaleActive] = useState(() => isChildrensDaySaleActive());
 
   useEffect(() => {
     const active = isDiwaliSeason();
@@ -78,8 +86,17 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
   }, []);
 
   useEffect(() => {
-    setIsFormLaunched(isRegistrationLaunched());
-  }, []);
+    const syncSchedule = () => {
+      // Keep step 6 confirmation screen open if delegate already submitted
+      setIsFormLaunched(step === 6 ? true : isRegistrationLaunched());
+      setEffectiveFee(getCurrentRegistrationFee());
+      setIsDiwaliActive(isDiwaliSaleActive());
+      setIsChildrensSaleActive(isChildrensDaySaleActive());
+    };
+    syncSchedule();
+    const timer = setInterval(syncSchedule, 1000);
+    return () => clearInterval(timer);
+  }, [step]);
 
   const form = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema) as never,
@@ -368,7 +385,9 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
               {isChildrensDay && (
                 <div className="pt-1">
                   <span className="inline-flex items-center gap-2 px-3.5 py-1 bg-sky-500/20 border border-sky-400/60 text-sky-300 font-mono text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
-                    🎈 Happy Children&apos;s Day! Celebrating every young debater stepping up to lead
+                    {isChildrensSaleActive
+                      ? "🎈 Children's Day Flash Sale Live (9:00–9:30 PM IST): ₹1,100 Flat!"
+                      : "🎈 Happy Children's Day! Celebrating every young debater stepping up to lead"}
                   </span>
                 </div>
               )}
@@ -863,7 +882,12 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                         <div className="flex justify-between py-1">
                           <span className="text-cream/50">REGISTRATION FEE:</span>
                           <span className="text-emerald-400 font-bold">
-                            ₹{effectiveFee.toLocaleString("en-IN")} {isDiwaliActive ? "(Festive Offer)" : ""}{" "}
+                            ₹{getRegistrationFeeForRecord(result).toLocaleString("en-IN")}{" "}
+                            {getRegistrationFeeForRecord(result) === 1100
+                              ? "(Children's Day Sale)"
+                              : isDiwaliActive
+                                ? "(Festive Offer)"
+                                : ""}{" "}
                             (UPI Receipt Uploaded)
                           </span>
                         </div>

@@ -8,7 +8,13 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { isDiwaliSeason, isDiwaliSaleActive, getMsUntilChildrensDayEnd } from "@/lib/diwali";
+import {
+  isDiwaliSeason,
+  isDiwaliSaleActive,
+  isChildrensDaySaleActive,
+  isChildrensDaySaleUpcomingOrActive,
+  getMsUntilChildrensDayEnd,
+} from "@/lib/diwali";
 
 const desktopNavLinks = [
   { href: "/about", label: "About" },
@@ -29,20 +35,28 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDiwali, setIsDiwali] = useState(false);
   const [isDiwaliOffer, setIsDiwaliOffer] = useState(false);
+  const [isChildrensSale, setIsChildrensSale] = useState(false);
+  const [isSaleUpcomingOrLive, setIsSaleUpcomingOrLive] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
-    const active = isDiwaliSeason();
-    setIsDiwali(active);
-    setIsDiwaliOffer(isDiwaliSaleActive());
-    if (!active) return;
+    const syncNav = () => {
+      setIsDiwali(isDiwaliSeason());
+      setIsDiwaliOffer(isDiwaliSaleActive());
+      setIsChildrensSale(isChildrensDaySaleActive());
+      setIsSaleUpcomingOrLive(isChildrensDaySaleUpcomingOrActive());
+    };
+    syncNav();
+    const interval = setInterval(syncNav, 1000);
     const msRemaining = getMsUntilChildrensDayEnd();
-    if (msRemaining <= 0) {
-      setIsDiwali(false);
-      return;
-    }
-    const timer = setTimeout(() => setIsDiwali(false), msRemaining + 250);
-    return () => clearTimeout(timer);
+    const timer =
+      msRemaining > 0
+        ? setTimeout(() => setIsDiwali(false), msRemaining + 250)
+        : undefined;
+    return () => {
+      clearInterval(interval);
+      if (timer) clearTimeout(timer);
+    };
   }, [pathname]);
 
   return (
@@ -118,7 +132,13 @@ export function Navbar() {
                 size="sm"
                 className="font-extrabold text-xs uppercase px-4 sm:px-5 py-2 shadow-[3px_3px_0px_0px_#000000] hover:shadow-[5px_5px_0px_0px_#000000] flex items-center gap-1.5"
               >
-                <span>{isDiwaliOffer ? "Register · ₹1,000" : "Register"}</span>
+                <span>
+                  {isChildrensSale
+                    ? "Register · ₹1,100"
+                    : isDiwaliOffer
+                      ? "Register · ₹1,000"
+                      : "Register"}
+                </span>
                 {isDiwali && <span className="text-sm">🎈</span>}
                 <ArrowRight size={14} />
               </Button>
@@ -174,7 +194,15 @@ export function Navbar() {
                 {isDiwali && (
                   <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b0714] border border-sky-400/50 text-sky-300 text-[10px] font-mono font-bold uppercase tracking-wider">
                     <span>🎈 Happy Children&apos;s Day · Nov 14</span>
-                    <span className="text-gold">{isDiwaliOffer ? "₹1,000 Flat" : "Young Leaders"}</span>
+                    <span className="text-gold">
+                      {isChildrensSale
+                        ? "₹1,100 Flash Sale"
+                        : isDiwaliOffer
+                          ? "₹1,000 Flat"
+                          : isSaleUpcomingOrLive
+                            ? "Sale 9:00–9:30 PM"
+                            : "Young Leaders"}
+                    </span>
                   </div>
                 )}
                 <Link href="/events/athena-summit#register" onClick={() => setMobileOpen(false)}>

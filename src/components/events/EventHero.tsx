@@ -7,7 +7,7 @@ import { Calendar, MapPin, ArrowDown, Lock, BadgeCheck, Download } from "lucide-
 import type { SummitEvent } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { isRegistrationLaunched } from "@/lib/pricing";
+import { isRegistrationLaunched, getCurrentRegistrationFee, isChildrensDaySaleActive } from "@/lib/pricing";
 
 interface EventHeroProps {
   event: SummitEvent;
@@ -15,10 +15,21 @@ interface EventHeroProps {
 
 export function EventHero({ event }: EventHeroProps) {
   const [isLaunched, setIsLaunched] = useState(false);
+  const [liveFee, setLiveFee] = useState(event.price ?? 1300);
+  const [isChildrensSale, setIsChildrensSale] = useState(false);
 
   useEffect(() => {
-    setIsLaunched(isRegistrationLaunched());
-  }, []);
+    const syncHero = () => {
+      setIsLaunched(isRegistrationLaunched());
+      if (event.slug !== "mun-picnic") {
+        setLiveFee(getCurrentRegistrationFee());
+        setIsChildrensSale(isChildrensDaySaleActive());
+      }
+    };
+    syncHero();
+    const timer = setInterval(syncHero, 1000);
+    return () => clearInterval(timer);
+  }, [event.slug]);
 
   return (
     <section className="relative overflow-hidden min-h-[90vh] flex items-center pt-28 pb-16">
@@ -50,16 +61,18 @@ export function EventHero({ event }: EventHeroProps) {
           >
             {/* Top Announcement Bar */}
             <div className="flex flex-wrap items-center gap-3">
-              {event.registrationOpen ? (
-                <Badge variant="success">Registration Open</Badge>
-              ) : event.slug === "mun-picnic" ? (
+              {event.slug === "mun-picnic" ? (
                 <Badge variant="warning">Registration Closed</Badge>
-              ) : isLaunched ? (
-                <Badge variant="success">Registration Open</Badge>
+              ) : isLaunched && event.registrationOpen ? (
+                <Badge variant="success">
+                  {isChildrensSale
+                    ? "🎈 Children's Day Sale Live (₹1,100 · 9:00–9:30 PM)"
+                    : "Registration Open"}
+                </Badge>
               ) : (
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-purple-dark/80 px-4 py-1.5 text-xs text-gold-light font-mono shadow-md">
+                <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-purple-dark/80 px-4 py-1.5 text-xs text-sky-300 font-mono shadow-md">
                   <Lock className="w-3.5 h-3.5 text-gold" />
-                  <span>REGISTRATION OPENING SOON</span>
+                  <span>🎈 CHILDREN&apos;S DAY SALE OPENS @ 9:00 PM IST</span>
                 </div>
               )}
               {event.capacity && (
@@ -103,7 +116,10 @@ export function EventHero({ event }: EventHeroProps) {
               </a>
               <span className="flex items-center gap-2 text-gold font-mono font-bold">
                 <span>Fee:</span>
-                <span className="text-cream">₹{event.price ?? 1300} / delegate</span>
+                <span className="text-cream">
+                  ₹{event.slug === "mun-picnic" ? (event.price ?? 100) : liveFee} / delegate
+                  {isChildrensSale ? " (Children's Day Sale)" : ""}
+                </span>
               </span>
             </div>
 
@@ -207,8 +223,10 @@ export function EventHero({ event }: EventHeroProps) {
                 ) : (
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                     <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
-                      <span className="text-cream/50 text-[10px] block font-sans">Delegate Fee</span>
-                      <span className="text-gold font-bold text-lg">₹{event.price ? event.price.toLocaleString("en-IN") : "1,300"}</span>
+                      <span className="text-cream/50 text-[10px] block font-sans">
+                        {isChildrensSale ? "🎈 Children's Day Sale" : "Delegate Fee"}
+                      </span>
+                      <span className="text-gold font-bold text-lg">₹{liveFee.toLocaleString("en-IN")}</span>
                     </div>
                     <div className="bg-purple-dark/60 p-2.5 rounded border border-gold/15 text-center">
                       <span className="text-cream/50 text-[10px] block font-sans">Total Summit Cap</span>

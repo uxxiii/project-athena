@@ -88,8 +88,8 @@ export function generateApprovalEmailHtml(registration: Registration): string {
               ${
                 isDiwaliSeason()
                   ? `
-              <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
-                ☀️ <strong>जय छठी मईया · Chhath Mahaparv Greetings from Project Athena!</strong> May Chhathi Maiya &amp; Surya Dev bless your preparation and bring triumph at Athena Summit 2026.
+              <div style="background: linear-gradient(90deg, #0c243c 0%, #1c0e33 100%); border: 1px solid #38bdf8; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
+                🎈 <strong>Happy Children&apos;s Day (Bal Diwas) from Project Athena!</strong> Today we celebrate young voices, bold debaters, and tomorrow&apos;s leaders stepping up to the podium at Athena Summit 2026.
               </div>
               `
                   : ""
@@ -754,8 +754,8 @@ export function generateSummitSubmissionEmailHtml(registration: Registration): s
               ${
                 isDiwali
                   ? `
-              <div style="background: linear-gradient(90deg, #3d1d06 0%, #1c0e33 100%); border: 1px solid #d4af37; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
-                ☀️ <strong>जय छठी मईया &amp; ठेकुआ प्रसाद!</strong> We are delighted to welcome you during the auspicious festival of Chhath Mahaparv in Patna. Your registration has been safely received.
+              <div style="background: linear-gradient(90deg, #0c243c 0%, #1c0e33 100%); border: 1px solid #38bdf8; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; font-size: 13px; color: #fdf5e2; line-height: 1.5;">
+                🎈 <strong>Happy Children&apos;s Day (Bal Diwas)!</strong> We are delighted to welcome you to Project Athena. Your registration dossier has been safely received.
               </div>
               `
                   : ""

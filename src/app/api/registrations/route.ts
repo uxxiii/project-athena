@@ -6,6 +6,7 @@ import { addRegistration, readRegistrations } from "@/lib/storage";
 import { getCommitteeById } from "@/data/committees";
 import { getEventBySlug } from "@/data/events";
 import { generateSequentialRegistrationId } from "@/lib/registration-id";
+import { isRegistrationPausedForChildrensDaySale } from "@/lib/diwali";
 import type { Registration } from "@/lib/types";
 
 export async function POST(request: Request) {
@@ -30,6 +31,16 @@ export async function POST(request: Request) {
     if (!event.registrationOpen) {
       return NextResponse.json(
         { error: "Registration is closed for this event" },
+        { status: 403 }
+      );
+    }
+
+    if (data.eventSlug !== "mun-picnic" && isRegistrationPausedForChildrensDaySale()) {
+      return NextResponse.json(
+        {
+          error:
+            "Registrations are temporarily closed for 10 minutes (8:50 PM – 9:00 PM IST) and will reopen at 9:00 PM IST with the Children's Day Sale (₹1,100)!",
+        },
         { status: 403 }
       );
     }

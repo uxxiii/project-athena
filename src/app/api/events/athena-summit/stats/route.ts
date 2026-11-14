@@ -3,6 +3,7 @@ import { readRegistrations } from "@/lib/storage";
 import { getEventBySlug } from "@/data/events";
 import { committees } from "@/data/committees";
 import { getAvailability } from "@/lib/availability";
+import { getCurrentRegistrationFee, isRegistrationPausedForChildrensDaySale } from "@/lib/diwali";
 
 // Cache stats response for 30s to shield Supabase from repetitive traffic
 export const revalidate = 30;
@@ -33,10 +34,10 @@ export async function GET() {
         approvedCount,
         pendingCount,
         seatsRemaining,
-        registrationOpen: Boolean(event?.registrationOpen),
+        registrationOpen: Boolean(event?.registrationOpen) && !isRegistrationPausedForChildrensDaySale(),
         date: event?.date ?? "20–21 November 2026",
         location: event?.location ?? "CNLU, Patna",
-        fee: 1300,
+        fee: getCurrentRegistrationFee(),
         availability: availability.committees,
       },
       {

@@ -21,7 +21,12 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { committees as committeeData } from "@/data/committees";
 import { HomeSponsorSection } from "@/components/sponsors/HomeSponsorSection";
-import { isDiwaliSeason, isDiwaliSaleActive, getMsUntilChildrensDayEnd } from "@/lib/diwali";
+import {
+  isDiwaliSeason,
+  isDiwaliSaleActive,
+  isChildrensDaySaleUpcomingOrActive,
+  getMsUntilChildrensDayEnd,
+} from "@/lib/diwali";
 
 function InstagramIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -143,6 +148,7 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDiwali, setIsDiwali] = useState(false);
+  const [showSaleBadge, setShowSaleBadge] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const togglePlay = () => {
@@ -182,6 +188,10 @@ export default function HomePage() {
     loadRegistrationCount();
     const active = isDiwaliSeason();
     setIsDiwali(active);
+    setShowSaleBadge(isChildrensDaySaleUpcomingOrActive());
+    const saleTick = setInterval(() => {
+      setShowSaleBadge(isChildrensDaySaleUpcomingOrActive());
+    }, 1000);
     let expiryTimer: ReturnType<typeof setTimeout> | undefined;
     if (active) {
       const msRemaining = getMsUntilChildrensDayEnd();
@@ -193,6 +203,7 @@ export default function HomePage() {
     }
     return () => {
       ignore = true;
+      clearInterval(saleTick);
       if (expiryTimer) clearTimeout(expiryTimer);
     };
   }, []);
@@ -446,9 +457,15 @@ export default function HomePage() {
                     <span className="px-3 py-1 bg-sky-400 text-[#0b0714] border-2 border-black font-mono text-[11px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
                       🎈 Children&apos;s Day Special · 14 November 2026
                     </span>
-                    <span className="px-2.5 py-1 bg-[#1b1030] border border-gold/50 text-gold font-mono text-[10px] font-bold uppercase tracking-wider">
-                      🌹 Bal Diwas Tribute · Live Today Until 12:00 Midnight
-                    </span>
+                    {showSaleBadge ? (
+                      <span className="px-2.5 py-1 bg-gold text-[#0b0714] border-2 border-black font-mono text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000]">
+                        ⚡ Children&apos;s Day Flash Sale: ₹1,100 (9:00 PM – 9:30 PM IST Tonight)
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 bg-[#1b1030] border border-gold/50 text-gold font-mono text-[10px] font-bold uppercase tracking-wider">
+                        🌹 Bal Diwas Tribute · Live Today Until 12:00 Midnight
+                      </span>
+                    )}
                   </div>
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-cream tracking-tight leading-tight">
                     Today&apos;s Young Voices,{" "}

@@ -9,10 +9,21 @@ export const CHILDRENS_DAY_START_ISO = "2026-11-14T00:00:00+05:30";
 export const CHILDRENS_DAY_END_ISO = "2026-11-14T23:59:59+05:30";
 export const DIWALI_SALE_DEADLINE_ISO = "2026-11-09T12:00:00+05:30";
 
+// Children's Day Flash Sale Schedule (14th November 2026)
+// 8:50 PM – 9:00 PM IST: Registration paused for 10 minutes
+// 9:00 PM – 9:30 PM IST: Children's Day Flash Sale live at ₹1,100 per delegate
+export const CHILDRENS_DAY_PAUSE_START_ISO = "2026-11-14T20:50:00+05:30";
+export const CHILDRENS_DAY_PAUSE_END_ISO = "2026-11-14T21:00:00+05:30";
+export const CHILDRENS_DAY_SALE_START_ISO = "2026-11-14T21:00:00+05:30";
+export const CHILDRENS_DAY_SALE_END_ISO = "2026-11-14T21:30:00+05:30";
+export const CHILDRENS_DAY_SALE_RECORD_GRACE_END_ISO = "2026-11-14T21:30:59+05:30";
+export const CHILDRENS_DAY_SALE_FEE = 1100;
+
 export const DIWALI_PRICING = {
   originalFee: 1300,
   festiveFee: 1000,
   SALE_FEE: 1000,
+  childrensDayFee: 1100,
   discount: 300,
   discountPercent: 23,
   validUntilFormatted: "9th November, 12:00 PM (Noon)",
@@ -52,6 +63,34 @@ export function isDiwaliSeason(): boolean {
 }
 
 /**
+ * Checks if registration is currently in the 10-minute pre-sale pause window
+ * (8:50 PM to 9:00 PM IST on 14th November 2026).
+ */
+export function isRegistrationPausedForChildrensDaySale(): boolean {
+  const now = Date.now();
+  const pauseStart = new Date(CHILDRENS_DAY_PAUSE_START_ISO).getTime();
+  const pauseEnd = new Date(CHILDRENS_DAY_PAUSE_END_ISO).getTime();
+  return now >= pauseStart && now < pauseEnd;
+}
+
+/**
+ * Checks if the Children's Day Flash Sale (₹1,100 from 9:00 PM to 9:30 PM IST on 14th Nov) is currently active.
+ */
+export function isChildrensDaySaleActive(): boolean {
+  const now = Date.now();
+  const start = new Date(CHILDRENS_DAY_SALE_START_ISO).getTime();
+  const end = new Date(CHILDRENS_DAY_SALE_END_ISO).getTime();
+  return now >= start && now <= end;
+}
+
+/**
+ * True before or during the 9:00–9:30 PM Children's Day Sale; false after 9:30 PM IST.
+ */
+export function isChildrensDaySaleUpcomingOrActive(): boolean {
+  return Date.now() <= new Date(CHILDRENS_DAY_SALE_END_ISO).getTime();
+}
+
+/**
  * Checks if the early bird Diwali sale price (₹1,000) is currently active.
  * Valid until 9th November 12:00 PM.
  */
@@ -68,6 +107,9 @@ export function isDiwaliSaleActive(): boolean {
 }
 
 export function getCurrentRegistrationFee(): number {
+  if (isChildrensDaySaleActive()) {
+    return CHILDRENS_DAY_SALE_FEE; // 1100
+  }
   return isDiwaliSaleActive() ? DIWALI_PRICING.festiveFee : DIWALI_PRICING.originalFee;
 }
 
@@ -123,11 +165,31 @@ export function isSpecialEarlyBirdRegistration(
 }
 
 /**
+ * Checks whether a registration record was submitted during the Children's Day Sale window
+ * (14th November 2026, 9:00 PM – 9:30 PM IST).
+ */
+export function isChildrensDaySaleRecord(reg: {
+  eventSlug?: string;
+  createdAt?: string;
+}): boolean {
+  if (reg.eventSlug === "mun-picnic" || !reg.createdAt) return false;
+  const normalized = /Z|[+-]\d{2}:?\d{2}$/.test(reg.createdAt)
+    ? reg.createdAt
+    : `${reg.createdAt}Z`;
+  const createdTime = new Date(normalized).getTime();
+  if (isNaN(createdTime)) return false;
+  const saleStart = new Date(CHILDRENS_DAY_SALE_START_ISO).getTime();
+  const saleEnd = new Date(CHILDRENS_DAY_SALE_RECORD_GRACE_END_ISO).getTime();
+  return createdTime >= saleStart && createdTime <= saleEnd;
+}
+
+/**
  * Calculates the exact fee for a specific registration.
  * - Picnic registrations: ₹100
  * - First 75 Summit registrations (IDs <= ATH-SUMMIT-079 / 100079 or registered <= Nov 9 12:00 PM IST): ₹1,000 (Early Bird)
  * - Special exceptions: Reg IDs 100087, 100089, 100093, 100117, 100119, 100126 (Founder's Offer): ₹1,000 (Early Bird)
- * - Registrations after the 75th: ₹1,300 (Regular Price)
+ * - Children's Day Flash Sale (Nov 14, 9:00 PM – 9:30 PM IST): ₹1,100
+ * - Regular Summit registrations: ₹1,300 (Regular Price)
  */
 export function getRegistrationFeeForRecord(reg: {
   eventSlug?: string;
@@ -152,6 +214,11 @@ export function getRegistrationFeeForRecord(reg: {
     return DIWALI_PRICING.festiveFee; // 1000
   }
 
+  // Children's Day Flash Sale window (Nov 14, 9:00 PM – 9:30 PM IST): ₹1,100
+  if (isChildrensDaySaleRecord(reg)) {
+    return CHILDRENS_DAY_SALE_FEE; // 1100
+  }
+
   // Check timestamp (normalize to UTC if lacking timezone offset from database)
   if (reg.createdAt) {
     const normalized = /Z|[+-]\d{2}:?\d{2}$/.test(reg.createdAt)
@@ -164,6 +231,6 @@ export function getRegistrationFeeForRecord(reg: {
     }
   }
 
-  // From registration #76 onwards after deadline (ATH-SUMMIT-081+ / after 12:00 PM)
+  // Regular Price (₹1,300)
   return DIWALI_PRICING.originalFee; // 1300
 }

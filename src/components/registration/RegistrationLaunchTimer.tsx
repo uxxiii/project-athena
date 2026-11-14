@@ -66,10 +66,10 @@ export function RegistrationLaunchTimer({
   if (compact) {
     return (
       <div
-        className={`inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-gold/15 to-amber-500/15 px-4 py-1.5 text-xs text-amber-300 font-mono shadow-md shadow-amber-500/10 backdrop-blur-md ${className}`}
+        className={`inline-flex items-center gap-2 rounded-full border border-sky-400/50 bg-gradient-to-r from-sky-500/15 via-gold/15 to-sky-500/15 px-4 py-1.5 text-xs text-sky-300 font-mono shadow-md shadow-sky-500/10 backdrop-blur-md ${className}`}
       >
-        <Calendar className="w-4 h-4 text-amber-400 animate-bounce" />
-        <span>Registration Reopens @ 8:15 PM IST: </span>
+        <Calendar className="w-4 h-4 text-sky-400 animate-bounce" />
+        <span>🎈 Children&apos;s Day Sale Opens @ 9:00 PM IST: </span>
         <span className="font-bold text-cream">
           {timeLeft.days > 0 ? `${timeLeft.days}d ` : ""}{String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m {String(timeLeft.seconds).padStart(2, "0")}s
         </span>
@@ -79,13 +79,13 @@ export function RegistrationLaunchTimer({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-amber-400 font-mono text-xs uppercase tracking-widest">
-          <Calendar className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Registration Temporarily Closed — Reopens @ 8:15 PM IST</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-sky-300 font-mono text-xs uppercase tracking-widest">
+          <Calendar className="w-4 h-4 text-sky-400 animate-pulse" />
+          <span>🎈 Registration Paused (8:50 – 9:00 PM) — Children&apos;s Day Sale Opens @ 9:00 PM IST</span>
         </div>
-        <span className="text-[10px] text-amber-400/80 font-mono bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
-          Back Soon
+        <span className="text-[10px] text-gold font-mono bg-gold/15 px-2 py-0.5 rounded border border-gold/40 font-bold">
+          ₹1,100 Flash Sale (9:00–9:30 PM)
         </span>
       </div>
 

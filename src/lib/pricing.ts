@@ -1,8 +1,35 @@
-import { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, DIWALI_SALE_DEADLINE_ISO, getRegistrationFeeForRecord } from "./diwali";
-export { isDiwaliSaleActive, getCurrentRegistrationFee, DIWALI_PRICING, getRegistrationFeeForRecord } from "./diwali";
+import {
+  isDiwaliSaleActive,
+  isChildrensDaySaleActive,
+  isRegistrationPausedForChildrensDaySale,
+  isChildrensDaySaleRecord,
+  getCurrentRegistrationFee,
+  DIWALI_PRICING,
+  DIWALI_SALE_DEADLINE_ISO,
+  CHILDRENS_DAY_PAUSE_START_ISO,
+  CHILDRENS_DAY_PAUSE_END_ISO,
+  CHILDRENS_DAY_SALE_START_ISO,
+  CHILDRENS_DAY_SALE_END_ISO,
+  CHILDRENS_DAY_SALE_FEE,
+  getRegistrationFeeForRecord,
+} from "./diwali";
+export {
+  isDiwaliSaleActive,
+  isChildrensDaySaleActive,
+  isRegistrationPausedForChildrensDaySale,
+  isChildrensDaySaleRecord,
+  getCurrentRegistrationFee,
+  DIWALI_PRICING,
+  CHILDRENS_DAY_PAUSE_START_ISO,
+  CHILDRENS_DAY_PAUSE_END_ISO,
+  CHILDRENS_DAY_SALE_START_ISO,
+  CHILDRENS_DAY_SALE_END_ISO,
+  CHILDRENS_DAY_SALE_FEE,
+  getRegistrationFeeForRecord,
+} from "./diwali";
 
-// Registration temporarily closed — reopens at 8:15 PM IST
-export const REGISTRATION_OPEN_DATE_ISO = "2026-11-07T20:15:00+05:30";
+// Registration temporarily closed from 8:50 PM – 9:00 PM IST on Nov 14, reopens at 9:00 PM IST for Children's Day Sale
+export const REGISTRATION_OPEN_DATE_ISO = CHILDRENS_DAY_PAUSE_END_ISO;
 
 // Diwali Special Sale Deadline: 9th Nov 12:00 PM (Noon) IST
 export const EARLY_BIRD_DEADLINE_ISO = DIWALI_SALE_DEADLINE_ISO;
@@ -41,20 +68,30 @@ export function isRegistrationLaunched(): boolean {
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_REGISTRATION_OPEN === "true") {
     return true;
   }
-  return new Date().getTime() >= new Date(REGISTRATION_OPEN_DATE_ISO).getTime();
+  // Closed for 10 minutes from 8:50 PM to 9:00 PM IST on Nov 14 before Children's Day Sale opens at 9:00 PM
+  if (isRegistrationPausedForChildrensDaySale()) {
+    return false;
+  }
+  return true;
 }
 
 export function isEarlyBirdActive(): boolean {
-  return isDiwaliSaleActive();
+  return isDiwaliSaleActive() || isChildrensDaySaleActive();
 }
 
 export function getPricing(isUnsc: boolean = false) {
   const config = isUnsc ? PRICING_CONFIG.unsc : PRICING_CONFIG.normal;
+  const isChildrensSale = isChildrensDaySaleActive();
   const isFestiveOffer = isDiwaliSaleActive();
+  const effectivePrice = isChildrensSale
+    ? CHILDRENS_DAY_SALE_FEE
+    : isFestiveOffer
+      ? config.earlyBirdPrice
+      : config.normalPrice;
   return {
     ...config,
-    isEarlyBird: isFestiveOffer,
-    effectivePrice: isFestiveOffer ? config.earlyBirdPrice : config.normalPrice,
+    isEarlyBird: isFestiveOffer || isChildrensSale,
+    effectivePrice,
   };
 }
 
@@ -87,7 +124,7 @@ export function calculateRegistrationLaunchTimeRemaining(targetIsoDate: string =
   };
 }
 
-export function calculateTimeRemaining(targetIsoDate: string = EARLY_BIRD_DEADLINE_ISO) {
+export function calculateTimeRemaining(targetIsoDate: string = CHILDRENS_DAY_SALE_END_ISO) {
   const target = new Date(targetIsoDate).getTime();
   const now = new Date().getTime();
   const difference = target - now;

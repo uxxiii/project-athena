@@ -22,7 +22,15 @@ import {
 } from "lucide-react";
 import type { Registration, AvailabilitySnapshot } from "@/lib/types";
 import { committees, getCommitteeById } from "@/data/committees";
-import { getCurrentRegistrationFee, isDiwaliSaleActive, getRegistrationFeeForRecord, extractSummitNumber, isSpecialEarlyBirdRegistration } from "@/lib/diwali";
+import {
+  getCurrentRegistrationFee,
+  isDiwaliSaleActive,
+  isChildrensDaySaleActive,
+  isChildrensDaySaleRecord,
+  getRegistrationFeeForRecord,
+  extractSummitNumber,
+  isSpecialEarlyBirdRegistration,
+} from "@/lib/diwali";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -116,17 +124,25 @@ export default function AdminPage() {
 
   const currentSummitFee = getCurrentRegistrationFee();
   const isSale = isDiwaliSaleActive();
+  const isChildrensSale = isChildrensDaySaleActive();
 
   // Revenue calculation:
-  // - First 75 summit approved delegates = ₹1,000 each (Early-Bird ₹75,000)
-  // - All summit approved delegates from 76th onwards = ₹1,300 each (Regular)
+  // - First 75 summit approved delegates + Founder's Offer = ₹1,000 each (Early-Bird)
+  // - Children's Day Flash Sale (Nov 14, 9:00 PM – 9:30 PM IST) = ₹1,100 each
+  // - Regular summit approved delegates = ₹1,300 each
   // - All picnic approved delegates = ₹100 each
-  const { confirmedRevenue, earlyBirdSummitApproved, regularFeeSummitApproved } = useMemo(() => {
+  const {
+    confirmedRevenue,
+    earlyBirdSummitApproved,
+    childrensDaySummitApproved,
+    regularFeeSummitApproved,
+  } = useMemo(() => {
     const approvedSummit = registrations
       .filter((r) => r.status === "approved" && r.eventSlug !== "mun-picnic")
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
     let earlyBird = 0;
+    let childrensDay = 0;
     let regular = 0;
     let summitRev = 0;
 
@@ -142,6 +158,9 @@ export default function AdminPage() {
       if (isEarlyBird) {
         earlyBird++;
         summitRev += 1000;
+      } else if (feeByRecord === 1100 || isChildrensDaySaleRecord(r)) {
+        childrensDay++;
+        summitRev += 1100;
       } else {
         regular++;
         summitRev += 1300;
@@ -156,6 +175,7 @@ export default function AdminPage() {
     return {
       confirmedRevenue: summitRev + picnicRev,
       earlyBirdSummitApproved: earlyBird,
+      childrensDaySummitApproved: childrensDay,
       regularFeeSummitApproved: regular,
     };
   }, [registrations]);
@@ -291,7 +311,8 @@ export default function AdminPage() {
                   Live Sync
                 </span>
                 <span className="px-3 py-1 bg-[#0b0714] text-gold text-[10px] font-mono font-bold uppercase tracking-wider border border-gold/30">
-                  Athena Summit Fee: ₹1,300 • Cap: 260
+                  Athena Summit Fee: ₹{currentSummitFee.toLocaleString("en-IN")}
+                  {isChildrensSale ? " (Children's Day Sale)" : ""} • Cap: 260
                 </span>
               </div>
 
@@ -397,7 +418,7 @@ export default function AdminPage() {
               ₹{confirmedRevenue.toLocaleString("en-IN")}
             </p>
             <span className="text-[10px] text-cream/40 font-mono mt-1 block">
-              {earlyBirdSummitApproved} Early-Bird Summit (₹1,000) + {regularFeeSummitApproved} Regular (₹1,300) + {picnicApproved} Picnic (₹100)
+              {earlyBirdSummitApproved} Early-Bird (₹1,000) + {childrensDaySummitApproved} Children&apos;s Day Sale (₹1,100) + {regularFeeSummitApproved} Regular (₹1,300) + {picnicApproved} Picnic (₹100)
             </span>
           </div>
 

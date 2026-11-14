@@ -318,7 +318,7 @@ export default function AdminPaymentsPage() {
                 Delegate Payment & Allocation <span className="text-gold">Verification</span>
               </h1>
               <p className="text-xs sm:text-sm text-cream/60 mt-1 font-sans">
-                Inspect uploaded UPI screenshots, verify payments (₹1,000 for early bird #1–75 / ₹1,300 regular / ₹100 Picnic), and dispatch confirmation passes.
+                Inspect uploaded UPI screenshots, verify payments (₹1,000 early bird / ₹1,100 Children&apos;s Day Sale 9:00–9:30 PM / ₹1,300 regular / ₹100 Picnic), and dispatch confirmation passes.
               </p>
             </div>
 
@@ -498,7 +498,12 @@ export default function AdminPaymentsPage() {
                             </span>
                           ) : (
                             <span className="text-[10px] font-mono bg-gold/15 text-gold px-2 py-0.5 border border-gold/30 font-bold">
-                              Summit (₹{getRegistrationFeeForRecord(reg).toLocaleString("en-IN")}{getRegistrationFeeForRecord(reg) === 1000 ? " · Early Bird" : ""})
+                              Summit (₹{getRegistrationFeeForRecord(reg).toLocaleString("en-IN")}
+                              {getRegistrationFeeForRecord(reg) === 1000
+                                ? " · Early Bird"
+                                : getRegistrationFeeForRecord(reg) === 1100
+                                  ? " · Children's Day Sale"
+                                  : ""})
                             </span>
                           )}
                         </div>
