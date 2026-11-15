@@ -37,6 +37,8 @@ export const INDIAN_ROPS_URL =
   "https://docs.google.com/document/d/1hnyFL3LND6BshdJ5DfJ8NydMDbqm3CtoTH8AjDIXlX0/edit?usp=sharing";
 export const BACKGROUND_GUIDE_URL =
   "https://docs.google.com/document/d/19e9xBjkEdI_K2K2IGOSEd7X6nl_ckOM7TvZjG83qX8I/edit?usp=sharing";
+export const TRAINING_SESSION_WHATSAPP_URL =
+  "https://chat.whatsapp.com/CurseH1UR0FHzyGsGlJAqg";
 
 /**
  * Generates an executive-tier confirmation email for Athena Summit with styled resource cards
@@ -915,6 +917,132 @@ export function generateSummitSubmissionEmailHtml(registration: Registration): s
             <td align="center" style="background-color: #0b0416; padding: 22px 24px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
               <p style="margin: 0 0 4px; font-size: 12px; color: #a497bd;">
                 © ${currentYear} Project Athena. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 11px; font-family: monospace; color: #7f709a;">
+                Assigned Registration ID: ${registration.id}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Generates a dedicated separate email inviting an approved Athena Summit delegate
+ * to join the Official Training Session WhatsApp Group.
+ */
+export function generateTrainingSessionEmailHtml(registration: Registration): string {
+  const portfolioName = getPortfolioName(registration);
+  const currentYear = new Date().getFullYear();
+
+  return `
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Athena Summit 2026: Official Training Session WhatsApp Group</title>
+  <style type="text/css">
+    ${emailStyles}
+  </style>
+</head>
+<body style="background-color: #080410; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #080410; min-height: 100%;">
+    <tr>
+      <td align="center" style="padding: 32px 12px;" class="email-wrapper">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background: #130a21 linear-gradient(180deg, #1b0e33 0%, #10061e 100%); border: 1px solid #4a3469; border-top: 4px solid #10b981; border-radius: 18px; box-shadow: 0 16px 44px rgba(0,0,0,0.5); overflow: hidden;">
+          
+          <!-- Top Brand Header -->
+          <tr>
+            <td align="center" style="padding: 36px 28px 24px; text-align: center; border-bottom: 1px solid rgba(212,175,55,0.18);">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="background-color: #06291a; border: 1px solid #10b981; border-radius: 999px; padding: 5px 16px; margin-bottom: 12px; display: inline-block;">
+                    <span style="font-size: 11px; font-weight: 700; color: #34d399; letter-spacing: 2px; text-transform: uppercase; font-family: monospace;">
+                      🎓 ATHENA SUMMIT 2026 • OFFICIAL TRAINING SESSION
+                    </span>
+                  </td>
+                </tr>
+              </table>
+              <h1 class="header-logo" style="margin: 14px 0 6px; font-size: 28px; font-weight: 800; letter-spacing: 3px; color: #fdf5e2; text-transform: uppercase;">
+                PROJECT ATHENA
+              </h1>
+              <p style="margin: 0; font-size: 13px; color: #b7a9ce; letter-spacing: 0.5px;">
+                Official Delegate Training Session &amp; Orientation Group
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 32px 30px;" class="content-box">
+              <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.5; color: #f7f2fc;">
+                Distinguished Delegate, <strong style="color: #ffffff;">${registration.name}</strong>,
+              </p>
+              <p style="margin: 0 0 22px; font-size: 14px; line-height: 1.7; color: #d6cced;">
+                As an officially registered delegate for <strong>Athena Summit 2026</strong> at <strong>Chanakya National Law University (CNLU), Patna</strong>, you are invited to join our <strong>Official Delegate Training Session WhatsApp Group</strong>.
+              </p>
+              <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.7; color: #d6cced;">
+                All live training session links, Rules of Procedure (RoP) walkthroughs, committee briefings, and Q&amp;A updates from the Executive Board will be coordinated directly inside this group.
+              </p>
+
+              <!-- Delegate Credential Summary -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1c0e33; border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; margin: 0 0 24px; padding: 16px 20px;">
+                <tr>
+                  <td>
+                    <div style="margin-bottom: 8px; font-size: 12px; color: #b7a9ce;">
+                      Delegate Pass ID: <strong style="color: #10b981; font-family: monospace;">${registration.id}</strong>
+                    </div>
+                    <div style="margin-bottom: 8px; font-size: 13px; color: #b7a9ce;">
+                      Assigned Committee: <strong style="color: #f0d48c;">${registration.assignedCommittee?.toUpperCase() ?? "ATHENA SUMMIT"}</strong>
+                    </div>
+                    <div style="font-size: 13px; color: #b7a9ce;">
+                      Assigned Portfolio: <strong style="color: #ffffff;">${portfolioName}</strong>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- WhatsApp Group Invitation Card -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: linear-gradient(135deg, #06291a 0%, #130b24 100%); border: 1.5px solid #10b981; border-radius: 14px; margin: 0 0 26px; overflow: hidden;">
+                <tr>
+                  <td align="center" style="padding: 26px 22px; text-align: center;">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #34d399; margin-bottom: 8px;">
+                      💬 Official WhatsApp Community
+                    </div>
+                    <div style="font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">
+                      Athena Summit — Training Session Group
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.6; color: #d6cced; margin-bottom: 20px;">
+                      Tap the button below to join the official training session group immediately:
+                    </div>
+                    <a href="${TRAINING_SESSION_WHATSAPP_URL}" target="_blank" style="background: #10b981 linear-gradient(135deg, #25D366 0%, #059669 100%); color: #051b11; font-size: 14px; font-weight: 800; text-decoration: none; padding: 14px 30px; border-radius: 999px; display: inline-block; letter-spacing: 0.6px; text-transform: uppercase; box-shadow: 0 6px 20px rgba(16,185,129,0.35);">
+                      Join Training Session WhatsApp Group →
+                    </a>
+                    <div style="margin-top: 14px; font-size: 11px; color: #a497bd; word-break: break-all;">
+                      Direct Link: <a href="${TRAINING_SESSION_WHATSAPP_URL}" target="_blank" style="color: #34d399; text-decoration: underline;">${TRAINING_SESSION_WHATSAPP_URL}</a>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #a497bd;">
+                Need assistance joining the group? Reach out to our Secretariat Helpdesk at <a href="mailto:project.athena03@gmail.com" style="color: #f0d48c; text-decoration: underline;">project.athena03@gmail.com</a>.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="background-color: #0b0416; padding: 22px 24px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+              <p style="margin: 0 0 4px; font-size: 12px; color: #a497bd;">
+                © ${currentYear} Project Athena • Chanakya National Law University (CNLU), Patna
               </p>
               <p style="margin: 0; font-size: 11px; font-family: monospace; color: #7f709a;">
                 Assigned Registration ID: ${registration.id}

@@ -6,6 +6,7 @@ import {
   generatePicnicApprovalEmailHtml,
   generatePicnicSubmissionEmailHtml,
   generateSummitSubmissionEmailHtml,
+  generateTrainingSessionEmailHtml,
 } from "./email-templates";
 
 export interface EmailResult {
@@ -71,10 +72,60 @@ export async function sendApprovalEmail(registration: Registration): Promise<Ema
       return { success: false, error: json.message ?? json.name ?? "Failed to send email" };
     }
 
+    if (!isPicnic) {
+      try {
+        await sendTrainingSessionEmail(registration);
+      } catch (trainingErr) {
+        console.warn("[TRAINING SESSION EMAIL WARNING]:", trainingErr);
+      }
+    }
+
     return { success: true, messageId: json.id };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Network error";
     console.error("[EMAIL NETWORK ERROR]:", err);
+    return { success: false, error: message };
+  }
+}
+
+export async function sendTrainingSessionEmail(registration: Registration): Promise<EmailResult> {
+  const html = generateTrainingSessionEmailHtml(registration);
+  const subject = `Athena Summit 2026: Join the Official Training Session WhatsApp Group [${registration.id}]`;
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    console.log(`[EMAIL SIMULATION] Sending Training Session Email to ${registration.email}`);
+    return {
+      success: true,
+      messageId: `simulated-training-${Date.now()}`,
+    };
+  }
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: getSenderAddress(),
+        to: [registration.email],
+        subject,
+        html,
+      }),
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      console.error("[RESEND TRAINING SESSION EMAIL ERROR]:", json);
+      return { success: false, error: json.message ?? json.name ?? "Failed to send training email" };
+    }
+
+    return { success: true, messageId: json.id };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Network error";
+    console.error("[TRAINING EMAIL NETWORK ERROR]:", err);
     return { success: false, error: message };
   }
 }
