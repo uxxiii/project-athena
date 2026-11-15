@@ -38,7 +38,7 @@ export const INDIAN_ROPS_URL =
 export const BACKGROUND_GUIDE_URL =
   "https://docs.google.com/document/d/19e9xBjkEdI_K2K2IGOSEd7X6nl_ckOM7TvZjG83qX8I/edit?usp=sharing";
 export const TRAINING_SESSION_WHATSAPP_URL =
-  "https://chat.whatsapp.com/CurseH1UR0FHzyGsGlJAqg";
+  "https://chat.whatsapp.com/K7aqBacuJBVA5Zz9qwAHp8";
 
 /**
  * Generates an executive-tier confirmation email for Athena Summit with styled resource cards
