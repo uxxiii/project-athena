@@ -119,7 +119,7 @@ export function PaymentPricingBanner({}: PaymentPricingBannerProps = {}) {
         <div className="border border-white/15 bg-[#0b0714]/60 p-4 flex flex-col justify-between">
           <div className="flex items-center gap-2 text-gold text-xs font-mono font-bold uppercase tracking-wider">
             <ShieldCheck className="w-4 h-4 text-gold" />
-            <span>All 6 Committees Covered (260 Cap)</span>
+            <span>All 6 Committees Covered (280 Cap)</span>
           </div>
 
           <div className="text-xs text-cream/70 space-y-1.5 my-3 font-mono">
@@ -133,7 +133,7 @@ export function PaymentPricingBanner({}: PaymentPricingBannerProps = {}) {
             </div>
             <div className="flex items-center justify-between">
               <span>UNW / IP (Press)</span>
-              <span className="text-gold font-bold">40 / 40 Cap</span>
+              <span className="text-gold font-bold">40 / 60 Cap</span>
             </div>
           </div>
 

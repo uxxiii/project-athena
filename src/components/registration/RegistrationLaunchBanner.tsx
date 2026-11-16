@@ -48,7 +48,7 @@ export function RegistrationLaunchBanner({
           <span>🎈 Children&apos;s Day Flash Sale Opens @ 9:00 PM IST</span>
         </div>
         <span className="text-xs font-mono text-gold flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> 260 Seats • 6 Committees
+          <Sparkles className="w-3.5 h-3.5" /> 280 Seats • 6 Committees
         </span>
       </div>
 
@@ -109,7 +109,7 @@ export function RegistrationLaunchBanner({
 
           <div className="border border-white/15 bg-[#0b0714] p-4 relative shadow-[3px_3px_0px_0px_#000000]">
             <span className="text-xs text-cream/80 font-mono font-bold uppercase block">
-              Committees &amp; Caps (260 Total)
+              Committees &amp; Caps (280 Total)
             </span>
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs font-mono">
               <div>
@@ -126,7 +126,7 @@ export function RegistrationLaunchBanner({
               </div>
               <div>
                 <span className="text-cream/50 block text-[10px]">IP / UNW</span>
-                <span className="text-gold font-bold">40 / 40 Seats</span>
+                <span className="text-gold font-bold">60 / 40 Seats</span>
               </div>
             </div>
           </div>

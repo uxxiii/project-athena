@@ -179,7 +179,7 @@ export default function AdminPage() {
       regularFeeSummitApproved: regular,
     };
   }, [registrations]);
-  const totalSummitCapacity = 260;
+  const totalSummitCapacity = 280;
 
   // Filtered recent registrations
   const filteredRecent = useMemo(() => {
@@ -312,7 +312,7 @@ export default function AdminPage() {
                 </span>
                 <span className="px-3 py-1 bg-[#0b0714] text-gold text-[10px] font-mono font-bold uppercase tracking-wider border border-gold/30">
                   Athena Summit Fee: ₹{currentSummitFee.toLocaleString("en-IN")}
-                  {isChildrensSale ? " (Children's Day Sale)" : ""} • Cap: 260
+                  {isChildrensSale ? " (Children's Day Sale)" : ""} • Cap: 280
                 </span>
               </div>
 
@@ -320,7 +320,7 @@ export default function AdminPage() {
                 Athena <span className="text-gold">Secretariat</span> Dashboard
               </h1>
               <p className="text-xs sm:text-sm text-cream/60 max-w-2xl font-sans">
-                Real-time oversight for Athena Summit (260 seats across 6 committees) and event operations.
+                Real-time oversight for Athena Summit (280 seats across 6 committees) and event operations.
               </p>
             </div>
 

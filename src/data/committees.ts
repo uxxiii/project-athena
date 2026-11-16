@@ -30,9 +30,7 @@ export const IPL_ROLES = [
   "PR Head",
 ] as const;
 
-const IP_JOURNALIST_NUMBERS = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 25, 27,
-] as const;
+const IP_JOURNALIST_NUMBERS = Array.from({ length: 30 }, (_, i) => i + 1);
 
 const CUSTOM_PORTFOLIOS: Record<string, PortfolioDefinition[]> = {
   // Lok Sabha (40 portfolios: 20 Ruling NDA vs 20 Opposition / Non-NDA)
@@ -220,14 +218,14 @@ const CUSTOM_PORTFOLIOS: Record<string, PortfolioDefinition[]> = {
     { id: "unsc-portfolio-59", name: "Ghana" },
   ],
 
-  // International Press (40 portfolios: 20 Journalists, 20 Photographers)
+  // International Press (60 portfolios: 30 Journalists, 30 Photographers)
   ip: [
     ...IP_JOURNALIST_NUMBERS.map((num) => ({
       id: `ip-portfolio-${num}`,
       name: `Journalist ${String(num).padStart(2, "0")}`,
       team: "Journalist",
     })),
-    ...Array.from({ length: 20 }, (_, i) => ({
+    ...Array.from({ length: 30 }, (_, i) => ({
       id: `ip-portfolio-${40 + i + 1}`,
       name: `Photographer ${String(i + 1).padStart(2, "0")}`,
       team: "Photographer",
@@ -309,7 +307,7 @@ export const committees: Committee[] = [
     fullName: "International Press",
     agenda:
       "Representing the worldwide press corps: covering proceedings across all 5 summit committees, investigative reporting, press conferences, and live photojournalism.",
-    maxDelegates: 40,
+    maxDelegates: 60,
     portfolios: generatePortfolios("ip"),
     eligibility: "all",
     eligibilityLabel: "Open to School & College Delegates",
