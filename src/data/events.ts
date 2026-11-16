@@ -18,9 +18,9 @@ export const events: SummitEvent[] = [
     committees: committees.map((c) => c.id),
     brochureUrl: "/brochure/athena-summit.pdf",
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=Bishop+Scott+Girls+School+Jaganpura+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "https://maps.google.com/maps?q=Bishop+Scott+Senior+Secondary+Girls+School+Chanakya+Vihar+Colony+Jaganpura+Patna+800027&t=&z=15&ie=UTF8&iwloc=&output=embed",
     mapDirectionsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Girls+School+Jaganpura+Patna",
+      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Senior+Secondary+Girls+School+Chanakya+Vihar+Colony+Jaganpura+Patna+800027",
     features: [
       "Day 1 Venue: Bishop Scott Senior Secondary Girls' School, Patna",
       "Day 2 Venue: Chanakya National Law University (CNLU), Patna",

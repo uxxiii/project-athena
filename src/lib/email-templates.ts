@@ -167,8 +167,14 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                       <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
                         Day 1 (20 Nov): Bishop Scott Senior Secondary Girls&apos; School, Patna
                       </div>
-                      <div style="font-size: 13px; font-weight: 600; color: #ffffff; margin-top: 2px;">
+                      <div style="font-size: 11px; color: #b7a9ce; margin-top: 1px; margin-bottom: 6px;">
+                        Chanakya Vihar Colony, SRJ Rajeev Chauhan Rd, near Road Number 3, Aadarsh Colony, Jaganpura, Nayachak, Patna, Bihar 800027
+                      </div>
+                      <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
                         Day 2 (21 Nov): Chanakya National Law University (CNLU), Patna
+                      </div>
+                      <div style="font-size: 11px; color: #b7a9ce; margin-top: 1px;">
+                        Nyaya Nagar, Mithapur, Patna, Bihar 800001
                       </div>
                     </div>
                   </td>
@@ -899,8 +905,14 @@ export function generateSummitSubmissionEmailHtml(registration: Registration): s
                     <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
                       Day 1 (20 Nov): Bishop Scott Senior Secondary Girls&apos; School, Patna
                     </div>
-                    <div style="font-size: 12px; color: #b7a9ce; margin-top: 2px;">
+                    <div style="font-size: 11px; color: #b7a9ce; margin-top: 1px; margin-bottom: 6px;">
+                      Chanakya Vihar Colony, SRJ Rajeev Chauhan Rd, near Road Number 3, Aadarsh Colony, Jaganpura, Nayachak, Patna, Bihar 800027
+                    </div>
+                    <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
                       Day 2 (21 Nov): Chanakya National Law University (CNLU), Patna
+                    </div>
+                    <div style="font-size: 11px; color: #b7a9ce; margin-top: 1px;">
+                      Nyaya Nagar, Mithapur, Patna, Bihar 800001
                     </div>
                   </td>
                 </tr>

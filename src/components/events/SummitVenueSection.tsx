@@ -30,14 +30,15 @@ const SUMMIT_VENUES = [
     day: "Day 1 • 20 November 2026",
     shortLabel: "Day 1: Bishop Scott Girls' School",
     venueName: "Bishop Scott Senior Secondary Girls' School",
-    subName: "Brahmapuram, Jaganpura, Bypass Road, Patna",
-    address: "Brahmapuram, Jaganpura, Bypass Road, Patna, Bihar 800027",
+    subName: "Chanakya Vihar Colony, Jaganpura, Nayachak, Patna",
+    address:
+      "Chanakya Vihar Colony, SRJ Rajeev Chauhan Rd, near Road Number 3, Aadarsh Colony, Jaganpura, Nayachak, Patna, Bihar 800027",
     coordinates: "25.5788° N, 85.1589° E",
     pinLabel: "Live Pin: Bishop Scott Sr. Sec. Girls' School, Patna (Day 1)",
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=Bishop+Scott+Girls+School+Jaganpura+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "https://maps.google.com/maps?q=Bishop+Scott+Senior+Secondary+Girls+School+Chanakya+Vihar+Colony+Jaganpura+Patna+800027&t=&z=15&ie=UTF8&iwloc=&output=embed",
     mapDirectionsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Girls+School+Jaganpura+Patna",
+      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Senior+Secondary+Girls+School+Chanakya+Vihar+Colony+Jaganpura+Patna+800027",
     commuteRail: "~15m from Patna Jnn.",
     commuteAir: "~20m from Airport",
   },
