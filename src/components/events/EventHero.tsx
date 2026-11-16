@@ -163,7 +163,7 @@ export function EventHero({ event }: EventHeroProps) {
                   )}
                   <Button href="#venue" size="lg" variant="outline" className="border-gold/30 hover:border-gold">
                     <MapPin size={15} className="mr-1 text-gold" />
-                    <span>Venue: CNLU</span>
+                    <span>Day 1: Bishop Scott Girls&apos; School • Day 2: CNLU</span>
                   </Button>
                 </>
               )}

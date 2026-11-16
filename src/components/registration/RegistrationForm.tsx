@@ -410,20 +410,18 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                   return (
                     <div key={label} className="flex flex-col items-center flex-1">
                       <div
-                        className={`flex h-9 w-9 items-center justify-center text-xs font-mono font-bold transition-all border-2 ${
-                          isComplete
+                        className={`flex h-9 w-9 items-center justify-center text-xs font-mono font-bold transition-all border-2 ${isComplete
                             ? "bg-gold text-[#0b0714] border-black shadow-[2px_2px_0px_0px_#000000]"
                             : isActive
                               ? "bg-purple-light text-cream border-gold shadow-[2px_2px_0px_0px_#000000]"
                               : "bg-[#0b0714] border-white/20 text-cream/40"
-                        }`}
+                          }`}
                       >
                         {isComplete ? <Check size={14} /> : stepNum}
                       </div>
                       <span
-                        className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-mono font-bold transition-colors ${
-                          isActive ? "text-gold" : "text-cream/40"
-                        }`}
+                        className={`mt-2.5 hidden sm:block text-[10px] tracking-wider text-center uppercase font-mono font-bold transition-colors ${isActive ? "text-gold" : "text-cream/40"
+                          }`}
                       >
                         {label}
                       </span>
@@ -848,7 +846,7 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
                             ATHENA SUMMIT CREDENTIAL PASS
                           </span>
                           <span className="text-[9px] uppercase tracking-widest text-cream/40 font-mono">
-                            Chanakya National Law University (CNLU), Patna
+                            Day 1: Bishop Scott Sr. Sec. Girls&apos; School • Day 2: CNLU, Patna
                           </span>
                         </div>
                         <Badge variant="warning">Payment Verification in Progress</Badge>

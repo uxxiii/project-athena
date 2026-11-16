@@ -8,23 +8,23 @@ export const events: SummitEvent[] = [
     title: "Athena Summit",
     subtitle: "Where Diplomacy Meets Excellence",
     date: "20–21 November 2026",
-    location: "CNLU, Patna",
+    location: "Day 1: Bishop Scott Sr. Sec. Girls' School • Day 2: CNLU, Patna",
     price: 1300,
     capacity: 500,
     description:
-      "Project Athena's flagship summit bringing together 500+ delegates across 6 specialized committees at Chanakya National Law University (CNLU), Patna.",
+      "Project Athena's flagship summit bringing together 500+ delegates across 6 specialized committees — Day 1 at Bishop Scott Senior Secondary Girls' School, Patna & Day 2 at Chanakya National Law University (CNLU), Patna.",
     longDescription:
-      "The Athena Summit offers an engaging conference designed for students and debaters who seek procedural clarity, informed discussion, and meaningful debate on pressing domestic and international issues. Hosted at the prestigious Chanakya National Law University (CNLU) in Patna, across 6 committees spanning UN bodies, Indian parliamentary assemblies, state governance, and international press, every session is built to develop practical diplomatic and public speaking skills.",
+      "The Athena Summit offers an engaging conference designed for students and debaters who seek procedural clarity, informed discussion, and meaningful debate on pressing domestic and international issues. Convened across two prestigious campuses in Patna — Day 1 (20 November) at Bishop Scott Senior Secondary Girls' School and Day 2 (21 November) at Chanakya National Law University (CNLU) — across 6 committees spanning UN bodies, Indian parliamentary assemblies, state governance, and international press.",
     committees: committees.map((c) => c.id),
     brochureUrl: "/brochure/athena-summit.pdf",
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=Chanakya+National+Law+University+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "https://maps.google.com/maps?q=Bishop+Scott+Girls+School+Jaganpura+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
     mapDirectionsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Chanakya+National+Law+University+Patna",
+      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Girls+School+Jaganpura+Patna",
     features: [
-      "Convened at Chanakya National Law University (CNLU), Patna",
+      "Day 1 Venue: Bishop Scott Senior Secondary Girls' School, Patna",
+      "Day 2 Venue: Chanakya National Law University (CNLU), Patna",
       "6 Specialized Assemblies & Entrepreneurship Startup Track",
-      "Moot Court Halls & Academic Auditoriums",
       "500+ Delegates From Class 5 to 12 & University Delegations",
       "Official Valedictory Cultural Evening & Social Impact Mission",
     ],

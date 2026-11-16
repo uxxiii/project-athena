@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -24,14 +25,45 @@ interface SummitVenueSectionProps {
   date?: string;
 }
 
+const SUMMIT_VENUES = [
+  {
+    day: "Day 1 • 20 November 2026",
+    shortLabel: "Day 1: Bishop Scott Girls' School",
+    venueName: "Bishop Scott Senior Secondary Girls' School",
+    subName: "Brahmapuram, Jaganpura, Bypass Road, Patna",
+    address: "Brahmapuram, Jaganpura, Bypass Road, Patna, Bihar 800027",
+    coordinates: "25.5788° N, 85.1589° E",
+    pinLabel: "Live Pin: Bishop Scott Sr. Sec. Girls' School, Patna (Day 1)",
+    mapEmbedUrl:
+      "https://maps.google.com/maps?q=Bishop+Scott+Girls+School+Jaganpura+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    mapDirectionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Bishop+Scott+Girls+School+Jaganpura+Patna",
+    commuteRail: "~15m from Patna Jnn.",
+    commuteAir: "~20m from Airport",
+  },
+  {
+    day: "Day 2 • 21 November 2026",
+    shortLabel: "Day 2: CNLU, Patna",
+    venueName: "Chanakya National Law University (CNLU)",
+    subName: "Nyaya Nagar, Mithapur, Patna",
+    address: "Nyaya Nagar, Mithapur, Patna, Bihar 800001",
+    coordinates: "25.5941° N, 85.1276° E",
+    pinLabel: "Live Pin: CNLU Campus, Patna (Day 2)",
+    mapEmbedUrl:
+      "https://maps.google.com/maps?q=Chanakya+National+Law+University+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    mapDirectionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Chanakya+National+Law+University+Patna",
+    commuteRail: "~10m from Patna Jnn.",
+    commuteAir: "~15m from Airport",
+  },
+] as const;
+
 export function SummitVenueSection({
-  venueName = "Chanakya National Law University (CNLU)",
-  subName = "Mithapur, Patna",
-  address = "Nyaya Nagar, Mithapur, Patna, Bihar 800001",
-  mapEmbedUrl = "https://maps.google.com/maps?q=Chanakya+National+Law+University+Patna&t=&z=15&ie=UTF8&iwloc=&output=embed",
-  mapDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=Chanakya+National+Law+University+Patna",
   date = "20–21 November 2026",
 }: SummitVenueSectionProps) {
+  const [selectedDayIdx, setSelectedDayIdx] = useState<0 | 1>(0);
+  const activeVenue = SUMMIT_VENUES[selectedDayIdx];
+
   return (
     <section id="venue" className="py-20 lg:py-24 bg-[#0b0714] border-b-2 border-white/10 relative overflow-hidden neo-grid-bg scroll-mt-20">
       {/* Subtle ambient lighting */}
@@ -40,22 +72,79 @@ export function SummitVenueSection({
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Section Header with Neo-Brutalist Sticker */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-4xl mx-auto mb-12 space-y-4">
           <div className="inline-block transform -rotate-1">
             <div className="px-5 py-2 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#000000]">
               <Compass size={14} />
-              <span>Official Summit Venue Confirmed</span>
+              <span>Official Summit Venues Confirmed</span>
             </div>
           </div>
 
           <h2 className="font-heading text-3xl sm:text-5xl font-black text-cream uppercase tracking-tight leading-tight">
             The Convening Grounds: <br className="hidden sm:inline" />
-            <span className="text-gold">CNLU College, Patna</span>
+            <span className="text-gold">Day 1: Bishop Scott Senior Secondary Girls&apos; School</span>
+            <span className="block text-xl sm:text-3xl text-cream/85 mt-2">
+              Day 2: Chanakya National Law University (CNLU), Patna
+            </span>
           </h2>
 
           <p className="text-cream/70 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-normal">
-            Project Athena convenes at <strong className="text-white font-semibold">Chanakya National Law University (CNLU)</strong> — Bihar’s premier national legal institution. Featuring state-of-the-art parliamentary moot courts, expansive auditoriums, and dedicated committee deliberation halls.
+            Athena Summit 2026 convenes on <strong className="text-gold font-semibold">Day 1 (20 Nov)</strong> at <strong className="text-white font-semibold">Bishop Scott Senior Secondary Girls&apos; School, Patna</strong> and culminates on <strong className="text-gold font-semibold">Day 2 (21 Nov)</strong> at <strong className="text-white font-semibold">Chanakya National Law University (CNLU), Patna</strong>.
           </p>
+
+          {/* Interactive Day 1 / Day 2 Venue Switcher */}
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
+            {SUMMIT_VENUES.map((v, idx) => {
+              const isSelected = selectedDayIdx === idx;
+              return (
+                <button
+                  key={v.day}
+                  type="button"
+                  onClick={() => setSelectedDayIdx(idx as 0 | 1)}
+                  className={`px-5 py-2.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider border-2 transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-gold text-[#0b0714] border-black shadow-[4px_4px_0px_0px_#000000] -translate-y-0.5"
+                      : "bg-[#140b24] text-cream/80 border-white/20 hover:border-gold/50 hover:text-gold shadow-[2px_2px_0px_0px_#000000]"
+                  }`}
+                >
+                  {v.shortLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Two-Day Venue Schedule Banner Cards */}
+        <div className="grid md:grid-cols-2 gap-5 mb-10">
+          {SUMMIT_VENUES.map((v, idx) => {
+            const isSelected = selectedDayIdx === idx;
+            return (
+              <div
+                key={v.day}
+                onClick={() => setSelectedDayIdx(idx as 0 | 1)}
+                className={`p-5 border-2 transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-[#190f30] border-gold shadow-[5px_5px_0px_0px_#000000]"
+                    : "bg-[#140b24] border-white/15 hover:border-gold/40 shadow-[3px_3px_0px_0px_#000000]"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="px-2.5 py-0.5 bg-gold text-[#0b0714] font-mono font-black text-[10px] uppercase tracking-wider border border-black">
+                    {v.day}
+                  </span>
+                  <span className="text-[11px] font-mono text-gold/80">
+                    {isSelected ? "● Viewing on Map" : "Click to View Map →"}
+                  </span>
+                </div>
+                <h3 className="font-heading text-lg sm:text-xl font-extrabold text-cream uppercase">
+                  {v.venueName}
+                </h3>
+                <p className="text-xs text-cream/65 font-mono mt-1">
+                  {v.address}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Venue Information & Interactive Map Grid */}
@@ -63,10 +152,10 @@ export function SummitVenueSection({
           
           {/* Left Column: Venue Dossier & Logistics */}
           <motion.div
+            key={activeVenue.venueName}
             initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
             className="lg:col-span-5 flex flex-col justify-between bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] relative space-y-6"
           >
             <div className="space-y-6">
@@ -77,13 +166,13 @@ export function SummitVenueSection({
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-gold font-bold uppercase tracking-widest block">
-                    Institutional Host Campus
+                    {activeVenue.day} • Official Host Campus
                   </span>
                   <h3 className="font-heading text-xl font-extrabold text-cream uppercase">
-                    {venueName}
+                    {activeVenue.venueName}
                   </h3>
                   <p className="text-xs text-cream/60 font-mono mt-0.5">
-                    {subName}
+                    {activeVenue.subName}
                   </p>
                 </div>
               </div>
@@ -94,10 +183,14 @@ export function SummitVenueSection({
                   <Calendar size={18} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-gold font-mono font-bold block">
-                      Summit Schedule
+                      Summit Schedule ({date})
                     </span>
-                    <strong className="text-cream font-bold">{date}</strong>
-                    <span className="text-cream/50 text-[11px] block font-mono mt-0.5">Two Full Days of Deliberation</span>
+                    <strong className="text-cream font-bold block">
+                      Day 1 (20 Nov): Bishop Scott Senior Secondary Girls&apos; School
+                    </strong>
+                    <strong className="text-cream/90 font-semibold block mt-0.5">
+                      Day 2 (21 Nov): Chanakya National Law University (CNLU)
+                    </strong>
                   </div>
                 </div>
 
@@ -105,10 +198,10 @@ export function SummitVenueSection({
                   <MapPin size={18} className="text-gold shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-gold font-mono font-bold block">
-                      Full Postal Address
+                      Full Postal Address ({selectedDayIdx === 0 ? "Day 1" : "Day 2"})
                     </span>
                     <span className="text-cream/90 font-medium leading-relaxed">
-                      {address}
+                      {activeVenue.address}
                     </span>
                   </div>
                 </div>
@@ -134,11 +227,11 @@ export function SummitVenueSection({
                   <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-cream/80">
                     <div className="flex items-center gap-1.5">
                       <Train size={13} className="text-gold/80 shrink-0" />
-                      <span>~10m from Patna Jnn.</span>
+                      <span>{activeVenue.commuteRail}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Plane size={13} className="text-gold/80 shrink-0" />
-                      <span>~15m from Airport</span>
+                      <span>{activeVenue.commuteAir}</span>
                     </div>
                   </div>
                 </div>
@@ -173,7 +266,7 @@ export function SummitVenueSection({
             {/* Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row gap-3">
               <a
-                href={mapDirectionsUrl}
+                href={activeVenue.mapDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto"
@@ -201,10 +294,10 @@ export function SummitVenueSection({
 
           {/* Right Column: Interactive Google Map Embed Frame */}
           <motion.div
+            key={activeVenue.mapEmbedUrl}
             initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
             className="lg:col-span-7 bg-[#140b24] border-2 border-gold shadow-[6px_6px_0px_0px_#000000] overflow-hidden flex flex-col relative min-h-[460px] sm:min-h-[520px]"
           >
             {/* Top Bar above Map */}
@@ -212,19 +305,19 @@ export function SummitVenueSection({
               <div className="flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-cream font-mono font-bold text-xs uppercase">
-                  Live Pin: CNLU Campus, Patna
+                  {activeVenue.pinLabel}
                 </span>
               </div>
               <span className="text-gold font-mono text-[11px] font-bold">
-                25.5941° N, 85.1276° E
+                {activeVenue.coordinates}
               </span>
             </div>
 
             {/* Map Frame */}
             <div className="relative flex-1 w-full h-full min-h-[400px]">
               <iframe
-                title="Chanakya National Law University Location Map"
-                src={mapEmbedUrl}
+                title={`${activeVenue.venueName} Location Map`}
+                src={activeVenue.mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0, minHeight: "400px" }}
@@ -244,7 +337,7 @@ export function SummitVenueSection({
                 </span>
               </div>
               <a
-                href={mapDirectionsUrl}
+                href={activeVenue.mapDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gold hover:underline font-mono font-bold text-xs inline-flex items-center gap-1 self-start sm:self-auto"
@@ -260,4 +353,3 @@ export function SummitVenueSection({
     </section>
   );
 }
-

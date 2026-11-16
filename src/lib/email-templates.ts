@@ -162,13 +162,13 @@ export function generateApprovalEmailHtml(registration: Registration): string {
                     <!-- Venue Row -->
                     <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
                       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #d4af37; margin-bottom: 4px;">
-                        🏛️ Official Summit Venue
+                        🏛️ Official Summit Venues
                       </div>
-                      <div style="font-size: 14px; font-weight: 600; color: #ffffff;">
-                        Chanakya National Law University (CNLU), Patna
+                      <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
+                        Day 1 (20 Nov): Bishop Scott Senior Secondary Girls&apos; School, Patna
                       </div>
-                      <div style="font-size: 11px; color: #b7a9ce; margin-top: 2px;">
-                        Nyaya Nagar, Mithapur, Patna, Bihar 800001 (20–21 November 2026)
+                      <div style="font-size: 13px; font-weight: 600; color: #ffffff; margin-top: 2px;">
+                        Day 2 (21 Nov): Chanakya National Law University (CNLU), Patna
                       </div>
                     </div>
                   </td>
@@ -894,13 +894,13 @@ export function generateSummitSubmissionEmailHtml(registration: Registration): s
                 <tr>
                   <td>
                     <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #d4af37; margin-bottom: 4px;">
-                      🏛️ Summit Venue & Dates
+                      🏛️ Summit Venues &amp; Dates (20–21 Nov 2026)
                     </div>
                     <div style="font-size: 13px; font-weight: 600; color: #ffffff;">
-                      Chanakya National Law University (CNLU), Patna
+                      Day 1 (20 Nov): Bishop Scott Senior Secondary Girls&apos; School, Patna
                     </div>
                     <div style="font-size: 12px; color: #b7a9ce; margin-top: 2px;">
-                      Nyaya Nagar, Mithapur, Patna, Bihar 800001 • 20th & 21st November 2026
+                      Day 2 (21 Nov): Chanakya National Law University (CNLU), Patna
                     </div>
                   </td>
                 </tr>
