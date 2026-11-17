@@ -139,7 +139,9 @@ export function extractSummitNumber(id: string | number | undefined): number {
 }
 
 // Special founder's offer exceptions: IDs granted early-bird price (₹1,000)
-export const SPECIAL_EARLY_BIRD_SUMMIT_NUMBERS = new Set([87, 89, 93, 117, 119, 126]);
+export const SPECIAL_EARLY_BIRD_SUMMIT_NUMBERS = new Set([
+  87, 89, 93, 117, 119, 126, 174, 175,
+]);
 
 export function isSpecialEarlyBirdRegistration(
   id: string | number | undefined,
@@ -154,7 +156,9 @@ export function isSpecialEarlyBirdRegistration(
     str.includes("100093") ||
     str.includes("100117") ||
     str.includes("100119") ||
-    str.includes("100126")
+    str.includes("100126") ||
+    str.includes("100174") ||
+    str.includes("100175")
   ) {
     return true;
   }
