@@ -20,12 +20,13 @@ import {
   Download,
 } from "lucide-react";
 import { committees } from "@/data/committees";
-import {
-  ADMIN_MASTER_PASSWORD,
-  type ScorecardSystemState,
-  type ScorecardVisibility,
-  type ScoreColumn,
+import type {
+  ScorecardSystemState,
+  ScorecardVisibility,
+  ScoreColumn,
 } from "@/lib/scorecard-storage";
+
+const ADMIN_MASTER_PASSWORD = "athena-portal";
 
 interface DelegateRosterItem {
   id: string;
