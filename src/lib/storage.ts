@@ -249,9 +249,12 @@ export async function readRegistrations(
           }
         }
 
-        // Exclude fallback donation records
+        // Exclude fallback donation & scorecard-system records
         const list = data
-          .filter((row: unknown) => (row as Record<string, unknown>).event_slug !== "donation")
+          .filter((row: unknown) => {
+            const slug = (row as Record<string, unknown>).event_slug;
+            return slug !== "donation" && slug !== "scorecard-system";
+          })
           .map((row) => {
             const r = row as Record<string, unknown>;
             if (!includeScreenshots && idsWithScreenshots.size > 0 && typeof r.id === "number") {
@@ -274,7 +277,7 @@ export async function readRegistrations(
   }
 
   const local = await readLocalRegistrations();
-  return local.filter((r) => r.eventSlug !== "donation");
+  return local.filter((r) => r.eventSlug !== "donation" && r.eventSlug !== "scorecard-system");
 }
 
 function stringToNumericId(str: string): number {

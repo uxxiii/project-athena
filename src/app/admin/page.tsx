@@ -31,6 +31,7 @@ import {
   extractSummitNumber,
   isSpecialEarlyBirdRegistration,
 } from "@/lib/diwali";
+import { AdminScorecardHub } from "@/components/admin/AdminScorecardHub";
 
 const ADMIN_PASSWORD = "athena-portal";
 
@@ -438,6 +439,9 @@ export default function AdminPage() {
             </span>
           </div>
         </div>
+
+        {/* Gate Attendance, Live Chair Excel Scoring & Public Scorecard Command Center */}
+        <AdminScorecardHub />
 
         {/* 6-Committee Allocation Matrix Hub */}
         <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-6">

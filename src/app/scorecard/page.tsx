@@ -1,0 +1,465 @@
+"use client";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  Lock,
+  Trophy,
+  Search,
+  CheckCircle2,
+  ShieldCheck,
+  RefreshCw,
+  Users,
+  Sparkles,
+  FileSpreadsheet,
+} from "lucide-react";
+import type {
+  ScorecardVisibility,
+  ScoreColumn,
+  AttendanceRecord,
+} from "@/lib/scorecard-storage";
+
+interface PublicDelegate {
+  id: string;
+  name: string;
+  committeeId: string;
+  committeeName: string;
+  portfolioName: string;
+  institution: string;
+}
+
+interface PublicCommitteeSheet {
+  committeeId: string;
+  day1Columns: ScoreColumn[];
+  day2Columns: ScoreColumn[];
+  scores: Record<
+    string,
+    {
+      day1: Record<string, string>;
+      day2: Record<string, string>;
+      remarks?: string;
+      award?: string;
+    }
+  >;
+}
+
+function sumCols(
+  dayObj: Record<string, string> | undefined,
+  cols: ScoreColumn[]
+): number {
+  if (!dayObj) return 0;
+  let sum = 0;
+  for (const col of cols) {
+    const raw = String(dayObj[col.id] ?? "").trim();
+    if (!raw) continue;
+    const n = parseFloat(raw);
+    if (!isNaN(n) && isFinite(n)) sum += n;
+  }
+  return Math.round(sum * 100) / 100;
+}
+
+export default function PublicScorecardPage() {
+  const [visibility, setVisibility] = useState<ScorecardVisibility>("private");
+  const [attendanceSummary, setAttendanceSummary] = useState<
+    Record<string, { total: number; day1Present: number; day2Present: number }>
+  >({});
+  const [attendance, setAttendance] = useState<Record<string, AttendanceRecord>>({});
+  const [delegates, setDelegates] = useState<PublicDelegate[]>([]);
+  const [committeesData, setCommitteesData] = useState<
+    Record<string, PublicCommitteeSheet>
+  >({});
+  const [committeeMeta, setCommitteeMeta] = useState<
+    Array<{ id: string; name: string; fullName: string }>
+  >([]);
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>("ipl");
+  const [activeDayTab, setActiveDayTab] = useState<"day1" | "day2" | "combined">(
+    "day1"
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchPublicScorecard = useCallback(async () => {
+    try {
+      const res = await fetch("/api/scorecard?mode=public", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setVisibility(data.visibility || "private");
+      setAttendanceSummary(data.attendanceSummary || {});
+      if (data.visibility !== "private") {
+        setDelegates(data.delegates || []);
+        setCommitteesData(data.committees || {});
+        setAttendance(data.attendance || {});
+        setCommitteeMeta(data.committeeMeta || []);
+      } else {
+        setCommitteeMeta(data.committees || []);
+      }
+    } catch (err) {
+      console.error("Error loading public scorecard:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPublicScorecard();
+    const timer = setInterval(fetchPublicScorecard, 8000);
+    return () => clearInterval(timer);
+  }, [fetchPublicScorecard]);
+
+  const activeSheet = committeesData[selectedCommitteeId];
+
+  const rows = useMemo(() => {
+    if (visibility === "private" || !activeSheet) return [];
+    const commDels = delegates.filter((d) => d.committeeId === selectedCommitteeId);
+    const list = commDels.map((d) => {
+      const rec = activeSheet.scores?.[d.id];
+      const d1Total = sumCols(rec?.day1, activeSheet.day1Columns || []);
+      const d2Total =
+        visibility === "final_published"
+          ? sumCols(rec?.day2, activeSheet.day2Columns || [])
+          : 0;
+      const grandTotal =
+        visibility === "final_published"
+          ? Math.round((d1Total + d2Total) * 100) / 100
+          : d1Total;
+      return {
+        ...d,
+        d1Total,
+        d2Total,
+        grandTotal,
+        day1Cells: rec?.day1 || {},
+        day2Cells: rec?.day2 || {},
+        award: rec?.award || "",
+        remarks: rec?.remarks || "",
+        att: attendance[d.id] || { day1: false, day2: false },
+      };
+    });
+
+    const sorted = [...list].sort((a, b) => b.grandTotal - a.grandTotal);
+    const rankMap = new Map<string, number>();
+    sorted.forEach((item, idx) => {
+      if (item.grandTotal > 0) rankMap.set(item.id, idx + 1);
+    });
+
+    return sorted
+      .map((item) => ({
+        ...item,
+        rank: rankMap.get(item.id) || null,
+      }))
+      .filter((item) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        return (
+          item.id.toLowerCase().includes(q) ||
+          item.name.toLowerCase().includes(q) ||
+          item.portfolioName.toLowerCase().includes(q)
+        );
+      });
+  }, [
+    visibility,
+    activeSheet,
+    delegates,
+    selectedCommitteeId,
+    attendance,
+    searchQuery,
+  ]);
+
+  if (loading) {
+    return (
+      <div className="pt-36 pb-24 min-h-screen flex items-center justify-center bg-[#0b0714] text-cream font-mono text-sm">
+        Loading Official Athena Summit Scorecard...
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // LOCKED STATE (While Committee Sessions Are Running)
+  // ============================================================================
+  if (visibility === "private") {
+    return (
+      <div className="pt-32 pb-24 min-h-screen neo-grid-bg bg-[#0b0714] text-cream px-4">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="bg-[#140b24] border-2 border-gold p-8 sm:p-12 shadow-[8px_8px_0px_0px_#000000] text-center space-y-5 relative overflow-hidden">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center bg-gold/15 border-2 border-gold text-gold shadow-[3px_3px_0px_0px_#000]">
+              <Lock size={30} />
+            </div>
+
+            <div className="inline-block">
+              <span className="px-4 py-1 bg-gold text-[#0b0714] font-mono font-black text-xs uppercase tracking-wider border border-black">
+                ATHENA SUMMIT 2026 • OFFICIAL SCORECARD PORTAL
+              </span>
+            </div>
+
+            <h1 className="font-heading text-3xl sm:text-5xl font-black uppercase text-cream leading-tight">
+              Committee Deliberations <span className="text-gold">In Progress</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-cream/75 max-w-2xl mx-auto leading-relaxed">
+              To maintain procedural integrity and prevent mid-session floor disputes, Executive Board marking sheets are strictly encrypted while committees are in session.{" "}
+              <strong className="text-gold">
+                Official Day 1 Scorecards will be unlocked on this page after Day 1 sessions adjourn.
+              </strong>
+            </p>
+
+            <div className="pt-2 inline-flex items-center gap-2 px-4 py-2 bg-[#0b0714] border border-emerald-500/40 text-xs font-mono text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Executive Board Live Scoring &amp; Gate Attendance Sync Active</span>
+            </div>
+          </div>
+
+          {/* Live Committee Attendance Summary */}
+          <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="font-heading text-xl text-cream font-bold uppercase flex items-center gap-2">
+                <Users size={18} className="text-gold" />
+                <span>Live Committee Check-In Status</span>
+              </h2>
+              <span className="text-[11px] font-mono text-gold">
+                20–21 Nov 2026
+              </span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {committeeMeta.map((c) => {
+                const stat = attendanceSummary[c.id] || {
+                  total: 0,
+                  day1Present: 0,
+                  day2Present: 0,
+                };
+                return (
+                  <div
+                    key={c.id}
+                    className="bg-[#0b0714] border border-white/15 p-4 space-y-2 shadow-[3px_3px_0px_0px_#000]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-heading text-lg font-extrabold text-gold">
+                        {c.name}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-gold/10 text-gold border border-gold/30">
+                        {stat.total} Delegates
+                      </span>
+                    </div>
+                    <p className="text-xs text-cream/60 line-clamp-1">{c.fullName}</p>
+                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-emerald-400">
+                        Day 1 Present: <strong>{stat.day1Present}</strong>
+                      </span>
+                      <span className="text-sky-300">
+                        Day 2 Present: <strong>{stat.day2Present}</strong>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // PUBLISHED SCORECARD STATE (Day 1 Published or Final Published)
+  // ============================================================================
+  const activeCols =
+    activeDayTab === "day2" && visibility === "final_published"
+      ? activeSheet?.day2Columns || []
+      : activeSheet?.day1Columns || [];
+
+  return (
+    <div className="pt-28 pb-24 min-h-screen neo-grid-bg bg-[#0b0714] text-cream px-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-[#140b24] border-2 border-gold p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold text-[#0b0714] font-mono font-black text-xs uppercase border border-black">
+              <Trophy size={13} />
+              <span>
+                {visibility === "final_published"
+                  ? "OFFICIAL FINAL SCORECARD & STANDINGS (DAY 1 + DAY 2)"
+                  : "OFFICIAL DAY 1 SCORECARD & STANDINGS"}
+              </span>
+            </div>
+            <h1 className="font-heading text-3xl sm:text-4xl font-black uppercase text-cream">
+              Athena Summit 2026 <span className="text-gold">Live Scorecard</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-cream/70">
+              Verified Executive Board evaluations released by the Project Athena Secretariat.
+            </p>
+          </div>
+
+          {visibility === "final_published" && (
+            <div className="inline-flex border-2 border-white/20 bg-[#0b0714] self-start">
+              <button
+                type="button"
+                onClick={() => setActiveDayTab("day1")}
+                className={`px-3.5 py-2 text-xs font-mono font-bold uppercase cursor-pointer ${
+                  activeDayTab === "day1"
+                    ? "bg-gold text-[#0b0714] font-black"
+                    : "text-cream/70"
+                }`}
+              >
+                Day 1 Breakdown
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDayTab("day2")}
+                className={`px-3.5 py-2 text-xs font-mono font-bold uppercase cursor-pointer ${
+                  activeDayTab === "day2"
+                    ? "bg-gold text-[#0b0714] font-black"
+                    : "text-cream/70"
+                }`}
+              >
+                Day 2 Breakdown
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Committee Selector Tabs & Search */}
+        <div className="bg-[#140b24] border-2 border-white/15 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {committeeMeta.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setSelectedCommitteeId(c.id)}
+                className={`px-4 py-2 text-xs font-mono font-bold uppercase border-2 transition-all cursor-pointer ${
+                  selectedCommitteeId === c.id
+                    ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
+                    : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative min-w-[240px]">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-cream/40"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search your Name, Pass ID, or Portfolio..."
+              className="w-full bg-[#0b0714] border border-white/20 pl-9 pr-3 py-2 text-xs font-mono text-cream outline-none focus:border-gold"
+            />
+          </div>
+        </div>
+
+        {/* Scorecard Table */}
+        <div className="bg-[#110920] border-2 border-white/20 shadow-[6px_6px_0px_0px_#000000] overflow-x-auto">
+          <table className="w-full border-collapse text-left font-mono text-xs">
+            <thead>
+              <tr className="bg-[#1d1036] border-b-2 border-gold/40 text-[11px] uppercase text-gold">
+                <th className="py-3 px-3 border-r border-white/15 w-16 text-center">
+                  RANK
+                </th>
+                <th className="py-3 px-3 border-r border-white/15 w-28">PASS ID</th>
+                <th className="py-3 px-3 border-r border-white/15 min-w-[160px]">
+                  DELEGATE NAME
+                </th>
+                <th className="py-3 px-3 border-r border-white/15 min-w-[180px]">
+                  PORTFOLIO
+                </th>
+                {activeCols.map((col) => (
+                  <th
+                    key={col.id}
+                    className="py-3 px-3 border-r border-white/15 text-center bg-[#231242]"
+                  >
+                    {col.label}
+                  </th>
+                ))}
+                <th className="py-3 px-3 border-r border-white/15 text-center bg-[#180c2e]">
+                  DAY 1 TOT
+                </th>
+                {visibility === "final_published" && (
+                  <th className="py-3 px-3 border-r border-white/15 text-center bg-[#180c2e]">
+                    DAY 2 TOT
+                  </th>
+                )}
+                <th className="py-3 px-3 border-r border-white/15 text-center bg-gold/15 text-gold font-black">
+                  {visibility === "final_published" ? "FINAL TOTAL" : "DAY 1 TOTAL"}
+                </th>
+                {visibility === "final_published" && (
+                  <th className="py-3 px-3 min-w-[150px]">AWARD</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => {
+                const cells =
+                  activeDayTab === "day2" && visibility === "final_published"
+                    ? row.day2Cells
+                    : row.day1Cells;
+                return (
+                  <tr
+                    key={row.id}
+                    className={`border-b border-white/10 ${
+                      idx % 2 === 0 ? "bg-[#0d0718]" : "bg-[#130a22]"
+                    } hover:bg-[#1e1136]`}
+                  >
+                    <td className="py-2.5 px-3 border-r border-white/10 text-center">
+                      {row.rank ? (
+                        <span
+                          className={`inline-flex px-2 py-0.5 text-[10px] font-black border ${
+                            row.rank === 1
+                              ? "bg-gold text-[#0b0714] border-black"
+                              : row.rank === 2
+                                ? "bg-slate-300 text-[#0b0714] border-black"
+                                : row.rank === 3
+                                  ? "bg-amber-600 text-white border-black"
+                                  : "bg-white/5 text-cream/70 border-white/15"
+                          }`}
+                        >
+                          #{row.rank}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3 border-r border-white/10 font-bold text-gold/90">
+                      {row.id.replace("ATH-SUMMIT-", "#")}
+                    </td>
+                    <td className="py-2.5 px-3 border-r border-white/10 font-sans font-semibold text-cream">
+                      {row.name}
+                    </td>
+                    <td className="py-2.5 px-3 border-r border-white/10 font-sans text-cream/80">
+                      {row.portfolioName}
+                    </td>
+                    {activeCols.map((col) => (
+                      <td
+                        key={col.id}
+                        className="py-2.5 px-3 border-r border-white/10 text-center font-bold text-cream"
+                      >
+                        {cells[col.id] || "—"}
+                      </td>
+                    ))}
+                    <td className="py-2.5 px-3 border-r border-white/10 text-center font-bold text-cream/80 bg-[#150a26]">
+                      {row.d1Total}
+                    </td>
+                    {visibility === "final_published" && (
+                      <td className="py-2.5 px-3 border-r border-white/10 text-center font-bold text-cream/80 bg-[#150a26]">
+                        {row.d2Total}
+                      </td>
+                    )}
+                    <td className="py-2.5 px-3 border-r border-white/10 text-center font-black text-sm text-gold bg-gold/10">
+                      {row.grandTotal}
+                    </td>
+                    {visibility === "final_published" && (
+                      <td className="py-2.5 px-3 font-bold text-emerald-300">
+                        {row.award || "—"}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

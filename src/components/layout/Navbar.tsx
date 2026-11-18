@@ -19,6 +19,7 @@ import {
 const desktopNavLinks = [
   { href: "/about", label: "About" },
   { href: "/events", label: "Events" },
+  { href: "/scorecard", label: "Scorecard" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/teams", label: "Teams" },
   { href: "/donate", label: "Fundraiser", badge: "Live" },
