@@ -61,7 +61,7 @@ export function EventHero({ event }: EventHeroProps) {
           >
             {/* Top Announcement Bar */}
             <div className="flex flex-wrap items-center gap-3">
-              {event.slug === "mun-picnic" ? (
+              {!event.registrationOpen ? (
                 <Badge variant="warning">Registration Closed</Badge>
               ) : isLaunched && event.registrationOpen ? (
                 <Badge variant="success">
@@ -70,10 +70,7 @@ export function EventHero({ event }: EventHeroProps) {
                     : "Registration Open"}
                 </Badge>
               ) : (
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-purple-dark/80 px-4 py-1.5 text-xs text-sky-300 font-mono shadow-md">
-                  <Lock className="w-3.5 h-3.5 text-gold" />
-                  <span>🎈 CHILDREN&apos;S DAY SALE OPENS @ 9:00 PM IST</span>
-                </div>
+                <Badge variant="warning">Registration Closed</Badge>
               )}
               {event.capacity && (
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-gold/20 bg-gold/5 px-3 py-1 text-xs text-gold font-mono">
@@ -132,9 +129,7 @@ export function EventHero({ event }: EventHeroProps) {
                 <span>
                   {event.registrationOpen
                     ? "Register Now"
-                    : event.slug === "mun-picnic"
-                      ? "Registration Closed"
-                      : "Registration Opening Soon"}
+                    : "Registration Closed"}
                 </span>
                 <ArrowDown size={16} />
               </Button>
@@ -188,11 +183,7 @@ export function EventHero({ event }: EventHeroProps) {
                   </span>
                 </div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-gold/70 bg-gold/5 px-2 py-0.5 rounded border border-gold/15">
-                  {event.registrationOpen
-                    ? "Open Now"
-                    : event.slug === "mun-picnic"
-                      ? "Closed"
-                      : "Opening Soon"}
+                  {event.registrationOpen ? "Open Now" : "Closed"}
                 </span>
               </div>
 
@@ -200,7 +191,9 @@ export function EventHero({ event }: EventHeroProps) {
                 <p className="text-xs text-cream/70 font-sans">
                   {event.slug === "mun-picnic"
                     ? "Registration for the Athena MUN Picnic is closed. We are no longer accepting submissions for this event."
-                    : `Delegate registrations are opening soon! ${event.capacity ?? 500}+ seats across ${event.committees.length || 6} committees allocated on a first-come, first-served basis.`}
+                    : !event.registrationOpen
+                      ? "Registrations for Athena Summit 2026 are now officially closed. We look forward to welcoming all delegates on 20–21 November 2026!"
+                      : `Delegate registrations are open! ${event.capacity ?? 500}+ seats across ${event.committees.length || 6} committees allocated on a first-come, first-served basis.`}
                 </p>
               </div>
 

@@ -79,9 +79,7 @@ export const events: SummitEvent[] = [
         department: "Advisory Board",
       },
     ],
-    get registrationOpen() {
-      return isRegistrationLaunched();
-    },
+    registrationOpen: false,
   },
   {
     slug: "mun-picnic",

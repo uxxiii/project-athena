@@ -62,17 +62,11 @@ export const PRICING_CONFIG: { normal: CommitteePricing; unsc: CommitteePricing 
 };
 
 export function isRegistrationLaunched(): boolean {
-  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_REGISTRATION_OPEN === "false") {
-    return false;
-  }
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_REGISTRATION_OPEN === "true") {
     return true;
   }
-  // Closed for 10 minutes from 8:50 PM to 9:00 PM IST on Nov 14 before Children's Day Sale opens at 9:00 PM
-  if (isRegistrationPausedForChildrensDaySale()) {
-    return false;
-  }
-  return true;
+  // Registrations for Athena Summit 2026 are officially closed
+  return false;
 }
 
 export function isEarlyBirdActive(): boolean {

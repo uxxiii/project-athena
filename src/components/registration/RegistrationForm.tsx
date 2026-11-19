@@ -367,7 +367,36 @@ export function RegistrationForm({ eventSlug }: RegistrationFormProps) {
 
       <div className="mx-auto max-w-3xl px-6">
         {!isFormLaunched ? (
-          <RegistrationLaunchBanner onLaunch={() => setIsFormLaunched(true)} />
+          <div className="bg-[#140b24] border-2 border-gold p-8 sm:p-12 shadow-[8px_8px_0px_0px_#000000] text-center space-y-5">
+            <div className="inline-block transform -rotate-1">
+              <span className="px-4 py-1.5 bg-gold border-2 border-black text-[#0b0714] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000]">
+                Official Secretariat Notice
+              </span>
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-black uppercase text-cream">
+              Registrations <span className="text-gold">Closed</span>
+            </h2>
+            <p className="text-sm sm:text-base text-cream/75 max-w-xl mx-auto leading-relaxed">
+              Delegate registrations for <strong className="text-white">Athena Summit 2026</strong> are now officially closed. Thank you for the overwhelming response!
+            </p>
+            <div className="bg-[#0b0714] border border-white/15 p-4 text-xs font-mono text-cream/80 space-y-1.5 max-w-lg mx-auto text-left">
+              <div>
+                <strong className="text-gold">Day 1 (20 Nov):</strong> Bishop Scott Senior Secondary Girls&apos; School, Patna
+              </div>
+              <div>
+                <strong className="text-gold">Day 2 (21 Nov):</strong> Chanakya National Law University (CNLU), Patna
+              </div>
+              <div>
+                <strong className="text-gold">Reporting Time:</strong> 8:30 AM IST
+              </div>
+            </div>
+            <p className="text-xs text-cream/55 font-mono">
+              For urgent Secretariat inquiries, email{" "}
+              <a href="mailto:project.athena03@gmail.com" className="text-gold underline">
+                project.athena03@gmail.com
+              </a>
+            </p>
+          </div>
         ) : (
           <>
             {/* Header */}
