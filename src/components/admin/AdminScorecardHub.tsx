@@ -81,8 +81,12 @@ export function AdminScorecardHub() {
 
   const localEditTimestampsRef = useRef<Record<string, number>>({});
   const saveTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const inFlightMutationsRef = useRef<number>(0);
 
   const fetchAdminState = useCallback(async (isPoll = false) => {
+    // Never overwrite optimistic UI while a local mutation is actively saving
+    if (isPoll && inFlightMutationsRef.current > 0) return;
+
     try {
       const res = await fetch(
         `/api/scorecard?mode=admin&adminPassword=${encodeURIComponent(
@@ -102,10 +106,28 @@ export function AdminScorecardHub() {
         return;
       }
 
+      // Skip applying stale poll response if a mutation started while this GET was in-flight
+      if (inFlightMutationsRef.current > 0) return;
+
       setState((prev) => {
         if (!prev) return incoming;
         const now = Date.now();
-        // Preserve recent local edits (<3.5s old) while streaming live chair changes
+
+        // Preserve recent local attendance toggles (<6s old) so buttons never blink
+        const mergedAttendance = { ...incoming.attendance };
+        for (const [delId, prevAtt] of Object.entries(prev.attendance || {})) {
+          if (now - (localEditTimestampsRef.current[`att-${delId}`] || 0) < 6000) {
+            mergedAttendance[delId] = prevAtt;
+          }
+        }
+
+        // Preserve recent local visibility switches (<6s old)
+        const mergedVisibility =
+          now - (localEditTimestampsRef.current["__visibility__"] || 0) < 6000
+            ? prev.visibility
+            : incoming.visibility;
+
+        // Preserve recent local score/column edits (<4.5s old) while streaming live chair changes
         const mergedCommittees = { ...incoming.committees };
         for (const c of committees) {
           const prevSheet = prev.committees?.[c.id];
@@ -113,18 +135,18 @@ export function AdminScorecardHub() {
           if (!prevSheet || !incSheet) continue;
           const mergedScores = { ...incSheet.scores };
           for (const [delId, prevScore] of Object.entries(prevSheet.scores || {})) {
-            if (now - (localEditTimestampsRef.current[`${c.id}-${delId}`] || 0) < 3500) {
+            if (now - (localEditTimestampsRef.current[`${c.id}-${delId}`] || 0) < 4500) {
               mergedScores[delId] = prevScore;
             }
           }
           mergedCommittees[c.id] = {
             ...incSheet,
             day1Columns:
-              now - (localEditTimestampsRef.current[`cols-${c.id}`] || 0) < 3500
+              now - (localEditTimestampsRef.current[`cols-${c.id}`] || 0) < 4500
                 ? prevSheet.day1Columns
                 : incSheet.day1Columns,
             day2Columns:
-              now - (localEditTimestampsRef.current[`cols-${c.id}`] || 0) < 3500
+              now - (localEditTimestampsRef.current[`cols-${c.id}`] || 0) < 4500
                 ? prevSheet.day2Columns
                 : incSheet.day2Columns,
             scores: mergedScores,
@@ -132,6 +154,8 @@ export function AdminScorecardHub() {
         }
         return {
           ...incoming,
+          visibility: mergedVisibility,
+          attendance: mergedAttendance,
           committees: mergedCommittees,
         };
       });
@@ -140,27 +164,32 @@ export function AdminScorecardHub() {
     }
   }, []);
 
-  // Poll every 1.5 seconds for near-real-time live sync with chairs
+  // Poll every 2.5 seconds for smooth live sync with chairs without flickering
   useEffect(() => {
     fetchAdminState(false);
     const interval = setInterval(() => {
       fetchAdminState(true);
-    }, 1500);
+    }, 2500);
     return () => clearInterval(interval);
   }, [fetchAdminState]);
 
   const handleToggleVisibility = async (newVis: ScorecardVisibility) => {
-    if (!state) return;
-    setState({ ...state, visibility: newVis });
-    await fetch("/api/scorecard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "update_visibility",
-        adminPassword: ADMIN_MASTER_PASSWORD,
-        visibility: newVis,
-      }),
-    });
+    localEditTimestampsRef.current["__visibility__"] = Date.now();
+    inFlightMutationsRef.current++;
+    setState((prev) => (prev ? { ...prev, visibility: newVis } : prev));
+    try {
+      await fetch("/api/scorecard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_visibility",
+          adminPassword: ADMIN_MASTER_PASSWORD,
+          visibility: newVis,
+        }),
+      });
+    } finally {
+      inFlightMutationsRef.current = Math.max(0, inFlightMutationsRef.current - 1);
+    }
   };
 
   const handleToggleAttendance = async (
@@ -168,34 +197,45 @@ export function AdminScorecardHub() {
     day: "day1" | "day2",
     present: boolean
   ) => {
-    if (!state) return;
-    const prevAtt = state.attendance[delegateId] || { day1: false, day2: false };
-    const updatedAtt = {
-      ...prevAtt,
-      [day]: present,
-      ...(day === "day1"
-        ? { day1Time: present ? new Date().toISOString() : undefined }
-        : { day2Time: present ? new Date().toISOString() : undefined }),
-    };
-    setState({
-      ...state,
-      attendance: {
-        ...state.attendance,
-        [delegateId]: updatedAtt,
-      },
+    localEditTimestampsRef.current[`att-${delegateId}`] = Date.now();
+    inFlightMutationsRef.current++;
+    const nowIso = new Date().toISOString();
+
+    setState((prev) => {
+      if (!prev) return prev;
+      const prevAtt = prev.attendance[delegateId] || { day1: false, day2: false };
+      const updatedAtt = {
+        ...prevAtt,
+        [day]: present,
+        ...(day === "day1"
+          ? { day1Time: present ? nowIso : undefined }
+          : { day2Time: present ? nowIso : undefined }),
+      };
+      return {
+        ...prev,
+        attendance: {
+          ...prev.attendance,
+          [delegateId]: updatedAtt,
+        },
+      };
     });
 
-    await fetch("/api/scorecard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "update_attendance",
-        adminPassword: ADMIN_MASTER_PASSWORD,
-        delegateId,
-        day,
-        present,
-      }),
-    });
+    try {
+      await fetch("/api/scorecard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_attendance",
+          adminPassword: ADMIN_MASTER_PASSWORD,
+          delegateId,
+          day,
+          present,
+        }),
+      });
+    } finally {
+      localEditTimestampsRef.current[`att-${delegateId}`] = Date.now();
+      inFlightMutationsRef.current = Math.max(0, inFlightMutationsRef.current - 1);
+    }
   };
 
   const handleBulkAttendance = async (
@@ -203,32 +243,49 @@ export function AdminScorecardHub() {
     day: "day1" | "day2",
     present: boolean
   ) => {
-    if (!state || delegateIds.length === 0) return;
-    const nextAttendance = { ...state.attendance };
+    if (delegateIds.length === 0) return;
+    const now = Date.now();
     const nowIso = new Date().toISOString();
     for (const id of delegateIds) {
-      const prevAtt = nextAttendance[id] || { day1: false, day2: false };
-      nextAttendance[id] = {
-        ...prevAtt,
-        [day]: present,
-        ...(day === "day1"
-          ? { day1Time: present ? nowIso : undefined }
-          : { day2Time: present ? nowIso : undefined }),
-      };
+      localEditTimestampsRef.current[`att-${id}`] = now;
     }
-    setState({ ...state, attendance: nextAttendance });
+    inFlightMutationsRef.current++;
 
-    await fetch("/api/scorecard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "update_bulk_attendance",
-        adminPassword: ADMIN_MASTER_PASSWORD,
-        delegateIds,
-        day,
-        present,
-      }).replace("update_bulk_attendance", "bulk_attendance"),
+    setState((prev) => {
+      if (!prev) return prev;
+      const nextAttendance = { ...prev.attendance };
+      for (const id of delegateIds) {
+        const prevAtt = nextAttendance[id] || { day1: false, day2: false };
+        nextAttendance[id] = {
+          ...prevAtt,
+          [day]: present,
+          ...(day === "day1"
+            ? { day1Time: present ? nowIso : undefined }
+            : { day2Time: present ? nowIso : undefined }),
+        };
+      }
+      return { ...prev, attendance: nextAttendance };
     });
+
+    try {
+      await fetch("/api/scorecard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "bulk_attendance",
+          adminPassword: ADMIN_MASTER_PASSWORD,
+          delegateIds,
+          day,
+          present,
+        }),
+      });
+    } finally {
+      const doneAt = Date.now();
+      for (const id of delegateIds) {
+        localEditTimestampsRef.current[`att-${id}`] = doneAt;
+      }
+      inFlightMutationsRef.current = Math.max(0, inFlightMutationsRef.current - 1);
+    }
   };
 
   // Admin Excel Scoring Overrides
