@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Manrope, Cormorant_Garamond } from "next/font/google";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { DiwaliDecor } from "@/components/festive/DiwaliDecor";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -52,12 +50,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
-        <DiwaliDecor />
-        <Navbar />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

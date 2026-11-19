@@ -65,10 +65,16 @@ function computeDaySum(
   return Math.round(sum * 100) / 100;
 }
 
-export function AdminScorecardHub() {
-  const [activeTab, setActiveTab] = useState<
+export function AdminScorecardHub({
+  forcedTab,
+}: {
+  forcedTab?: "attendance" | "scoring" | "passcodes";
+} = {}) {
+  const [internalTab, setInternalTab] = useState<
     "attendance" | "scoring" | "passcodes"
-  >("attendance");
+  >(forcedTab ?? "attendance");
+  const activeTab = forcedTab ?? internalTab;
+  const setActiveTab = setInternalTab;
   const [state, setState] = useState<ScorecardSystemState | null>(null);
   const [delegates, setDelegates] = useState<DelegateRosterItem[]>([]);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>("ipl");
@@ -645,50 +651,61 @@ export function AdminScorecardHub() {
         </div>
       </div>
 
-      {/* Sub-Navigation Tabs */}
+      {/* Sub-Navigation Tabs (hidden when controlled by left sidebar) */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab("attendance")}
-            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
-              activeTab === "attendance"
-                ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
-                : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
-            }`}
-          >
-            <Users size={14} />
-            <span>
-              1. Morning Gate Attendance ({totalDay1Present} D1 / {totalDay2Present} D2)
+        {!forcedTab ? (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab("attendance")}
+              className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
+                activeTab === "attendance"
+                  ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
+                  : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
+              }`}
+            >
+              <Users size={14} />
+              <span>
+                1. Morning Gate Attendance ({totalDay1Present} D1 / {totalDay2Present} D2)
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("scoring")}
+              className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
+                activeTab === "scoring"
+                  ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
+                  : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
+              }`}
+            >
+              <FileSpreadsheet size={14} />
+              <span>2. Live Chair Excel Sheets &amp; Admin Override</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("passcodes")}
+              className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
+                activeTab === "passcodes"
+                  ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
+                  : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
+              }`}
+            >
+              <KeyRound size={14} />
+              <span>3. Committee Chair Passcodes</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
+            <span className="px-3 py-1.5 bg-[#0b0714] border border-emerald-500/40 text-emerald-300 font-bold">
+              Day 1 Present: {totalDay1Present} / {delegates.length}
             </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("scoring")}
-            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
-              activeTab === "scoring"
-                ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
-                : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
-            }`}
-          >
-            <FileSpreadsheet size={14} />
-            <span>2. Live Chair Excel Sheets &amp; Admin Override</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("passcodes")}
-            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase border-2 flex items-center gap-2 cursor-pointer transition-all ${
-              activeTab === "passcodes"
-                ? "bg-gold text-[#0b0714] border-black font-black shadow-[3px_3px_0px_0px_#000]"
-                : "bg-[#0b0714] text-cream/75 border-white/15 hover:border-gold/50"
-            }`}
-          >
-            <KeyRound size={14} />
-            <span>3. Committee Chair Passcodes</span>
-          </button>
-        </div>
+            <span className="px-3 py-1.5 bg-[#0b0714] border border-sky-500/40 text-sky-300 font-bold">
+              Day 2 Present: {totalDay2Present} / {delegates.length}
+            </span>
+          </div>
+        )}
 
         {/* Search Input for Attendance & Scoring */}
         {activeTab !== "passcodes" && (

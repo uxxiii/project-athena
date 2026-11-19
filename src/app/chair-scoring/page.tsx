@@ -497,7 +497,7 @@ export default function ChairScoringPage() {
   // ============================================================================
   if (!unlocked) {
     return (
-      <div className="pt-32 pb-24 min-h-screen flex items-center justify-center neo-grid-bg px-4">
+      <div className="py-12 min-h-screen flex items-center justify-center neo-grid-bg bg-[#0b0714] px-4">
         <div className="max-w-md w-full bg-[#140b24] border-2 border-gold/50 p-8 sm:p-10 shadow-[8px_8px_0px_0px_#000000] relative">
           <div className="text-center mb-6 space-y-2">
             <div className="mx-auto flex h-16 w-16 items-center justify-center bg-gold/15 border-2 border-gold text-gold shadow-[3px_3px_0px_0px_#000]">
@@ -575,7 +575,7 @@ export default function ChairScoringPage() {
   // 2. EXCEL-LIKE CHAIR SCORING SPREADSHEET
   // ============================================================================
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-[#0b0714] text-cream">
+    <div className="py-5 min-h-screen bg-[#0b0714] text-cream">
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 space-y-4">
         {/* Top Command Header */}
         <div className="bg-[#140b24] border-2 border-gold/40 p-4 sm:p-5 shadow-[5px_5px_0px_0px_#000000] flex flex-col lg:flex-row lg:items-center justify-between gap-4">

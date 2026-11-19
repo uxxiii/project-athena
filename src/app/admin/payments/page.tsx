@@ -283,7 +283,7 @@ export default function AdminPaymentsPage() {
   const summitCount = registrations.filter((r) => r.eventSlug !== "mun-picnic").length;
 
   return (
-    <div className="pt-28 pb-20 neo-grid-bg min-h-screen">
+    <div className="pt-8 pb-20 neo-grid-bg min-h-screen">
       <div className="mx-auto max-w-7xl px-6 space-y-6">
         {/* Breadcrumb & Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-4">
