@@ -165,92 +165,39 @@ export default function PublicScorecardPage() {
 
   if (loading) {
     return (
-      <div className="pt-36 pb-24 min-h-screen flex items-center justify-center bg-[#0b0714] text-cream font-mono text-sm">
+      <div className="min-h-screen flex items-center justify-center bg-black text-cream/70 font-mono text-sm">
         Loading Official Athena Summit Scorecard...
       </div>
     );
   }
 
   // ============================================================================
-  // LOCKED STATE (While Committee Sessions Are Running)
+  // LOCKED STATE (Minimal Black Screen While Committee Sessions Are Running)
   // ============================================================================
   if (visibility === "private") {
     return (
-      <div className="pt-32 pb-24 min-h-screen neo-grid-bg bg-[#0b0714] text-cream px-4">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="bg-[#140b24] border-2 border-gold p-8 sm:p-12 shadow-[8px_8px_0px_0px_#000000] text-center space-y-5 relative overflow-hidden">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center bg-gold/15 border-2 border-gold text-gold shadow-[3px_3px_0px_0px_#000]">
-              <Lock size={30} />
-            </div>
-
-            <div className="inline-block">
-              <span className="px-4 py-1 bg-gold text-[#0b0714] font-mono font-black text-xs uppercase tracking-wider border border-black">
-                ATHENA SUMMIT 2026 • OFFICIAL SCORECARD PORTAL
-              </span>
-            </div>
-
-            <h1 className="font-heading text-3xl sm:text-5xl font-black uppercase text-cream leading-tight">
-              Committee Deliberations <span className="text-gold">In Progress</span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-cream/75 max-w-2xl mx-auto leading-relaxed">
-              To maintain procedural integrity and prevent mid-session floor disputes, Executive Board marking sheets are strictly encrypted while committees are in session.{" "}
-              <strong className="text-gold">
-                Official Day 1 Scorecards will be unlocked on this page after Day 1 sessions adjourn.
-              </strong>
-            </p>
-
-            <div className="pt-2 inline-flex items-center gap-2 px-4 py-2 bg-[#0b0714] border border-emerald-500/40 text-xs font-mono text-emerald-300">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Executive Board Live Scoring &amp; Gate Attendance Sync Active</span>
-            </div>
+      <div className="min-h-screen bg-black text-cream flex items-center justify-center px-6 pt-28 pb-20">
+        <div className="max-w-2xl w-full text-center space-y-6">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center bg-gold/10 border border-gold/40 text-gold">
+            <Lock size={24} />
           </div>
 
-          {/* Live Committee Attendance Summary */}
-          <div className="bg-[#140b24] border-2 border-white/15 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h2 className="font-heading text-xl text-cream font-bold uppercase flex items-center gap-2">
-                <Users size={18} className="text-gold" />
-                <span>Live Committee Check-In Status</span>
-              </h2>
-              <span className="text-[11px] font-mono text-gold">
-                20–21 Nov 2026
-              </span>
-            </div>
+          <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-gold/80 font-bold">
+            Athena Summit 2026 • Official Scorecard
+          </p>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {committeeMeta.map((c) => {
-                const stat = attendanceSummary[c.id] || {
-                  total: 0,
-                  day1Present: 0,
-                  day2Present: 0,
-                };
-                return (
-                  <div
-                    key={c.id}
-                    className="bg-[#0b0714] border border-white/15 p-4 space-y-2 shadow-[3px_3px_0px_0px_#000]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-heading text-lg font-extrabold text-gold">
-                        {c.name}
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 bg-gold/10 text-gold border border-gold/30">
-                        {stat.total} Delegates
-                      </span>
-                    </div>
-                    <p className="text-xs text-cream/60 line-clamp-1">{c.fullName}</p>
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
-                      <span className="text-emerald-400">
-                        Day 1 Present: <strong>{stat.day1Present}</strong>
-                      </span>
-                      <span className="text-sky-300">
-                        Day 2 Present: <strong>{stat.day2Present}</strong>
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-cream leading-tight">
+            Committee Deliberations{" "}
+            <span className="text-gold">In Progress...</span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-cream/55 max-w-xl mx-auto leading-relaxed">
+            Executive Board evaluations are strictly encrypted while committees are in session. Official scores will be published on this page once Day 1 deliberations adjourn.
+          </p>
+
+          <div className="pt-2 inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-cream/40">
+            <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+            <span>Scores Locked by Secretariat</span>
           </div>
         </div>
       </div>
