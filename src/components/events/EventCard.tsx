@@ -27,16 +27,10 @@ export function EventCard({ event, index = 0 }: EventCardProps) {
               className={`px-3 py-1 font-mono font-bold text-xs uppercase tracking-wider border shadow-[2px_2px_0px_0px_#000000] ${
                 event.registrationOpen
                   ? "bg-emerald-400 text-[#0b0714] border-black"
-                  : event.slug === "mun-picnic"
-                  ? "bg-rose-500 text-white border-black"
-                  : "bg-gold text-[#0b0714] border-black"
+                  : "bg-rose-500 text-white border-black"
               }`}
             >
-              {event.registrationOpen
-                ? "Registration Open"
-                : event.slug === "mun-picnic"
-                ? "Registration Closed"
-                : "Opening Soon"}
+              {event.registrationOpen ? "Registration Open" : "Registration Closed"}
             </span>
 
             <span className="font-heading text-4xl sm:text-5xl font-black text-white/20 group-hover:text-gold transition-colors">
@@ -84,7 +78,13 @@ export function EventCard({ event, index = 0 }: EventCardProps) {
           </div>
 
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gold group-hover:text-cream transition-colors pt-1">
-            <span>{event.slug === "mun-picnic" ? "View Archive" : "View Details & Register"}</span>
+            <span>
+              {event.slug === "mun-picnic"
+                ? "View Archive"
+                : event.registrationOpen
+                  ? "View Details & Register"
+                  : "View Event Details"}
+            </span>
             <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform" />
           </div>
         </div>
