@@ -76,6 +76,7 @@ export default function ChairScoringPage() {
   const [delegates, setDelegates] = useState<DelegateRosterItem[]>([]);
   const [attendance, setAttendance] = useState<Record<string, AttendanceRecord>>({});
   const [activeDay, setActiveDay] = useState<"day1" | "day2">("day1");
+  const [ipSection, setIpSection] = useState<"journalist" | "photographer">("journalist");
   const [searchQuery, setSearchQuery] = useState("");
   const [attendanceFilter, setAttendanceFilter] = useState<"all" | "present" | "absent">("all");
   const [sortBy, setSortBy] = useState<"id" | "rank" | "portfolio">("id");
@@ -129,6 +130,14 @@ export default function ChairScoringPage() {
               now - (cellTimestampsRef.current["__cols__"] || 0) < 4000
                 ? prev.day2Columns
                 : data.sheet.day2Columns,
+            photographerDay1Columns:
+              now - (cellTimestampsRef.current["__cols__"] || 0) < 4000
+                ? prev.photographerDay1Columns
+                : data.sheet.photographerDay1Columns,
+            photographerDay2Columns:
+              now - (cellTimestampsRef.current["__cols__"] || 0) < 4000
+                ? prev.photographerDay2Columns
+                : data.sheet.photographerDay2Columns,
             scores: mergedScores,
           };
         });
@@ -181,14 +190,36 @@ export default function ChairScoringPage() {
     }
   };
 
-  const activeColumns = useMemo(() => {
+  const isIpCommittee = selectedCommitteeId === "ip";
+  const isPhotographerView = isIpCommittee && ipSection === "photographer";
+
+  const activeDay1Cols = useMemo(() => {
     if (!sheet) return [];
-    return activeDay === "day2" ? sheet.day2Columns : sheet.day1Columns;
-  }, [sheet, activeDay]);
+    if (isPhotographerView) {
+      return sheet.photographerDay1Columns || sheet.day1Columns;
+    }
+    return sheet.day1Columns;
+  }, [sheet, isPhotographerView]);
+
+  const activeDay2Cols = useMemo(() => {
+    if (!sheet) return [];
+    if (isPhotographerView) {
+      return sheet.photographerDay2Columns || sheet.day2Columns;
+    }
+    return sheet.day2Columns;
+  }, [sheet, isPhotographerView]);
+
+  const activeColumns = useMemo(() => {
+    return activeDay === "day2" ? activeDay2Cols : activeDay1Cols;
+  }, [activeDay, activeDay1Cols, activeDay2Cols]);
 
   // Save column definitions (add / rename / delete column)
   const persistColumns = useCallback(
-    async (day: "day1" | "day2", newCols: ScoreColumn[]) => {
+    async (
+      day: "day1" | "day2",
+      newCols: ScoreColumn[],
+      section?: "journalist" | "photographer"
+    ) => {
       cellTimestampsRef.current["__cols__"] = Date.now();
       setSaveStatus("saving");
       try {
@@ -200,6 +231,7 @@ export default function ChairScoringPage() {
             committeeId: selectedCommitteeId,
             passcode: passcode.trim(),
             day,
+            section: section === "photographer" ? "photographer" : undefined,
             columns: newCols,
           }),
         });
@@ -216,48 +248,58 @@ export default function ChairScoringPage() {
     [selectedCommitteeId, passcode]
   );
 
+  const setColumnsInSheet = (day: "day1" | "day2", updated: ScoreColumn[]) => {
+    if (!sheet) return;
+    if (isPhotographerView) {
+      setSheet({
+        ...sheet,
+        ...(day === "day2"
+          ? { photographerDay2Columns: updated }
+          : { photographerDay1Columns: updated }),
+      });
+    } else {
+      setSheet({
+        ...sheet,
+        ...(day === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
+      });
+    }
+  };
+
   const handleRenameColumn = (colId: string, newLabel: string) => {
     if (!sheet) return;
-    const currentCols = activeDay === "day2" ? sheet.day2Columns : sheet.day1Columns;
+    const currentCols = activeColumns;
     const updated = currentCols.map((c) => (c.id === colId ? { ...c, label: newLabel } : c));
     cellTimestampsRef.current["__cols__"] = Date.now();
-    setSheet({
-      ...sheet,
-      ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
-    });
+    setColumnsInSheet(activeDay, updated);
 
-    const timerKey = `col-${activeDay}-${colId}`;
+    const sec = isPhotographerView ? "photographer" : "journalist";
+    const timerKey = `col-${sec}-${activeDay}-${colId}`;
     if (saveTimersRef.current[timerKey]) clearTimeout(saveTimersRef.current[timerKey]);
     saveTimersRef.current[timerKey] = setTimeout(() => {
-      persistColumns(activeDay, updated);
+      persistColumns(activeDay, updated, sec);
     }, 350);
   };
 
   const handleAddColumn = () => {
     if (!sheet) return;
-    const currentCols = activeDay === "day2" ? sheet.day2Columns : sheet.day1Columns;
-    const newId = `col-${Date.now().toString(36)}`;
+    const currentCols = activeColumns;
+    const prefix = isPhotographerView ? "pcol" : "col";
+    const newId = `${prefix}-${Date.now().toString(36)}`;
     const updated = [
       ...currentCols,
       { id: newId, label: `Criteria ${currentCols.length + 1}` },
     ];
-    setSheet({
-      ...sheet,
-      ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
-    });
-    persistColumns(activeDay, updated);
+    setColumnsInSheet(activeDay, updated);
+    persistColumns(activeDay, updated, isPhotographerView ? "photographer" : "journalist");
   };
 
   const handleRemoveColumn = (colId: string) => {
     if (!sheet) return;
-    const currentCols = activeDay === "day2" ? sheet.day2Columns : sheet.day1Columns;
+    const currentCols = activeColumns;
     if (currentCols.length <= 1) return;
     const updated = currentCols.filter((c) => c.id !== colId);
-    setSheet({
-      ...sheet,
-      ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
-    });
-    persistColumns(activeDay, updated);
+    setColumnsInSheet(activeDay, updated);
+    persistColumns(activeDay, updated, isPhotographerView ? "photographer" : "journalist");
   };
 
   const handleCellChange = (delegateId: string, colId: string, value: string) => {
@@ -361,12 +403,20 @@ export default function ChairScoringPage() {
   };
 
   // Enrich delegates with calculated Day 1 Total, Day 2 Total, Grand Total, and Rank
+  const sectionDelegates = useMemo(() => {
+    if (!isIpCommittee) return delegates;
+    return delegates.filter((d) => {
+      const isPhoto = d.portfolioName.toLowerCase().includes("photographer");
+      return isPhotographerView ? isPhoto : !isPhoto;
+    });
+  }, [delegates, isIpCommittee, isPhotographerView]);
+
   const enrichedRows = useMemo(() => {
     if (!sheet) return [];
-    const list = delegates.map((d) => {
+    const list = sectionDelegates.map((d) => {
       const rec = sheet.scores[d.id];
-      const d1Total = computeDaySum(rec?.day1, sheet.day1Columns);
-      const d2Total = computeDaySum(rec?.day2, sheet.day2Columns);
+      const d1Total = computeDaySum(rec?.day1, activeDay1Cols);
+      const d2Total = computeDaySum(rec?.day2, activeDay2Cols);
       const grandTotal = Math.round((d1Total + d2Total) * 100) / 100;
       const att = attendance[d.id] || { day1: false, day2: false };
       return {
@@ -381,7 +431,7 @@ export default function ChairScoringPage() {
       };
     });
 
-    // Compute live rank by Grand Total descending
+    // Compute live rank by Grand Total descending (per section for IP)
     const sortedForRank = [...list].sort((a, b) => b.grandTotal - a.grandTotal);
     const rankMap = new Map<string, number>();
     sortedForRank.forEach((item, idx) => {
@@ -394,7 +444,7 @@ export default function ChairScoringPage() {
       ...item,
       rank: rankMap.get(item.id) || null,
     }));
-  }, [delegates, sheet, attendance, activeDay]);
+  }, [sectionDelegates, sheet, attendance, activeDay, activeDay1Cols, activeDay2Cols]);
 
   const filteredRows = useMemo(() => {
     return enrichedRows
@@ -604,11 +654,17 @@ export default function ChairScoringPage() {
                 <Users size={11} className="text-gold" />
                 Gate Attendance ({activeDay === "day1" ? "Day 1" : "Day 2"}):{" "}
                 <strong className="text-emerald-400">{presentCount} Present</strong> /{" "}
-                {delegates.length} Total
+                {sectionDelegates.length} Total
               </span>
             </div>
             <h1 className="font-heading text-xl sm:text-2xl font-extrabold text-cream uppercase">
-              {committeeInfo?.fullName} — Live Evaluation Sheet
+              {committeeInfo?.fullName}
+              {isIpCommittee
+                ? isPhotographerView
+                  ? " — Photographers Section"
+                  : " — Journalists Section"
+                : ""}{" "}
+              (Live Evaluation Sheet)
             </h1>
             <p className="text-xs text-cream/60 font-mono">
               Tip: Click any <strong className="text-gold">Criteria Column Header</strong> to rename it, or click{" "}
@@ -618,6 +674,46 @@ export default function ChairScoringPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            {/* IP Dual-Section Switcher: Journalists vs Photographers (Separate Criteria) */}
+            {isIpCommittee && (
+              <div className="inline-flex border-2 border-gold bg-[#0b0714] shadow-[2px_2px_0px_0px_#000]">
+                <button
+                  type="button"
+                  onClick={() => setIpSection("journalist")}
+                  className={`px-3.5 py-2 text-xs font-mono font-bold uppercase cursor-pointer transition-colors ${
+                    ipSection === "journalist"
+                      ? "bg-sky-400 text-[#051424] font-black"
+                      : "text-cream/75 hover:text-sky-300"
+                  }`}
+                >
+                  📰 Journalists (
+                  {
+                    delegates.filter(
+                      (d) => !d.portfolioName.toLowerCase().includes("photographer")
+                    ).length
+                  }
+                  )
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIpSection("photographer")}
+                  className={`px-3.5 py-2 text-xs font-mono font-bold uppercase cursor-pointer transition-colors ${
+                    ipSection === "photographer"
+                      ? "bg-amber-400 text-[#1c1004] font-black"
+                      : "text-cream/75 hover:text-amber-300"
+                  }`}
+                >
+                  📸 Photographers (
+                  {
+                    delegates.filter((d) =>
+                      d.portfolioName.toLowerCase().includes("photographer")
+                    ).length
+                  }
+                  )
+                </button>
+              </div>
+            )}
+
             {/* Day 1 / Day 2 Sheet Switcher */}
             <div className="inline-flex border-2 border-white/20 bg-[#0b0714]">
               <button

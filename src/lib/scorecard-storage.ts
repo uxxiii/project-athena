@@ -26,6 +26,8 @@ export interface CommitteeScoreSheet {
   committeeId: string;
   day1Columns: ScoreColumn[];
   day2Columns: ScoreColumn[];
+  photographerDay1Columns?: ScoreColumn[];
+  photographerDay2Columns?: ScoreColumn[];
   scores: Record<string, DelegateScoreRecord>;
   updatedAt: string;
 }
@@ -56,13 +58,13 @@ export const DEFAULT_COMMITTEE_PASSCODES: Record<string, string> = {
 
 export const ADMIN_MASTER_PASSWORD = "athena-portal";
 
-function createDefaultColumns(): ScoreColumn[] {
+function createDefaultColumns(prefix = "col"): ScoreColumn[] {
   return [
-    { id: "col-1", label: "Criteria 1" },
-    { id: "col-2", label: "Criteria 2" },
-    { id: "col-3", label: "Criteria 3" },
-    { id: "col-4", label: "Criteria 4" },
-    { id: "col-5", label: "Criteria 5" },
+    { id: `${prefix}-1`, label: "Criteria 1" },
+    { id: `${prefix}-2`, label: "Criteria 2" },
+    { id: `${prefix}-3`, label: "Criteria 3" },
+    { id: `${prefix}-4`, label: "Criteria 4" },
+    { id: `${prefix}-5`, label: "Criteria 5" },
   ];
 }
 
@@ -71,8 +73,14 @@ export function createDefaultScorecardState(): ScorecardSystemState {
   for (const c of committees) {
     commMap[c.id] = {
       committeeId: c.id,
-      day1Columns: createDefaultColumns(),
-      day2Columns: createDefaultColumns(),
+      day1Columns: createDefaultColumns("col"),
+      day2Columns: createDefaultColumns("col"),
+      ...(c.id === "ip"
+        ? {
+            photographerDay1Columns: createDefaultColumns("pcol"),
+            photographerDay2Columns: createDefaultColumns("pcol"),
+          }
+        : {}),
       scores: {},
       updatedAt: new Date().toISOString(),
     };
@@ -115,11 +123,25 @@ function normalizeState(raw: unknown): ScorecardSystemState {
           day1Columns:
             Array.isArray(existing.day1Columns) && existing.day1Columns.length > 0
               ? existing.day1Columns
-              : createDefaultColumns(),
+              : createDefaultColumns("col"),
           day2Columns:
             Array.isArray(existing.day2Columns) && existing.day2Columns.length > 0
               ? existing.day2Columns
-              : createDefaultColumns(),
+              : createDefaultColumns("col"),
+          ...(c.id === "ip"
+            ? {
+                photographerDay1Columns:
+                  Array.isArray(existing.photographerDay1Columns) &&
+                  existing.photographerDay1Columns.length > 0
+                    ? existing.photographerDay1Columns
+                    : createDefaultColumns("pcol"),
+                photographerDay2Columns:
+                  Array.isArray(existing.photographerDay2Columns) &&
+                  existing.photographerDay2Columns.length > 0
+                    ? existing.photographerDay2Columns
+                    : createDefaultColumns("pcol"),
+              }
+            : {}),
           scores:
             existing.scores && typeof existing.scores === "object" ? existing.scores : {},
           updatedAt: existing.updatedAt || new Date().toISOString(),

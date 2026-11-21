@@ -78,6 +78,7 @@ export function AdminScorecardHub({
   const [state, setState] = useState<ScorecardSystemState | null>(null);
   const [delegates, setDelegates] = useState<DelegateRosterItem[]>([]);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>("ipl");
+  const [ipSection, setIpSection] = useState<"journalist" | "photographer">("journalist");
   const [attendanceCommFilter, setAttendanceCommFilter] = useState<string>("all");
   const [activeDay, setActiveDay] = useState<"day1" | "day2">("day1");
   const [searchQuery, setSearchQuery] = useState("");
@@ -296,12 +297,34 @@ export function AdminScorecardHub({
 
   // Admin Excel Scoring Overrides
   const activeSheet = state?.committees?.[selectedCommitteeId];
-  const activeColumns = useMemo(() => {
-    if (!activeSheet) return [];
-    return activeDay === "day2" ? activeSheet.day2Columns : activeSheet.day1Columns;
-  }, [activeSheet, activeDay]);
+  const isIpCommittee = selectedCommitteeId === "ip";
+  const isPhotographerView = isIpCommittee && ipSection === "photographer";
 
-  const persistAdminColumns = async (day: "day1" | "day2", newCols: ScoreColumn[]) => {
+  const activeDay1Cols = useMemo(() => {
+    if (!activeSheet) return [];
+    if (isPhotographerView) {
+      return activeSheet.photographerDay1Columns || activeSheet.day1Columns;
+    }
+    return activeSheet.day1Columns;
+  }, [activeSheet, isPhotographerView]);
+
+  const activeDay2Cols = useMemo(() => {
+    if (!activeSheet) return [];
+    if (isPhotographerView) {
+      return activeSheet.photographerDay2Columns || activeSheet.day2Columns;
+    }
+    return activeSheet.day2Columns;
+  }, [activeSheet, isPhotographerView]);
+
+  const activeColumns = useMemo(() => {
+    return activeDay === "day2" ? activeDay2Cols : activeDay1Cols;
+  }, [activeDay, activeDay1Cols, activeDay2Cols]);
+
+  const persistAdminColumns = async (
+    day: "day1" | "day2",
+    newCols: ScoreColumn[],
+    section?: "journalist" | "photographer"
+  ) => {
     localEditTimestampsRef.current[`cols-${selectedCommitteeId}`] = Date.now();
     await fetch("/api/scorecard", {
       method: "POST",
@@ -311,70 +334,63 @@ export function AdminScorecardHub({
         adminPassword: ADMIN_MASTER_PASSWORD,
         committeeId: selectedCommitteeId,
         day,
+        section: section === "photographer" ? "photographer" : undefined,
         columns: newCols,
       }),
     });
   };
 
-  const handleAdminRenameColumn = (colId: string, newLabel: string) => {
+  const setAdminColumnsInState = (day: "day1" | "day2", updated: ScoreColumn[]) => {
     if (!state || !activeSheet) return;
-    const cols = activeDay === "day2" ? activeSheet.day2Columns : activeSheet.day1Columns;
-    const updated = cols.map((c) => (c.id === colId ? { ...c, label: newLabel } : c));
-    localEditTimestampsRef.current[`cols-${selectedCommitteeId}`] = Date.now();
     setState({
       ...state,
       committees: {
         ...state.committees,
         [selectedCommitteeId]: {
           ...activeSheet,
-          ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
+          ...(isPhotographerView
+            ? day === "day2"
+              ? { photographerDay2Columns: updated }
+              : { photographerDay1Columns: updated }
+            : day === "day2"
+              ? { day2Columns: updated }
+              : { day1Columns: updated }),
         },
       },
     });
+  };
 
-    const tKey = `adm-col-${selectedCommitteeId}-${activeDay}-${colId}`;
+  const handleAdminRenameColumn = (colId: string, newLabel: string) => {
+    if (!state || !activeSheet) return;
+    const updated = activeColumns.map((c) => (c.id === colId ? { ...c, label: newLabel } : c));
+    localEditTimestampsRef.current[`cols-${selectedCommitteeId}`] = Date.now();
+    setAdminColumnsInState(activeDay, updated);
+
+    const sec = isPhotographerView ? "photographer" : "journalist";
+    const tKey = `adm-col-${selectedCommitteeId}-${sec}-${activeDay}-${colId}`;
     if (saveTimersRef.current[tKey]) clearTimeout(saveTimersRef.current[tKey]);
     saveTimersRef.current[tKey] = setTimeout(() => {
-      persistAdminColumns(activeDay, updated);
+      persistAdminColumns(activeDay, updated, sec);
     }, 350);
   };
 
   const handleAdminAddColumn = () => {
     if (!state || !activeSheet) return;
-    const cols = activeDay === "day2" ? activeSheet.day2Columns : activeSheet.day1Columns;
+    const prefix = isPhotographerView ? "pcol" : "col";
     const updated = [
-      ...cols,
-      { id: `col-${Date.now().toString(36)}`, label: `Criteria ${cols.length + 1}` },
+      ...activeColumns,
+      { id: `${prefix}-${Date.now().toString(36)}`, label: `Criteria ${activeColumns.length + 1}` },
     ];
-    setState({
-      ...state,
-      committees: {
-        ...state.committees,
-        [selectedCommitteeId]: {
-          ...activeSheet,
-          ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
-        },
-      },
-    });
-    persistAdminColumns(activeDay, updated);
+    setAdminColumnsInState(activeDay, updated);
+    persistAdminColumns(activeDay, updated, isPhotographerView ? "photographer" : "journalist");
   };
 
   const handleAdminRemoveColumn = (colId: string) => {
     if (!state || !activeSheet) return;
-    const cols = activeDay === "day2" ? activeSheet.day2Columns : activeSheet.day1Columns;
-    if (cols.length <= 1) return;
-    const updated = cols.filter((c) => c.id !== colId);
-    setState({
-      ...state,
-      committees: {
-        ...state.committees,
-        [selectedCommitteeId]: {
-          ...activeSheet,
-          ...(activeDay === "day2" ? { day2Columns: updated } : { day1Columns: updated }),
-        },
-      },
-    });
-    persistAdminColumns(activeDay, updated);
+    if (activeColumns.length <= 1) return;
+    const updated = activeColumns.filter((c) => c.id !== colId);
+    setAdminColumnsInState(activeDay, updated);
+    persistAdminColumns(activeDay, updated, isPhotographerView ? "photographer" : "journalist");
   };
 
   const handleAdminCellChange = (delegateId: string, colId: string, value: string) => {
@@ -508,11 +524,18 @@ export function AdminScorecardHub({
   // Committee Scoring Rows
   const scoringRows = useMemo(() => {
     if (!activeSheet) return [];
-    const commDels = delegates.filter((d) => d.committeeId === selectedCommitteeId);
+    const commDels = delegates.filter((d) => {
+      if (d.committeeId !== selectedCommitteeId) return false;
+      if (isIpCommittee) {
+        const isPhoto = d.portfolioName.toLowerCase().includes("photographer");
+        return isPhotographerView ? isPhoto : !isPhoto;
+      }
+      return true;
+    });
     const list = commDels.map((d) => {
       const rec = activeSheet.scores[d.id];
-      const d1Total = computeDaySum(rec?.day1, activeSheet.day1Columns);
-      const d2Total = computeDaySum(rec?.day2, activeSheet.day2Columns);
+      const d1Total = computeDaySum(rec?.day1, activeDay1Cols);
+      const d2Total = computeDaySum(rec?.day2, activeDay2Cols);
       const grandTotal = Math.round((d1Total + d2Total) * 100) / 100;
       const att = state?.attendance[d.id] || { day1: false, day2: false };
       return {
@@ -547,7 +570,7 @@ export function AdminScorecardHub({
           r.portfolioName.toLowerCase().includes(q)
         );
       });
-  }, [activeSheet, delegates, selectedCommitteeId, state?.attendance, activeDay, searchQuery]);
+  }, [activeSheet, delegates, selectedCommitteeId, state?.attendance, activeDay, searchQuery, isIpCommittee, isPhotographerView, activeDay1Cols, activeDay2Cols]);
 
   const totalDay1Present = useMemo(() => {
     if (!state) return 0;
@@ -898,6 +921,33 @@ export function AdminScorecardHub({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {isIpCommittee && (
+                <div className="inline-flex border-2 border-gold bg-[#140b24]">
+                  <button
+                    type="button"
+                    onClick={() => setIpSection("journalist")}
+                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase cursor-pointer ${
+                      ipSection === "journalist"
+                        ? "bg-sky-400 text-[#051424] font-black"
+                        : "text-cream/70"
+                    }`}
+                  >
+                    📰 Journalists
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIpSection("photographer")}
+                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase cursor-pointer ${
+                      ipSection === "photographer"
+                        ? "bg-amber-400 text-[#1c1004] font-black"
+                        : "text-cream/70"
+                    }`}
+                  >
+                    📸 Photographers
+                  </button>
+                </div>
+              )}
+
               <div className="inline-flex border border-white/20 bg-[#140b24]">
                 <button
                   type="button"

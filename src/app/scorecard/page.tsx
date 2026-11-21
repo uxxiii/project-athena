@@ -31,6 +31,8 @@ interface PublicCommitteeSheet {
   committeeId: string;
   day1Columns: ScoreColumn[];
   day2Columns: ScoreColumn[];
+  photographerDay1Columns?: ScoreColumn[];
+  photographerDay2Columns?: ScoreColumn[];
   scores: Record<
     string,
     {
@@ -71,6 +73,7 @@ export default function PublicScorecardPage() {
     Array<{ id: string; name: string; fullName: string }>
   >([]);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>("ipl");
+  const [ipSection, setIpSection] = useState<"journalist" | "photographer">("journalist");
   const [activeDayTab, setActiveDayTab] = useState<"day1" | "day2" | "combined">(
     "day1"
   );
@@ -106,16 +109,41 @@ export default function PublicScorecardPage() {
   }, [fetchPublicScorecard]);
 
   const activeSheet = committeesData[selectedCommitteeId];
+  const isIpCommittee = selectedCommitteeId === "ip";
+  const isPhotographerView = isIpCommittee && ipSection === "photographer";
+
+  const activeDay1Cols = useMemo(() => {
+    if (!activeSheet) return [];
+    if (isPhotographerView) {
+      return activeSheet.photographerDay1Columns || activeSheet.day1Columns || [];
+    }
+    return activeSheet.day1Columns || [];
+  }, [activeSheet, isPhotographerView]);
+
+  const activeDay2Cols = useMemo(() => {
+    if (!activeSheet) return [];
+    if (isPhotographerView) {
+      return activeSheet.photographerDay2Columns || activeSheet.day2Columns || [];
+    }
+    return activeSheet.day2Columns || [];
+  }, [activeSheet, isPhotographerView]);
 
   const rows = useMemo(() => {
     if (visibility === "private" || !activeSheet) return [];
-    const commDels = delegates.filter((d) => d.committeeId === selectedCommitteeId);
+    const commDels = delegates.filter((d) => {
+      if (d.committeeId !== selectedCommitteeId) return false;
+      if (isIpCommittee) {
+        const isPhoto = d.portfolioName.toLowerCase().includes("photographer");
+        return isPhotographerView ? isPhoto : !isPhoto;
+      }
+      return true;
+    });
     const list = commDels.map((d) => {
       const rec = activeSheet.scores?.[d.id];
-      const d1Total = sumCols(rec?.day1, activeSheet.day1Columns || []);
+      const d1Total = sumCols(rec?.day1, activeDay1Cols);
       const d2Total =
         visibility === "final_published"
-          ? sumCols(rec?.day2, activeSheet.day2Columns || [])
+          ? sumCols(rec?.day2, activeDay2Cols)
           : 0;
       const grandTotal =
         visibility === "final_published"
@@ -161,6 +189,10 @@ export default function PublicScorecardPage() {
     selectedCommitteeId,
     attendance,
     searchQuery,
+    isIpCommittee,
+    isPhotographerView,
+    activeDay1Cols,
+    activeDay2Cols,
   ]);
 
   if (loading) {
@@ -209,8 +241,8 @@ export default function PublicScorecardPage() {
   // ============================================================================
   const activeCols =
     activeDayTab === "day2" && visibility === "final_published"
-      ? activeSheet?.day2Columns || []
-      : activeSheet?.day1Columns || [];
+      ? activeDay2Cols
+      : activeDay1Cols;
 
   return (
     <div className="pt-28 pb-24 min-h-screen neo-grid-bg bg-[#0b0714] text-cream px-4">
@@ -264,7 +296,7 @@ export default function PublicScorecardPage() {
 
         {/* Committee Selector Tabs & Search */}
         <div className="bg-[#140b24] border-2 border-white/15 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             {committeeMeta.map((c) => (
               <button
                 key={c.id}
@@ -279,6 +311,33 @@ export default function PublicScorecardPage() {
                 {c.name}
               </button>
             ))}
+
+            {isIpCommittee && (
+              <div className="inline-flex border-2 border-gold bg-[#0b0714] ml-1">
+                <button
+                  type="button"
+                  onClick={() => setIpSection("journalist")}
+                  className={`px-3 py-1.5 text-xs font-mono font-bold uppercase cursor-pointer ${
+                    ipSection === "journalist"
+                      ? "bg-sky-400 text-[#051424] font-black"
+                      : "text-cream/75"
+                  }`}
+                >
+                  📰 Journalists
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIpSection("photographer")}
+                  className={`px-3 py-1.5 text-xs font-mono font-bold uppercase cursor-pointer ${
+                    ipSection === "photographer"
+                      ? "bg-amber-400 text-[#1c1004] font-black"
+                      : "text-cream/75"
+                  }`}
+                >
+                  📸 Photographers
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="relative min-w-[240px]">

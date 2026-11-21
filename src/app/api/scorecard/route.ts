@@ -210,6 +210,15 @@ export async function GET(request: Request) {
         committeeId: c.id,
         day1Columns: sheet?.day1Columns || [],
         day2Columns: state.visibility === "final_published" ? sheet?.day2Columns || [] : [],
+        ...(c.id === "ip"
+          ? {
+              photographerDay1Columns: sheet?.photographerDay1Columns || [],
+              photographerDay2Columns:
+                state.visibility === "final_published"
+                  ? sheet?.photographerDay2Columns || []
+                  : [],
+            }
+          : {}),
         scores: sanitizedScores,
         updatedAt: sheet?.updatedAt,
       };
@@ -363,10 +372,19 @@ export async function POST(request: Request) {
         label: String(c.label ?? `Column ${idx + 1}`),
       }));
 
-      if (day === "day2") {
-        sheet.day2Columns = cleanCols;
+      const isPhotographerSection = body.section === "photographer";
+      if (isPhotographerSection) {
+        if (day === "day2") {
+          sheet.photographerDay2Columns = cleanCols;
+        } else {
+          sheet.photographerDay1Columns = cleanCols;
+        }
       } else {
-        sheet.day1Columns = cleanCols;
+        if (day === "day2") {
+          sheet.day2Columns = cleanCols;
+        } else {
+          sheet.day1Columns = cleanCols;
+        }
       }
       sheet.updatedAt = new Date().toISOString();
 
