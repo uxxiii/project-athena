@@ -75,6 +75,11 @@ const CUSTOM_PORTFOLIOS: Record<string, PortfolioDefinition[]> = {
     { id: "lok-sabha-portfolio-96", name: "Patel Umeshbhai Babubhai" },
     { id: "lok-sabha-portfolio-99", name: "Bansuri Swaraj" },
     { id: "lok-sabha-portfolio-100", name: "Manoj Tiwari" },
+    { id: "lok-sabha-portfolio-101", name: "Ravi Kishan" },
+    { id: "lok-sabha-portfolio-102", name: "Rahul Gandhi" },
+    { id: "lok-sabha-portfolio-103", name: "Amit Shah" },
+    { id: "lok-sabha-portfolio-104", name: "Priyanka Gandhi" },
+    { id: "lok-sabha-portfolio-105", name: "Narendra Modi" },
   ],
 
   // Joint Parliamentary Committee (JPC) — 40 Portfolios (20 Ruling NDA vs 20 Opposition)
