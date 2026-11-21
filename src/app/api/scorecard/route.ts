@@ -140,6 +140,25 @@ export async function GET(request: Request) {
       });
     }
 
+    if (mode === "checkin") {
+      return NextResponse.json({
+        delegates: delegates.map((d) => ({
+          id: d.id,
+          name: d.name,
+          committeeId: d.committeeId,
+          committeeName: d.committeeName,
+          portfolioName: d.portfolioName,
+          day2Present: Boolean(state.attendance[d.id]?.day2),
+          day2Time: state.attendance[d.id]?.day2Time ?? null,
+        })),
+        committees: committees.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })),
+        updatedAt: state.updatedAt,
+      });
+    }
+
     // Public Mode
     const attendanceSummary: Record<
       string,
@@ -228,6 +247,25 @@ export async function POST(request: Request) {
     const { action } = body as { action?: string };
 
     const state = await readScorecardState();
+
+    if (action === "self_checkin_day2") {
+      const delegateId = String(body.delegateId || "").trim();
+      if (!delegateId) {
+        return NextResponse.json({ error: "Delegate ID is required" }, { status: 400 });
+      }
+      const existing = state.attendance[delegateId] || { day1: false, day2: false };
+      if (!existing.day2) {
+        existing.day2 = true;
+        existing.day2Time = new Date().toISOString();
+        state.attendance[delegateId] = existing;
+        await writeScorecardState(state);
+      }
+      return NextResponse.json({
+        success: true,
+        delegateId,
+        attendance: existing,
+      });
+    }
 
     if (action === "verify_chair") {
       const committeeId = String(body.committeeId || "").toLowerCase().trim();

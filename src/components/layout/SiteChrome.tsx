@@ -8,7 +8,9 @@ import { DiwaliDecor } from "@/components/festive/DiwaliDecor";
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStandaloneApp =
-    pathname?.startsWith("/admin") || pathname?.startsWith("/chair-scoring");
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/chair-scoring") ||
+    pathname?.startsWith("/day2-checkin-cnlu");
 
   if (isStandaloneApp) {
     return (
